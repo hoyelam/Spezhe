@@ -22,7 +22,7 @@ public struct WhisperModel: Identifiable, Equatable, Hashable {
         return "\(sizeMB) MB"
     }
 
-    public static let availableModels: [WhisperModel] = [
+    nonisolated(unsafe) public static let availableModels: [WhisperModel] = [
         WhisperModel(name: "openai_whisper-base", displayName: "Base", sizeMB: 74),
         WhisperModel(name: "openai_whisper-small", displayName: "Small", sizeMB: 244),
         WhisperModel(name: "openai_whisper-medium", displayName: "Medium", sizeMB: 769),
@@ -30,5 +30,5 @@ public struct WhisperModel: Identifiable, Equatable, Hashable {
         WhisperModel(name: "distil-whisper_distil-large-v3", displayName: "Distil Large V3", sizeMB: 756),
     ]
 
-    public static let defaultModel = availableModels.first!
+    nonisolated(unsafe) public static let defaultModel = availableModels.first!
 }

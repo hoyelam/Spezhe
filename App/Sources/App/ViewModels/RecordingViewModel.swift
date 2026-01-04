@@ -84,7 +84,7 @@ public class RecordingViewModel: ObservableObject {
         }
     }
 
-    private func stopRecording() async {
+    public func stopRecording() async {
         logInfo("Stopping recording flow...", category: .app)
 
         do {

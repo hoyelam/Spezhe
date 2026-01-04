@@ -15,9 +15,22 @@
 		171694C12F0A8A0000D3F670 /* App */ = {isa = PBXFileReference; lastKnownFileType = folder; path = App; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
+/* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
+		17A5455B2F0B09350013397F /* Exceptions for "spetra" folder in "spetra" target */ = {
+			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
+			membershipExceptions = (
+				Info.plist,
+			);
+			target = 171694AD2F0A897B00D3F670 /* spetra */;
+		};
+/* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
+
 /* Begin PBXFileSystemSynchronizedRootGroup section */
 		171694B02F0A897B00D3F670 /* spetra */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
+			exceptions = (
+				17A5455B2F0B09350013397F /* Exceptions for "spetra" folder in "spetra" target */,
+			);
 			path = spetra;
 			sourceTree = "<group>";
 		};

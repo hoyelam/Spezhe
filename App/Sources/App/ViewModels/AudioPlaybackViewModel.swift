@@ -128,17 +128,16 @@ public final class AudioPlaybackViewModel: ObservableObject {
         logDebug("Playback finished", category: .audio)
     }
 
-    deinit {
-        timer?.invalidate()
-    }
 }
 
-private class AudioPlayerDelegateHandler: NSObject, AVAudioPlayerDelegate {
-    static let shared = AudioPlayerDelegateHandler()
+private final class AudioPlayerDelegateHandler: NSObject, AVAudioPlayerDelegate, @unchecked Sendable {
+    @MainActor static let shared = AudioPlayerDelegateHandler()
 
-    var onPlaybackFinished: (() -> Void)?
+    @MainActor var onPlaybackFinished: (() -> Void)?
 
-    func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) {
-        onPlaybackFinished?()
+    nonisolated func audioPlayerDidFinishPlaying(_ player: AVAudioPlayer, successfully flag: Bool) {
+        Task { @MainActor in
+            AudioPlayerDelegateHandler.shared.onPlaybackFinished?()
+        }
     }
 }

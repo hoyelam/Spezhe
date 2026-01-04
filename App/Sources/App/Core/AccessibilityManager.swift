@@ -1,6 +1,7 @@
 import AppKit
-import ApplicationServices
+@preconcurrency import ApplicationServices
 
+@MainActor
 public class AccessibilityManager: ObservableObject {
     public static let shared = AccessibilityManager()
 
@@ -16,7 +17,8 @@ public class AccessibilityManager: ObservableObject {
     }
 
     public func requestAccessibility() {
-        let options = [kAXTrustedCheckOptionPrompt.takeUnretainedValue() as String: true] as CFDictionary
+        let promptKey = kAXTrustedCheckOptionPrompt.takeUnretainedValue() as String
+        let options = [promptKey: true] as CFDictionary
         AXIsProcessTrustedWithOptions(options)
 
         DispatchQueue.main.asyncAfter(deadline: .now() + 1) { [weak self] in

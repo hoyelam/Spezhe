@@ -1,6 +1,7 @@
 import AppKit
 import Carbon.HIToolbox
 
+@MainActor
 public class ClipboardService {
     public static let shared = ClipboardService()
 

@@ -11,16 +11,18 @@ public enum LogCategory: String {
     case ui = "UI"
 }
 
-public final class Logger {
+public final class Logger: @unchecked Sendable {
     public static let shared = Logger()
 
     private let subsystem = "com.kin-yee.spetra"
-    private var loggers: [LogCategory: os.Logger] = [:]
+    private let loggers: [LogCategory: os.Logger]
 
     private init() {
+        var tempLoggers: [LogCategory: os.Logger] = [:]
         for category in [LogCategory.app, .audio, .transcription, .model, .clipboard, .accessibility, .ui] {
-            loggers[category] = os.Logger(subsystem: subsystem, category: category.rawValue)
+            tempLoggers[category] = os.Logger(subsystem: subsystem, category: category.rawValue)
         }
+        loggers = tempLoggers
     }
 
     private func logger(for category: LogCategory) -> os.Logger {

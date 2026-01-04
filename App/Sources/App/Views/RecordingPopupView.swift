@@ -2,62 +2,103 @@ import SwiftUI
 
 public struct RecordingPopupView: View {
     @ObservedObject var viewModel: RecordingViewModel
+    @StateObject private var settings = AppSettings.shared
 
     public init(viewModel: RecordingViewModel) {
         self.viewModel = viewModel
     }
 
     public var body: some View {
-        VStack(spacing: 16) {
-            WaveformView(level: viewModel.audioLevel)
-                .frame(height: 40)
+        VStack(spacing: 0) {
+            // Waveform visualization area
+            WaveformView(level: viewModel.audioLevel, barCount: 40)
+                .padding(.horizontal, 24)
+                .padding(.vertical, 20)
+                .frame(maxWidth: .infinity, maxHeight: .infinity)
 
-            Text(statusText)
-                .font(.caption)
-                .foregroundColor(.secondary)
-
-            if viewModel.state.isRecording {
-                Button("Cancel") {
-                    Task {
-                        await viewModel.cancelRecording()
-                    }
+            // Bottom toolbar
+            HStack {
+                // Left side - Model selector
+                HStack(spacing: 8) {
+                    Image(systemName: "rectangle.dashed")
+                        .font(.system(size: 14))
+                        .foregroundColor(.secondary)
+                    Text(settings.selectedModel.displayName)
+                        .font(.system(size: 13))
+                        .foregroundColor(.primary)
                 }
-                .buttonStyle(.plain)
-                .foregroundColor(.red)
-                .font(.caption)
-            }
 
-            if case .completed(let text) = viewModel.state {
-                Text(text)
-                    .font(.caption2)
+                Spacer()
+
+                // Right side - Action buttons
+                HStack(spacing: 16) {
+                    // Stop button
+                    Button {
+                        Task {
+                            await viewModel.stopRecording()
+                        }
+                    } label: {
+                        HStack(spacing: 6) {
+                            Text("Stop")
+                                .font(.system(size: 13))
+                            KeyboardShortcutBadge(keys: ["⌃", "Space"])
+                        }
+                    }
+                    .buttonStyle(.plain)
                     .foregroundColor(.primary)
-                    .lineLimit(2)
-                    .multilineTextAlignment(.center)
-            }
-        }
-        .padding()
-        .frame(width: 220, height: 130)
-        .background(.ultraThinMaterial)
-        .clipShape(RoundedRectangle(cornerRadius: 16))
-    }
 
-    private var statusText: String {
-        switch viewModel.state {
-        case .idle:
-            return "Press ⌘⌃1 to start"
-        case .recording:
-            return "Recording... Press ⌘⌃1 to stop"
-        case .processing:
-            return "Transcribing..."
-        case .completed:
-            return "Done!"
-        case .error(let message):
-            return message
+                    // Cancel button
+                    Button {
+                        Task {
+                            await viewModel.cancelRecording()
+                        }
+                    } label: {
+                        HStack(spacing: 6) {
+                            Text("Cancel")
+                                .font(.system(size: 13))
+                            KeyboardShortcutBadge(keys: ["esc"])
+                        }
+                    }
+                    .buttonStyle(.plain)
+                    .foregroundColor(.primary)
+                }
+            }
+            .padding(.horizontal, 16)
+            .padding(.vertical, 12)
+            .background(Color(nsColor: .controlBackgroundColor).opacity(0.5))
+        }
+        .frame(width: 420, height: 140)
+        .background(Color(nsColor: .windowBackgroundColor))
+        .clipShape(RoundedRectangle(cornerRadius: 12))
+    }
+}
+
+// Keyboard shortcut badge component
+struct KeyboardShortcutBadge: View {
+    let keys: [String]
+
+    var body: some View {
+        HStack(spacing: 2) {
+            ForEach(keys, id: \.self) { key in
+                Text(key)
+                    .font(.system(size: 11, weight: .medium, design: .rounded))
+                    .foregroundColor(.primary)
+                    .padding(.horizontal, 6)
+                    .padding(.vertical, 3)
+                    .background(
+                        RoundedRectangle(cornerRadius: 4)
+                            .fill(Color(nsColor: .controlBackgroundColor))
+                    )
+                    .overlay(
+                        RoundedRectangle(cornerRadius: 4)
+                            .stroke(Color.gray.opacity(0.3), lineWidth: 1)
+                    )
+            }
         }
     }
 }
 
 #Preview {
     RecordingPopupView(viewModel: RecordingViewModel())
-        .frame(width: 300, height: 200)
+        .frame(width: 450, height: 180)
 }

@@ -17,6 +17,8 @@ public class FloatingPanelController {
 
         centerPanel()
         panel?.orderFrontRegardless()
+        panel?.activatePanel()
+        panel?.setupEventMonitors()
 
         NSAnimationContext.runAnimationGroup { context in
             context.duration = 0.2
@@ -25,20 +27,32 @@ public class FloatingPanelController {
     }
 
     public func hidePanel() {
+        panel?.removeEventMonitors()
+
+        let panelToHide = panel
         NSAnimationContext.runAnimationGroup({ context in
             context.duration = 0.2
-            panel?.animator().alphaValue = 0.0
-        }, completionHandler: { [weak self] in
-            self?.panel?.orderOut(nil)
+            panelToHide?.animator().alphaValue = 0.0
+        }, completionHandler: {
+            Task { @MainActor in
+                panelToHide?.orderOut(nil)
+            }
         })
     }
 
     private func createPanel() {
-        let panelSize = NSSize(width: 240, height: 140)
+        let panelSize = NSSize(width: 440, height: 160)
         let contentRect = NSRect(origin: .zero, size: panelSize)
 
         panel = FloatingPanel(contentRect: contentRect)
         panel?.alphaValue = 0
+
+        panel?.onCancel = { [weak self] in
+            guard let self = self else { return }
+            Task { @MainActor in
+                await self.viewModel.cancelRecording()
+            }
+        }
 
         let hostingView = NSHostingView(rootView: RecordingPopupView(viewModel: viewModel))
         panel?.contentView = hostingView
