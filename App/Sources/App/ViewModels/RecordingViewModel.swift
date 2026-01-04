@@ -13,6 +13,7 @@ public class RecordingViewModel: ObservableObject {
 
     private let audioService = AudioRecordingService()
     private let transcriptionService = TranscriptionService()
+    private let summarizationService = SummarizationService.shared
     private let clipboardService = ClipboardService.shared
     private let settings = AppSettings.shared
 
@@ -99,6 +100,15 @@ public class RecordingViewModel: ObservableObject {
             let transcriptionResult = try await transcriptionService.transcribe(audioArray: audioResult.samples)
             logInfo("Transcription successful: '\(transcriptionResult.text)'", category: .app)
 
+            // Generate AI summaries (one-liner + summary)
+            let (oneLiner, summary) = await summarizationService.generateSummaries(from: transcriptionResult.text)
+            if let ol = oneLiner {
+                logInfo("AI one-liner generated: '\(ol)'", category: .app)
+            }
+            if let s = summary {
+                logInfo("AI summary generated: '\(s)'", category: .app)
+            }
+
             // Save audio file
             let (audioFileName, fileSize) = try AudioFileManager.shared.saveAudio(
                 audioResult.samples,
@@ -110,6 +120,8 @@ public class RecordingViewModel: ObservableObject {
             var recording = Recording(
                 title: "",
                 transcriptionText: transcriptionResult.text,
+                oneLiner: oneLiner,
+                summary: summary,
                 audioFileName: audioFileName,
                 createdAt: Date(),
                 duration: audioResult.duration,

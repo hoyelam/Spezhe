@@ -5,6 +5,8 @@ public struct Recording: Codable, Identifiable, Equatable, Hashable {
     public var id: Int64?
     public var title: String
     public var transcriptionText: String
+    public var oneLiner: String?
+    public var summary: String?
     public var audioFileName: String
     public var createdAt: Date
     public var duration: TimeInterval
@@ -17,6 +19,8 @@ public struct Recording: Codable, Identifiable, Equatable, Hashable {
         id: Int64? = nil,
         title: String = "",
         transcriptionText: String,
+        oneLiner: String? = nil,
+        summary: String? = nil,
         audioFileName: String,
         createdAt: Date = Date(),
         duration: TimeInterval,
@@ -28,6 +32,8 @@ public struct Recording: Codable, Identifiable, Equatable, Hashable {
         self.id = id
         self.title = title
         self.transcriptionText = transcriptionText
+        self.oneLiner = oneLiner
+        self.summary = summary
         self.audioFileName = audioFileName
         self.createdAt = createdAt
         self.duration = duration

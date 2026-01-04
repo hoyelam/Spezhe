@@ -17,6 +17,21 @@ public struct RecordingDetailView: View {
 
             Divider()
 
+            // Summary banner (if AI summary is available)
+            if let summary = recording.summary, !summary.isEmpty {
+                HStack(alignment: .top, spacing: 8) {
+                    Image(systemName: "sparkles")
+                        .foregroundColor(.accentColor)
+                    Text(summary)
+                        .font(.subheadline)
+                    Spacer()
+                }
+                .padding()
+                .background(Color.accentColor.opacity(0.08))
+
+                Divider()
+            }
+
             ScrollView {
                 Text(recording.transcriptionText)
                     .font(.body)

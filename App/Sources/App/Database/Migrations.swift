@@ -17,5 +17,12 @@ struct AppMigrations {
                 t.column("fileSize", .integer).notNull()
             }
         }
+
+        migrator.registerMigration("v2_addAISummaryColumns") { db in
+            try db.alter(table: "recordings") { t in
+                t.add(column: "oneLiner", .text)
+                t.add(column: "summary", .text)
+            }
+        }
     }
 }

@@ -301,7 +301,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 26.2;
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
-				MACOSX_DEPLOYMENT_TARGET = 26.1;
+				MACOSX_DEPLOYMENT_TARGET = 26.0;
 				MARKETING_VERSION = 2026.1;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.kin-yee.spetra";
 				PRODUCT_NAME = "$(TARGET_NAME)";
@@ -347,7 +347,7 @@
 				IPHONEOS_DEPLOYMENT_TARGET = 26.2;
 				LD_RUNPATH_SEARCH_PATHS = "@executable_path/Frameworks";
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
-				MACOSX_DEPLOYMENT_TARGET = 26.1;
+				MACOSX_DEPLOYMENT_TARGET = 26.0;
 				MARKETING_VERSION = 2026.1;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.kin-yee.spetra";
 				PRODUCT_NAME = "$(TARGET_NAME)";

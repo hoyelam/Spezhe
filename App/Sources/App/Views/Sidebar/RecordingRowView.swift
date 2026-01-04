@@ -3,23 +3,34 @@ import SwiftUI
 public struct RecordingRowView: View {
     let recording: Recording
 
+    private let maxTitleCharacters = 50
+
     public init(recording: Recording) {
         self.recording = recording
     }
 
+    private var displayTitle: String {
+        // Priority: oneLiner > truncated transcription > fallback
+        if let oneLiner = recording.oneLiner, !oneLiner.isEmpty {
+            return oneLiner
+        }
+        // Fallback to truncated transcription
+        let transcription = recording.transcriptionText.trimmingCharacters(in: .whitespacesAndNewlines)
+        if transcription.isEmpty {
+            return "No transcription"
+        }
+        if transcription.count <= maxTitleCharacters {
+            return transcription
+        }
+        let truncated = String(transcription.prefix(maxTitleCharacters))
+        return truncated + "..."
+    }
+
     public var body: some View {
         VStack(alignment: .leading, spacing: 4) {
-            HStack {
-                Text(recording.title)
-                    .font(.headline)
-                    .lineLimit(1)
-                Spacer()
-                if !recording.transcriptionText.isEmpty {
-                    Image(systemName: "text.quote")
-                        .foregroundColor(.secondary)
-                        .font(.caption)
-                }
-            }
+            Text(displayTitle)
+                .font(.headline)
+                .lineLimit(2)
 
             HStack {
                 Text(recording.createdAt, style: .date)
@@ -44,17 +55,32 @@ public struct RecordingRowView: View {
 }
 
 #Preview {
-    RecordingRowView(recording: Recording(
-        id: 1,
-        title: "Test Recording",
-        transcriptionText: "This is a test transcription",
-        audioFileName: "test.wav",
-        createdAt: Date(),
-        duration: 125,
-        detectedLanguage: "en",
-        wordCount: 5,
-        modelUsed: "base",
-        fileSize: 1024
-    ))
+    VStack(spacing: 16) {
+        RecordingRowView(recording: Recording(
+            id: 1,
+            title: "Test Recording",
+            transcriptionText: "This is a test transcription that demonstrates the preview feature",
+            audioFileName: "test.wav",
+            createdAt: Date(),
+            duration: 125,
+            detectedLanguage: "en",
+            wordCount: 5,
+            modelUsed: "base",
+            fileSize: 1024
+        ))
+
+        RecordingRowView(recording: Recording(
+            id: 2,
+            title: "Empty Recording",
+            transcriptionText: "",
+            audioFileName: "test2.wav",
+            createdAt: Date(),
+            duration: 60,
+            detectedLanguage: nil,
+            wordCount: 0,
+            modelUsed: "base",
+            fileSize: 512
+        ))
+    }
     .padding()
 }
