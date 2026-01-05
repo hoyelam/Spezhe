@@ -10,11 +10,19 @@ public struct RecordingPopupView: View {
 
     public var body: some View {
         VStack(spacing: 0) {
-            // Waveform visualization area
-            WaveformView(level: viewModel.audioLevel, barCount: 40)
-                .padding(.horizontal, 24)
-                .padding(.vertical, 20)
-                .frame(maxWidth: .infinity, maxHeight: .infinity)
+            // Content area - switches between waveform and loading indicator
+            Group {
+                if viewModel.state.isProcessing {
+                    // Transcribing state - show loading indicator
+                    TranscribingView()
+                } else {
+                    // Recording state - show waveform
+                    WaveformView(level: viewModel.audioLevel, barCount: 40)
+                }
+            }
+            .padding(.horizontal, 24)
+            .padding(.vertical, 20)
+            .frame(maxWidth: .infinity, maxHeight: .infinity)
 
             // Bottom toolbar
             HStack {
@@ -30,37 +38,39 @@ public struct RecordingPopupView: View {
 
                 Spacer()
 
-                // Right side - Action buttons
-                HStack(spacing: 16) {
-                    // Stop button
-                    Button {
-                        Task {
-                            await viewModel.stopRecording()
+                // Right side - Action buttons (only show during recording)
+                if !viewModel.state.isProcessing {
+                    HStack(spacing: 16) {
+                        // Stop button
+                        Button {
+                            Task {
+                                await viewModel.stopRecording()
+                            }
+                        } label: {
+                            HStack(spacing: 6) {
+                                Text("Stop")
+                                    .font(.system(size: 13))
+                                KeyboardShortcutBadge(keys: ["⌃", "Space"])
+                            }
                         }
-                    } label: {
-                        HStack(spacing: 6) {
-                            Text("Stop")
-                                .font(.system(size: 13))
-                            KeyboardShortcutBadge(keys: ["⌃", "Space"])
-                        }
-                    }
-                    .buttonStyle(.plain)
-                    .foregroundColor(.primary)
+                        .buttonStyle(.plain)
+                        .foregroundColor(.primary)
 
-                    // Cancel button
-                    Button {
-                        Task {
-                            await viewModel.cancelRecording()
+                        // Cancel button
+                        Button {
+                            Task {
+                                await viewModel.cancelRecording()
+                            }
+                        } label: {
+                            HStack(spacing: 6) {
+                                Text("Cancel")
+                                    .font(.system(size: 13))
+                                KeyboardShortcutBadge(keys: ["esc"])
+                            }
                         }
-                    } label: {
-                        HStack(spacing: 6) {
-                            Text("Cancel")
-                                .font(.system(size: 13))
-                            KeyboardShortcutBadge(keys: ["esc"])
-                        }
+                        .buttonStyle(.plain)
+                        .foregroundColor(.primary)
                     }
-                    .buttonStyle(.plain)
-                    .foregroundColor(.primary)
                 }
             }
             .padding(.horizontal, 16)
@@ -70,6 +80,27 @@ public struct RecordingPopupView: View {
         .frame(width: 420, height: 140)
         .background(Color(nsColor: .windowBackgroundColor))
         .clipShape(RoundedRectangle(cornerRadius: 12))
+    }
+}
+
+// Transcribing loading indicator
+struct TranscribingView: View {
+    var body: some View {
+        HStack(spacing: 16) {
+            ProgressView()
+                .scaleEffect(1.0)
+                .progressViewStyle(CircularProgressViewStyle())
+
+            VStack(alignment: .leading, spacing: 4) {
+                Text("Transcribing...")
+                    .font(.system(size: 14, weight: .medium))
+                    .foregroundColor(.primary)
+
+                Text("Converting speech to text")
+                    .font(.system(size: 12))
+                    .foregroundColor(.secondary)
+            }
+        }
     }
 }
 
