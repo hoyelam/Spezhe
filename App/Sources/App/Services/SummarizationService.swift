@@ -86,6 +86,15 @@ public class SummarizationService: ObservableObject {
             return (nil, nil)
         }
 
+        // For very short transcriptions (1-2 sentences), use first sentence as one-liner directly
+        let sentences = extractSentences(from: trimmedText)
+        if sentences.count <= 2 {
+            let firstSentence = sentences.first ?? trimmedText
+            let oneLiner = truncateOneLiner(firstSentence)
+            logDebug("Short transcription (\(sentences.count) sentence(s)): using first sentence as one-liner", category: .app)
+            return (oneLiner, nil)
+        }
+
         isProcessing = true
         defer { isProcessing = false }
 
@@ -122,19 +131,17 @@ public class SummarizationService: ObservableObject {
             if needsSummary {
                 let summarySession = LanguageModelSession(instructions: summaryInstructions)
                 let summaryResponse = try await summarySession.respond(to: trimmedText)
-                var rawSummary = summaryResponse.content.trimmingCharacters(in: .whitespacesAndNewlines)
+                let rawSummary = summaryResponse.content.trimmingCharacters(in: .whitespacesAndNewlines)
 
-                if !rawSummary.isEmpty {
-                    rawSummary = cleanSummary(rawSummary)
-
+                if !rawSummary.isEmpty, var cleanedSummary = cleanSummary(rawSummary) {
                     // Enforce summary length constraint: must be at most 50% of original length
                     let maxSummaryLength = trimmedText.count / 2
-                    if rawSummary.count > maxSummaryLength {
-                        rawSummary = truncateToLength(rawSummary, maxLength: maxSummaryLength)
-                        logDebug("Summary truncated to \(rawSummary.count) chars (50% of original)", category: .app)
+                    if cleanedSummary.count > maxSummaryLength {
+                        cleanedSummary = truncateToLength(cleanedSummary, maxLength: maxSummaryLength)
+                        logDebug("Summary truncated to \(cleanedSummary.count) chars (50% of original)", category: .app)
                     }
 
-                    summary = rawSummary
+                    summary = cleanedSummary
                 }
             }
 
@@ -159,8 +166,42 @@ public class SummarizationService: ObservableObject {
     }
 
     /// Cleans up a one-liner by removing common prefixes and enforcing length
-    private func cleanOneLiner(_ text: String) -> String {
+    /// Returns nil if the AI indicates it cannot provide a summary
+    private func cleanOneLiner(_ text: String) -> String? {
         var cleaned = text.trimmingCharacters(in: CharacterSet(charactersIn: "\""))
+
+        // Check if the AI indicates it cannot provide a summary
+        let lowercased = cleaned.lowercased()
+        let cannotSummarizePhrases = [
+            "i cannot",
+            "i can't",
+            "i'm unable",
+            "i am unable",
+            "unable to",
+            "cannot create",
+            "can't create",
+            "cannot provide",
+            "can't provide",
+            "cannot generate",
+            "can't generate",
+            "not enough",
+            "insufficient",
+            "no meaningful",
+            "doesn't contain",
+            "does not contain",
+            "too short",
+            "too brief",
+            "no clear topic",
+            "no discernible",
+            "sorry",
+            "apolog"
+        ]
+        for phrase in cannotSummarizePhrases {
+            if lowercased.contains(phrase) {
+                logDebug("One-liner skipped: AI indicated it cannot summarize", category: .app)
+                return nil
+            }
+        }
 
         // Remove common prefixes the model might add
         let prefixesToRemove = [
@@ -191,8 +232,42 @@ public class SummarizationService: ObservableObject {
     }
 
     /// Cleans up a summary by removing common prefixes
-    private func cleanSummary(_ text: String) -> String {
+    /// Returns nil if the AI indicates it cannot provide a summary
+    private func cleanSummary(_ text: String) -> String? {
         var cleaned = text.trimmingCharacters(in: CharacterSet(charactersIn: "\""))
+
+        // Check if the AI indicates it cannot provide a summary
+        let lowercased = cleaned.lowercased()
+        let cannotSummarizePhrases = [
+            "i cannot",
+            "i can't",
+            "i'm unable",
+            "i am unable",
+            "unable to",
+            "cannot create",
+            "can't create",
+            "cannot provide",
+            "can't provide",
+            "cannot generate",
+            "can't generate",
+            "not enough",
+            "insufficient",
+            "no meaningful",
+            "doesn't contain",
+            "does not contain",
+            "too short",
+            "too brief",
+            "no clear topic",
+            "no discernible",
+            "sorry",
+            "apolog"
+        ]
+        for phrase in cannotSummarizePhrases {
+            if lowercased.contains(phrase) {
+                logDebug("Summary skipped: AI indicated it cannot summarize", category: .app)
+                return nil
+            }
+        }
 
         // Remove common prefixes the model might add at the start
         let prefixesToRemove = [
@@ -236,6 +311,36 @@ public class SummarizationService: ObservableObject {
         guard text.count > maxLength else { return text }
 
         let truncated = String(text.prefix(maxLength - 3))
+        if let lastSpace = truncated.lastIndex(of: " ") {
+            return String(truncated[..<lastSpace]) + "..."
+        } else {
+            return truncated + "..."
+        }
+    }
+
+    /// Extracts sentences from text using linguistic analysis
+    private func extractSentences(from text: String) -> [String] {
+        var sentences: [String] = []
+        let range = text.startIndex..<text.endIndex
+
+        text.enumerateSubstrings(in: range, options: .bySentences) { substring, _, _, _ in
+            if let sentence = substring?.trimmingCharacters(in: .whitespacesAndNewlines), !sentence.isEmpty {
+                sentences.append(sentence)
+            }
+        }
+
+        return sentences
+    }
+
+    /// Truncates a sentence to fit the one-liner length limit (60 chars)
+    private func truncateOneLiner(_ text: String) -> String {
+        let cleaned = text.trimmingCharacters(in: .whitespacesAndNewlines)
+
+        if cleaned.count <= 60 {
+            return cleaned
+        }
+
+        let truncated = String(cleaned.prefix(57))
         if let lastSpace = truncated.lastIndex(of: " ") {
             return String(truncated[..<lastSpace]) + "..."
         } else {
