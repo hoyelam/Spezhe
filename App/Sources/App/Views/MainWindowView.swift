@@ -1,61 +1,99 @@
 import SwiftUI
 
 public struct MainWindowView: View {
-    @ObservedObject var viewModel: RecordingViewModel
-    @StateObject private var recordingsStore = RecordingRepository.shared
+    @EnvironmentObject private var viewModel: RecordingViewModel
+    @EnvironmentObject private var recordingsStore: RecordingRepository
     @State private var selectedRecordingID: Int64?
     @State private var showInspector = false
     @State private var columnVisibility: NavigationSplitViewVisibility = .all
 
-    public init(viewModel: RecordingViewModel) {
-        self.viewModel = viewModel
-    }
+    public init() {}
 
     public var body: some View {
+        splitView
+    }
+
+    private var splitView: some View {
         NavigationSplitView(columnVisibility: $columnVisibility) {
-            RecordingsSidebarView(
-                recordings: recordingsStore.recordings,
-                selectedID: $selectedRecordingID,
-                viewModel: viewModel,
-                onDelete: deleteRecording
-            )
-            .navigationSplitViewColumnWidth(min: 200, ideal: 250, max: 300)
-            .navigationTitle("Recordings")
+            sidebarView
         } detail: {
-            if let id = selectedRecordingID,
-               let recording = recordingsStore.recordings.first(where: { $0.id == id }) {
-                RecordingDetailView(recording: recording, onTitleChange: { newTitle in
-                    updateRecordingTitle(id: id, newTitle: newTitle)
-                })
-            } else {
-                EmptyStateView()
-            }
+            detailView
         }
         .inspector(isPresented: $showInspector) {
-            if let id = selectedRecordingID,
-               let recording = recordingsStore.recordings.first(where: { $0.id == id }) {
-                RecordingInspectorView(recording: recording)
-            } else {
-                Text("No Recording Selected")
-                    .foregroundStyle(.secondary)
-            }
+            inspectorContent
         }
         .toolbar {
-            ToolbarItemGroup(placement: .primaryAction) {
-                RecordButtonToolbar(viewModel: viewModel)
-
-                Button {
-                    showInspector.toggle()
-                } label: {
-                    Image(systemName: "sidebar.right")
-                }
-                .help(showInspector ? "Hide Inspector" : "Show Inspector")
-            }
+            toolbarContent
         }
-        .onReceive(viewModel.$newRecordingID) { newID in
+        .onChange(of: viewModel.newRecordingID) { _, newID in
             if let id = newID {
                 selectedRecordingID = id
             }
+        }
+        .onChange(of: recordingsStore.recordings) { _, updatedRecordings in
+            guard let selectedID = selectedRecordingID else { return }
+            if updatedRecordings.first(where: { $0.id == selectedID }) == nil {
+                selectedRecordingID = nil
+            }
+        }
+        .alert("Download Model?", isPresented: $viewModel.showDownloadConfirmation) {
+            Button("Download") {
+                Task {
+                    await viewModel.confirmDownload()
+                }
+            }
+            Button("Use Base Model", role: .cancel) {
+                viewModel.declineDownload()
+            }
+        } message: {
+            if let model = viewModel.pendingDownloadModel {
+                Text("\(model.displayName) (\(model.sizeDescription)) needs to be downloaded. This requires an internet connection and \(model.sizeDescription) of disk space.")
+            }
+        }
+    }
+
+    private var sidebarView: some View {
+        RecordingsSidebarView(
+            recordings: recordingsStore.recordings,
+            selectedID: $selectedRecordingID,
+            onDelete: deleteRecording
+        )
+        .navigationSplitViewColumnWidth(min: 200, ideal: 250, max: 300)
+        .navigationTitle("Recordings")
+    }
+
+    @ViewBuilder
+    private var detailView: some View {
+        if let recording = selectedRecording {
+            RecordingDetailView(recording: recording, onTitleChange: { newTitle in
+                updateRecordingTitle(id: recording.id, newTitle: newTitle)
+            })
+            .id(recording.id)
+        } else {
+            EmptyStateView()
+        }
+    }
+
+    @ViewBuilder
+    private var inspectorContent: some View {
+        if let recording = selectedRecording {
+            RecordingInspectorView(recording: recording)
+        } else {
+            Text("No Recording Selected")
+                .foregroundStyle(.secondary)
+        }
+    }
+
+    private var toolbarContent: some ToolbarContent {
+        ToolbarItemGroup(placement: .primaryAction) {
+            RecordButtonToolbar()
+
+            Button {
+                showInspector.toggle()
+            } label: {
+                Image(systemName: "sidebar.right")
+            }
+            .help(showInspector ? "Hide Inspector" : "Show Inspector")
         }
     }
 
@@ -72,8 +110,14 @@ public struct MainWindowView: View {
         }
     }
 
-    private func updateRecordingTitle(id: Int64, newTitle: String) {
-        guard var recording = recordingsStore.recordings.first(where: { $0.id == id }) else { return }
+    private var selectedRecording: Recording? {
+        guard let id = selectedRecordingID else { return nil }
+        return recordingsStore.recordings.first(where: { $0.id == id })
+    }
+
+    private func updateRecordingTitle(id: Int64?, newTitle: String) {
+        guard let id,
+              var recording = recordingsStore.recordings.first(where: { $0.id == id }) else { return }
         recording.title = newTitle
         do {
             try RecordingRepository.shared.update(recording)
@@ -84,7 +128,7 @@ public struct MainWindowView: View {
 }
 
 struct RecordButtonToolbar: View {
-    @ObservedObject var viewModel: RecordingViewModel
+    @EnvironmentObject private var viewModel: RecordingViewModel
 
     var body: some View {
         Button {
@@ -104,5 +148,61 @@ struct RecordButtonToolbar: View {
 }
 
 #Preview {
-    MainWindowView(viewModel: RecordingViewModel())
+    MainWindowView()
+        .environmentObject(RecordingViewModel())
+        .environmentObject(RecordingRepository.shared)
+}
+
+#Preview("Split View Selection") {
+    SplitViewSelectionPreview()
+}
+
+private struct SplitViewSelectionPreview: View {
+    @State private var selectedRecordingID: Int64? = 1
+
+    private let recordings: [Recording] = [
+        Recording(
+            id: 1,
+            title: "Design Notes",
+            transcriptionText: "Preview text for the first recording.",
+            audioFileName: "preview-1.wav",
+            createdAt: Date(),
+            duration: 142,
+            detectedLanguage: "en",
+            wordCount: 6,
+            modelUsed: "base",
+            fileSize: 1_024
+        ),
+        Recording(
+            id: 2,
+            title: "Team Standup",
+            transcriptionText: "Preview text for the second recording.",
+            audioFileName: "preview-2.wav",
+            createdAt: Date(),
+            duration: 88,
+            detectedLanguage: "en",
+            wordCount: 5,
+            modelUsed: "base",
+            fileSize: 2_048
+        )
+    ]
+
+    var body: some View {
+        NavigationSplitView {
+            List(recordings, selection: $selectedRecordingID) { recording in
+                Text(recording.title)
+                    .tag(recording.id)
+            }
+            .listStyle(.sidebar)
+        } detail: {
+            if let recording = recordings.first(where: { $0.id == selectedRecordingID }) {
+                RecordingDetailView(recording: recording, onTitleChange: { _ in })
+                    .id(recording.id)
+            } else {
+                Text("Select a recording")
+                    .foregroundStyle(.secondary)
+            }
+        }
+        .frame(width: 900, height: 500)
+    }
 }

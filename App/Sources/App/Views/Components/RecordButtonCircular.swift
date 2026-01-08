@@ -1,11 +1,7 @@
 import SwiftUI
 
 public struct RecordButtonCircular: View {
-    @ObservedObject var viewModel: RecordingViewModel
-
-    public init(viewModel: RecordingViewModel) {
-        self.viewModel = viewModel
-    }
+    @EnvironmentObject private var viewModel: RecordingViewModel
 
     public var body: some View {
         Button(action: {

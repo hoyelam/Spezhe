@@ -4,11 +4,9 @@ import KeyboardShortcuts
 public struct SettingsView: View {
     @StateObject private var settingsViewModel = SettingsViewModel()
     @StateObject private var modelViewModel = ModelDownloadViewModel()
-    @State private var recordingViewModel: RecordingViewModel?
+    @EnvironmentObject private var recordingViewModel: RecordingViewModel
 
-    public init(recordingViewModel: RecordingViewModel? = nil) {
-        self._recordingViewModel = State(initialValue: recordingViewModel)
-    }
+    public init() {}
 
     public var body: some View {
         TabView {
@@ -31,7 +29,7 @@ public struct SettingsView: View {
         .onChange(of: settingsViewModel.selectedModelName) { _, _ in
             settingsViewModel.saveSettings()
             Task {
-                await recordingViewModel?.reloadModel()
+                await recordingViewModel.reloadModel()
             }
         }
         .onChange(of: settingsViewModel.autoPasteEnabled) { _, _ in
@@ -138,4 +136,5 @@ struct PermissionsTab: View {
 
 #Preview {
     SettingsView()
+        .environmentObject(RecordingViewModel())
 }

@@ -1,12 +1,8 @@
 import SwiftUI
 
 public struct MenuBarView: View {
-    @ObservedObject var viewModel: RecordingViewModel
+    @EnvironmentObject private var viewModel: RecordingViewModel
     @StateObject private var settingsViewModel = SettingsViewModel()
-
-    public init(viewModel: RecordingViewModel) {
-        self.viewModel = viewModel
-    }
 
     public var body: some View {
         VStack(alignment: .leading, spacing: 12) {
@@ -49,6 +45,20 @@ public struct MenuBarView: View {
         }
         .padding()
         .frame(width: 260)
+        .alert("Download Model?", isPresented: $viewModel.showDownloadConfirmation) {
+            Button("Download") {
+                Task {
+                    await viewModel.confirmDownload()
+                }
+            }
+            Button("Use Base Model", role: .cancel) {
+                viewModel.declineDownload()
+            }
+        } message: {
+            if let model = viewModel.pendingDownloadModel {
+                Text("\(model.displayName) (\(model.sizeDescription)) needs to be downloaded.")
+            }
+        }
     }
 
     private var statusColor: Color {
@@ -57,7 +67,7 @@ public struct MenuBarView: View {
             return .gray
         case .recording:
             return .red
-        case .processing:
+        case .loadingModel, .processing:
             return .orange
         case .completed:
             return .green
@@ -68,5 +78,6 @@ public struct MenuBarView: View {
 }
 
 #Preview {
-    MenuBarView(viewModel: RecordingViewModel())
+    MenuBarView()
+        .environmentObject(RecordingViewModel())
 }

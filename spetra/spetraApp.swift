@@ -11,11 +11,14 @@ import App
 @main
 struct spetraApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
+    @StateObject private var recordingsStore = RecordingRepository.shared
 
     var body: some Scene {
         WindowGroup {
-            MainWindowView(viewModel: appDelegate.recordingViewModel)
+            MainWindowView()
                 .frame(minWidth: 1100, minHeight: 600)
+                .environmentObject(appDelegate.recordingViewModel)
+                .environmentObject(recordingsStore)
         }
         .windowStyle(.automatic)
         .windowResizability(.contentMinSize)
@@ -33,7 +36,8 @@ struct spetraApp: App {
         }
 
         Settings {
-            SettingsView(recordingViewModel: appDelegate.recordingViewModel)
+            SettingsView()
+                .environmentObject(appDelegate.recordingViewModel)
         }
     }
 }

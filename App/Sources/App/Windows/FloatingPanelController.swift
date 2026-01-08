@@ -54,7 +54,9 @@ public class FloatingPanelController {
             }
         }
 
-        let hostingView = NSHostingView(rootView: RecordingPopupView(viewModel: viewModel))
+        let hostingView = NSHostingView(
+            rootView: RecordingPopupView().environmentObject(viewModel)
+        )
         panel?.contentView = hostingView
     }
 

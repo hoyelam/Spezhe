@@ -90,7 +90,9 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
             popover = NSPopover()
             popover?.contentSize = NSSize(width: 280, height: 200)
             popover?.behavior = .transient
-            popover?.contentViewController = NSHostingController(rootView: MenuBarView(viewModel: recordingViewModel))
+            popover?.contentViewController = NSHostingController(
+                rootView: MenuBarView().environmentObject(recordingViewModel)
+            )
         }
 
         popover?.show(relativeTo: button.bounds, of: button, preferredEdge: .minY)

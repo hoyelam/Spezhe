@@ -1,20 +1,16 @@
 import SwiftUI
 
 public struct RecordingPopupView: View {
-    @ObservedObject var viewModel: RecordingViewModel
+    @EnvironmentObject private var viewModel: RecordingViewModel
     @StateObject private var settings = AppSettings.shared
-
-    public init(viewModel: RecordingViewModel) {
-        self.viewModel = viewModel
-    }
 
     public var body: some View {
         VStack(spacing: 0) {
             // Content area - switches between waveform and loading indicator
             Group {
-                if viewModel.state.isProcessing {
-                    // Transcribing state - show loading indicator
-                    TranscribingView()
+                if viewModel.state.isLoading {
+                    // Loading state - show loading indicator with appropriate message
+                    LoadingIndicatorView(state: viewModel.state)
                 } else {
                     // Recording state - show waveform
                     WaveformView(level: viewModel.audioLevel, barCount: 40)
@@ -39,7 +35,7 @@ public struct RecordingPopupView: View {
                 Spacer()
 
                 // Right side - Action buttons (only show during recording)
-                if !viewModel.state.isProcessing {
+                if !viewModel.state.isLoading {
                     HStack(spacing: 16) {
                         // Stop button
                         Button {
@@ -83,8 +79,18 @@ public struct RecordingPopupView: View {
     }
 }
 
-// Transcribing loading indicator
-struct TranscribingView: View {
+// Loading indicator for model loading or transcribing
+struct LoadingIndicatorView: View {
+    let state: RecordingState
+
+    private var title: String {
+        state.isLoadingModel ? "Loading model..." : "Transcribing..."
+    }
+
+    private var subtitle: String {
+        state.isLoadingModel ? "Preparing speech recognition" : "Converting speech to text"
+    }
+
     var body: some View {
         HStack(spacing: 16) {
             ProgressView()
@@ -92,11 +98,11 @@ struct TranscribingView: View {
                 .progressViewStyle(CircularProgressViewStyle())
 
             VStack(alignment: .leading, spacing: 4) {
-                Text("Transcribing...")
+                Text(title)
                     .font(.system(size: 14, weight: .medium))
                     .foregroundColor(.primary)
 
-                Text("Converting speech to text")
+                Text(subtitle)
                     .font(.system(size: 12))
                     .foregroundColor(.secondary)
             }
@@ -130,6 +136,7 @@ struct KeyboardShortcutBadge: View {
 }
 
 #Preview {
-    RecordingPopupView(viewModel: RecordingViewModel())
+    RecordingPopupView()
+        .environmentObject(RecordingViewModel())
         .frame(width: 450, height: 180)
 }
