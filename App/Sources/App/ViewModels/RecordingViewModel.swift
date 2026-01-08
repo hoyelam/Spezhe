@@ -9,6 +9,10 @@ public class RecordingViewModel: ObservableObject {
     @Published public var isPopupVisible = false
     @Published public var newRecordingID: Int64?
 
+    // Download confirmation properties
+    @Published public var pendingDownloadModel: WhisperModel?
+    @Published public var showDownloadConfirmation = false
+
     public var onShowPopup: ((Bool) -> Void)?
 
     private let audioService = AudioRecordingService()
@@ -33,13 +37,45 @@ public class RecordingViewModel: ObservableObject {
     }
 
     private func loadModelIfNeeded() {
-        logInfo("Pre-loading model: \(settings.selectedModelName)", category: .app)
+        let modelName = settings.selectedModelName
+        logInfo("Pre-loading model: \(modelName)", category: .app)
+
         modelLoadTask = Task {
-            do {
-                try await transcriptionService.loadModel(named: settings.selectedModelName)
-                logInfo("Model pre-loaded successfully", category: .app)
-            } catch {
-                logError("Failed to pre-load model: \(error.localizedDescription)", category: .app)
+            // Check if model is already downloaded
+            await ModelManagerService.shared.refreshDownloadedModels()
+            let isDownloaded = ModelManagerService.shared.isModelDownloaded(modelName)
+
+            if isDownloaded {
+                // Model is downloaded, load it directly
+                do {
+                    try await transcriptionService.loadModel(named: modelName)
+                    logInfo("Model pre-loaded successfully", category: .app)
+                } catch {
+                    logError("Failed to pre-load model: \(error.localizedDescription)", category: .app)
+                }
+            } else {
+                // Model not downloaded - check if it requires confirmation
+                guard let model = WhisperModel.model(named: modelName) else {
+                    logError("Unknown model: \(modelName)", category: .app)
+                    return
+                }
+
+                if model.requiresDownloadConfirmation {
+                    // Large model - require user confirmation
+                    logInfo("Model \(modelName) requires download confirmation (\(model.sizeDescription))", category: .app)
+                    pendingDownloadModel = model
+                    showDownloadConfirmation = true
+                } else {
+                    // Small model (e.g., Base) - download silently
+                    logInfo("Downloading small model \(modelName) (\(model.sizeDescription))", category: .app)
+                    do {
+                        try await ModelManagerService.shared.downloadModel(model)
+                        try await transcriptionService.loadModel(named: modelName)
+                        logInfo("Model downloaded and pre-loaded successfully", category: .app)
+                    } catch {
+                        logError("Failed to download/load model: \(error.localizedDescription)", category: .app)
+                    }
+                }
             }
         }
     }
@@ -52,7 +88,7 @@ public class RecordingViewModel: ObservableObject {
             await startRecording()
         case .recording:
             await stopRecording()
-        case .processing:
+        case .loadingModel, .processing:
             logWarning("toggleRecording() ignored - currently processing", category: .app)
             break
         }
@@ -64,9 +100,44 @@ public class RecordingViewModel: ObservableObject {
         do {
             if !transcriptionService.isModelLoaded {
                 logInfo("Model not loaded, loading now...", category: .app)
-                state = .processing
+                state = .loadingModel
                 showPopup(true)
-                try await transcriptionService.loadModel(named: settings.selectedModelName)
+
+                let modelName = settings.selectedModelName
+                let isDownloaded = ModelManagerService.shared.isModelDownloaded(modelName)
+
+                if isDownloaded {
+                    // Model is downloaded, load it
+                    try await transcriptionService.loadModel(named: modelName)
+                } else {
+                    // Model not downloaded - check if it requires confirmation
+                    guard let model = WhisperModel.model(named: modelName) else {
+                        throw RecordingError.unknownModel(modelName)
+                    }
+
+                    if model.requiresDownloadConfirmation {
+                        // Large model needs confirmation - fallback to Base
+                        logInfo("Model \(modelName) not downloaded and requires confirmation, falling back to Base", category: .app)
+                        let baseModel = WhisperModel.defaultModel
+
+                        // Check if Base is downloaded
+                        if ModelManagerService.shared.isModelDownloaded(baseModel.name) {
+                            settings.selectedModelName = baseModel.name
+                            try await transcriptionService.loadModel(named: baseModel.name)
+                        } else {
+                            // Download Base silently (it's small)
+                            logInfo("Downloading Base model for fallback", category: .app)
+                            try await ModelManagerService.shared.downloadModel(baseModel)
+                            settings.selectedModelName = baseModel.name
+                            try await transcriptionService.loadModel(named: baseModel.name)
+                        }
+                    } else {
+                        // Small model - download silently
+                        logInfo("Downloading small model \(modelName)", category: .app)
+                        try await ModelManagerService.shared.downloadModel(model)
+                        try await transcriptionService.loadModel(named: modelName)
+                    }
+                }
             }
 
             state = .recording
@@ -199,6 +270,61 @@ public class RecordingViewModel: ObservableObject {
             logInfo("Model reloaded successfully", category: .app)
         } catch {
             logError("Failed to reload model: \(error.localizedDescription)", category: .app)
+        }
+    }
+
+    // MARK: - Download Confirmation Handlers
+
+    /// User confirmed download of a large model
+    public func confirmDownload() async {
+        guard let model = pendingDownloadModel else {
+            logWarning("confirmDownload called but no pending model", category: .app)
+            return
+        }
+
+        logInfo("User confirmed download of \(model.name)", category: .app)
+        showDownloadConfirmation = false
+
+        do {
+            try await ModelManagerService.shared.downloadModel(model)
+            try await transcriptionService.loadModel(named: model.name)
+            logInfo("Model \(model.name) downloaded and loaded successfully", category: .app)
+        } catch {
+            logError("Failed to download/load model: \(error.localizedDescription)", category: .app)
+            state = .error("Failed to download model: \(error.localizedDescription)")
+        }
+
+        pendingDownloadModel = nil
+    }
+
+    /// User declined download - fallback to Base model
+    public func declineDownload() {
+        guard let model = pendingDownloadModel else {
+            logWarning("declineDownload called but no pending model", category: .app)
+            return
+        }
+
+        logInfo("User declined download of \(model.name), falling back to Base", category: .app)
+        showDownloadConfirmation = false
+        pendingDownloadModel = nil
+
+        // Update settings to use Base model
+        settings.selectedModelName = WhisperModel.defaultModel.name
+
+        // Trigger load of Base model
+        loadModelIfNeeded()
+    }
+}
+
+// MARK: - Recording Errors
+
+public enum RecordingError: LocalizedError {
+    case unknownModel(String)
+
+    public var errorDescription: String? {
+        switch self {
+        case .unknownModel(let name):
+            return "Unknown model: \(name)"
         }
     }
 }

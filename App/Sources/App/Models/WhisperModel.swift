@@ -22,6 +22,19 @@ public struct WhisperModel: Identifiable, Equatable, Hashable {
         return "\(sizeMB) MB"
     }
 
+    /// Threshold in MB above which downloads require user confirmation
+    public static let downloadConfirmationThresholdMB: Int = 100
+
+    /// Whether this model requires user confirmation before downloading
+    public var requiresDownloadConfirmation: Bool {
+        sizeMB > Self.downloadConfirmationThresholdMB
+    }
+
+    /// Find a model by its name
+    public static func model(named name: String) -> WhisperModel? {
+        availableModels.first { $0.name == name }
+    }
+
     nonisolated(unsafe) public static let availableModels: [WhisperModel] = [
         WhisperModel(name: "openai_whisper-base", displayName: "Base", sizeMB: 74),
         WhisperModel(name: "openai_whisper-small", displayName: "Small", sizeMB: 244),

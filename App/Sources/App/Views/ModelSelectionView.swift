@@ -92,6 +92,8 @@ struct ModelRowView: View {
                         onDelete()
                     } label: {
                         Image(systemName: "trash")
+                            .frame(width: 24, height: 24)
+                            .contentShape(Rectangle())
                     }
                     .buttonStyle(.borderless)
                     .foregroundColor(.red)
@@ -105,11 +107,14 @@ struct ModelRowView: View {
             }
         }
         .padding(.vertical, 4)
-        .contentShape(Rectangle())
-        .onTapGesture {
-            if model.isDownloaded {
-                onSelect()
-            }
+        .background {
+            Color.clear
+                .contentShape(Rectangle())
+                .onTapGesture {
+                    if model.isDownloaded {
+                        onSelect()
+                    }
+                }
         }
     }
 }

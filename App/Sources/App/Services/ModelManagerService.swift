@@ -56,12 +56,12 @@ public class ModelManagerService: ObservableObject {
         logInfo("Deleting model: \(model.name)", category: .model)
 
         let fileManager = FileManager.default
-        guard let appSupport = fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask).first else {
-            logError("Could not find Application Support directory", category: .model)
+        guard let documentsDir = fileManager.urls(for: .documentDirectory, in: .userDomainMask).first else {
+            logError("Could not find Documents directory", category: .model)
             throw ModelManagerError.directoryNotFound
         }
 
-        let modelPath = appSupport
+        let modelPath = documentsDir
             .appendingPathComponent("huggingface")
             .appendingPathComponent("models")
             .appendingPathComponent("argmaxinc")
@@ -81,11 +81,11 @@ public class ModelManagerService: ObservableObject {
 
     public func getModelsDirectorySize() -> Int64 {
         let fileManager = FileManager.default
-        guard let appSupport = fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask).first else {
+        guard let documentsDir = fileManager.urls(for: .documentDirectory, in: .userDomainMask).first else {
             return 0
         }
 
-        let modelsPath = appSupport
+        let modelsPath = documentsDir
             .appendingPathComponent("huggingface")
             .appendingPathComponent("models")
             .appendingPathComponent("argmaxinc")
