@@ -13,6 +13,7 @@ enum Constants {
     enum UserDefaultsKeys {
         static let selectedModelName = "selectedModelName"
         static let autoPasteEnabled = "autoPasteEnabled"
+        static let hasCompletedOnboarding = "hasCompletedOnboarding"
     }
 
     enum Defaults {

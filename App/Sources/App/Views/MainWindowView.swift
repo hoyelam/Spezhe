@@ -6,6 +6,9 @@ public struct MainWindowView: View {
     @State private var selectedRecordingID: Int64?
     @State private var showInspector = false
     @State private var columnVisibility: NavigationSplitViewVisibility = .all
+    @State private var showOnboarding = !UserDefaults.standard.bool(
+        forKey: Constants.UserDefaultsKeys.hasCompletedOnboarding
+    )
 
     public init() {}
 
@@ -49,6 +52,10 @@ public struct MainWindowView: View {
             if let model = viewModel.pendingDownloadModel {
                 Text("\(model.displayName) (\(model.sizeDescription)) needs to be downloaded. This requires an internet connection and \(model.sizeDescription) of disk space.")
             }
+        }
+        .sheet(isPresented: $showOnboarding) {
+            OnboardingView(isPresented: $showOnboarding)
+                .interactiveDismissDisabled()
         }
     }
 
