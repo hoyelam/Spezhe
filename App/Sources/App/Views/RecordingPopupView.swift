@@ -4,6 +4,8 @@ import KeyboardShortcuts
 public struct RecordingPopupView: View {
     @EnvironmentObject private var viewModel: RecordingViewModel
     @StateObject private var settings = AppSettings.shared
+    @StateObject private var profilesViewModel = ProfilesViewModel()
+    @State private var showProfilePicker = false
 
     public var body: some View {
         VStack(spacing: 0) {
@@ -23,14 +25,14 @@ public struct RecordingPopupView: View {
 
             // Bottom toolbar
             HStack {
-                // Left side - Model selector
-                HStack(spacing: 8) {
-                    Image(systemName: "rectangle.dashed")
-                        .font(.system(size: 14))
-                        .foregroundColor(.secondary)
-                    Text(settings.selectedModel.displayName)
-                        .font(.system(size: 13))
-                        .foregroundColor(.primary)
+                // Left side - Profile/Model selector
+                ProfileSelectorButton(
+                    activeProfile: profilesViewModel.activeProfile,
+                    modelName: settings.selectedModel.displayName,
+                    showPicker: $showProfilePicker
+                )
+                .popover(isPresented: $showProfilePicker, arrowEdge: .bottom) {
+                    ProfilePickerPopover(viewModel: profilesViewModel)
                 }
 
                 Spacer()
@@ -214,6 +216,152 @@ struct ToggleRecordingShortcutBadge: View {
 
         // Fallback for unmapped keys
         return "Key \(key.rawValue)"
+    }
+}
+
+// Profile selector button for the toolbar
+struct ProfileSelectorButton: View {
+    let activeProfile: TranscriptionProfile?
+    let modelName: String
+    @Binding var showPicker: Bool
+
+    var body: some View {
+        Button {
+            showPicker.toggle()
+        } label: {
+            HStack(spacing: 8) {
+                Image(systemName: activeProfile != nil ? "person.crop.rectangle.stack.fill" : "rectangle.dashed")
+                    .font(.system(size: 14))
+                    .foregroundColor(activeProfile != nil ? .accentColor : .secondary)
+
+                VStack(alignment: .leading, spacing: 1) {
+                    if let profile = activeProfile {
+                        Text(profile.name)
+                            .font(.system(size: 12, weight: .medium))
+                            .foregroundColor(.primary)
+                        Text(modelName)
+                            .font(.system(size: 10))
+                            .foregroundColor(.secondary)
+                    } else {
+                        Text("No Profile")
+                            .font(.system(size: 12))
+                            .foregroundColor(.secondary)
+                        Text(modelName)
+                            .font(.system(size: 10))
+                            .foregroundColor(.secondary)
+                    }
+                }
+
+                Image(systemName: "chevron.down")
+                    .font(.system(size: 10))
+                    .foregroundColor(.secondary)
+            }
+        }
+        .buttonStyle(.plain)
+    }
+}
+
+// Popover for quick profile selection
+struct ProfilePickerPopover: View {
+    @ObservedObject var viewModel: ProfilesViewModel
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 0) {
+            Text("Select Profile")
+                .font(.system(size: 11, weight: .semibold))
+                .foregroundColor(.secondary)
+                .padding(.horizontal, 12)
+                .padding(.top, 10)
+                .padding(.bottom, 6)
+
+            Divider()
+
+            ScrollView {
+                VStack(spacing: 2) {
+                    // None option
+                    ProfilePickerRow(
+                        name: "None (Use Defaults)",
+                        isSelected: viewModel.activeProfileId == nil,
+                        onSelect: { viewModel.setActiveProfile(nil) }
+                    )
+
+                    if !viewModel.profiles.isEmpty {
+                        Divider()
+                            .padding(.vertical, 4)
+                    }
+
+                    ForEach(viewModel.profiles) { profile in
+                        ProfilePickerRow(
+                            name: profile.name,
+                            subtitle: profileSubtitle(for: profile),
+                            isSelected: profile.id == viewModel.activeProfileId,
+                            onSelect: { viewModel.setActiveProfile(profile) }
+                        )
+                    }
+                }
+                .padding(.vertical, 6)
+            }
+            .frame(maxHeight: 200)
+
+            if viewModel.profiles.isEmpty {
+                Divider()
+                Text("Create profiles in Settings > Profiles")
+                    .font(.system(size: 11))
+                    .foregroundColor(.secondary)
+                    .padding(.horizontal, 12)
+                    .padding(.vertical, 8)
+            }
+        }
+        .frame(width: 220)
+    }
+
+    private func profileSubtitle(for profile: TranscriptionProfile) -> String? {
+        var parts: [String] = []
+        if let lang = profile.language, lang != "auto" {
+            parts.append(SupportedLanguage.find(byId: lang)?.name ?? lang)
+        }
+        if profile.customPrompt != nil {
+            parts.append("AI Prompt")
+        }
+        return parts.isEmpty ? nil : parts.joined(separator: " + ")
+    }
+}
+
+struct ProfilePickerRow: View {
+    let name: String
+    var subtitle: String? = nil
+    let isSelected: Bool
+    let onSelect: () -> Void
+
+    var body: some View {
+        Button(action: onSelect) {
+            HStack {
+                VStack(alignment: .leading, spacing: 2) {
+                    Text(name)
+                        .font(.system(size: 13))
+                        .foregroundColor(.primary)
+
+                    if let subtitle = subtitle {
+                        Text(subtitle)
+                            .font(.system(size: 11))
+                            .foregroundColor(.secondary)
+                    }
+                }
+
+                Spacer()
+
+                if isSelected {
+                    Image(systemName: "checkmark")
+                        .font(.system(size: 12, weight: .semibold))
+                        .foregroundColor(.accentColor)
+                }
+            }
+            .padding(.horizontal, 12)
+            .padding(.vertical, 6)
+            .contentShape(Rectangle())
+        }
+        .buttonStyle(.plain)
+        .background(isSelected ? Color.accentColor.opacity(0.1) : Color.clear)
     }
 }
 

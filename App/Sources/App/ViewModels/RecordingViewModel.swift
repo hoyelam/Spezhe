@@ -41,6 +41,8 @@ public class RecordingViewModel: ObservableObject {
         logInfo("Pre-loading model: \(modelName)", category: .app)
 
         modelLoadTask = Task {
+            defer { modelLoadTask = nil }
+
             // Check if model is already downloaded
             await ModelManagerService.shared.refreshDownloadedModels()
             let isDownloaded = ModelManagerService.shared.isModelDownloaded(modelName)
@@ -98,6 +100,15 @@ public class RecordingViewModel: ObservableObject {
         logInfo("Starting recording flow...", category: .app)
 
         do {
+            // Wait for any existing model load task to complete
+            if let existingTask = modelLoadTask {
+                logDebug("Waiting for existing model load task to complete...", category: .app)
+                state = .loadingModel
+                showPopup(true)
+                await existingTask.value
+                modelLoadTask = nil
+            }
+
             if !transcriptionService.isModelLoaded {
                 logInfo("Model not loaded, loading now...", category: .app)
                 state = .loadingModel
@@ -167,9 +178,34 @@ public class RecordingViewModel: ObservableObject {
             state = .processing
             logDebug("State set to .processing", category: .app)
 
+            // Get active profile settings
+            let activeProfile = settings.activeProfile
+            let language = activeProfile?.language
+
             logDebug("Starting transcription...", category: .app)
-            let transcriptionResult = try await transcriptionService.transcribe(audioArray: audioResult.samples)
+            if let lang = language, lang != "auto" {
+                logInfo("Using forced language from profile: \(lang)", category: .app)
+
+                // Check if current model supports multilingual
+                if let model = WhisperModel.model(named: settings.selectedModelName), !model.isMultilingual {
+                    logWarning("Model '\(model.displayName)' is English-only. Language forcing to '\(lang)' may not work correctly.", category: .app)
+                }
+            }
+            var transcriptionResult = try await transcriptionService.transcribe(audioArray: audioResult.samples, language: language)
             logInfo("Transcription successful: '\(transcriptionResult.text)'", category: .app)
+
+            // Apply custom prompt if profile has one
+            var processedText: String?
+            if let customPrompt = activeProfile?.customPrompt, !customPrompt.isEmpty {
+                logInfo("Applying custom prompt from profile...", category: .app)
+                processedText = await summarizationService.processWithCustomPrompt(
+                    transcription: transcriptionResult.text,
+                    customPrompt: customPrompt
+                )
+                if let processed = processedText {
+                    logInfo("Custom prompt applied, processed text: '\(processed)'", category: .app)
+                }
+            }
 
             // Save audio file
             let (audioFileName, fileSize) = try AudioFileManager.shared.saveAudio(
@@ -190,7 +226,9 @@ public class RecordingViewModel: ObservableObject {
                 detectedLanguage: transcriptionResult.detectedLanguage,
                 wordCount: transcriptionResult.text.split(separator: " ").count,
                 modelUsed: settings.selectedModelName,
-                fileSize: fileSize
+                fileSize: fileSize,
+                profileId: activeProfile?.id,
+                processedText: processedText
             )
             recording.generateDefaultTitle()
 
@@ -207,8 +245,10 @@ public class RecordingViewModel: ObservableObject {
             // Notify UI of new recording
             newRecordingID = recording.id
 
-            lastTranscription = transcriptionResult.text
-            state = .completed(transcriptionResult.text)
+            // Use processed text for display and paste if available, otherwise original
+            let displayText = processedText ?? transcriptionResult.text
+            lastTranscription = displayText
+            state = .completed(displayText)
             logDebug("State set to .completed", category: .app)
 
             if settings.autoPasteEnabled {
@@ -218,12 +258,12 @@ public class RecordingViewModel: ObservableObject {
                 try await Task.sleep(nanoseconds: 100_000_000)
 
                 logDebug("Attempting to copy and paste...", category: .clipboard)
-                let success = clipboardService.copyAndPaste(transcriptionResult.text)
+                let success = clipboardService.copyAndPaste(displayText)
                 if success {
                     logInfo("Text pasted successfully", category: .clipboard)
                 } else {
                     logWarning("Paste failed (accessibility?), text copied to clipboard only", category: .clipboard)
-                    clipboardService.copyToClipboard(transcriptionResult.text)
+                    clipboardService.copyToClipboard(displayText)
                 }
             } else {
                 logDebug("Auto-paste disabled, text available in popup", category: .app)

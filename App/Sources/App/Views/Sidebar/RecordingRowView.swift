@@ -36,6 +36,21 @@ public struct RecordingRowView: View {
                 Text(recording.createdAt, style: .date)
                     .font(.caption)
                     .foregroundColor(.secondary)
+
+                if recording.profileId != nil {
+                    Label("Profile", systemImage: "person.crop.rectangle.stack.fill")
+                        .font(.caption2)
+                        .foregroundColor(.accentColor)
+                        .labelStyle(.iconOnly)
+                }
+
+                if recording.processedText != nil {
+                    Label("AI", systemImage: "sparkles")
+                        .font(.caption2)
+                        .foregroundColor(.purple)
+                        .labelStyle(.iconOnly)
+                }
+
                 Spacer()
                 Text(formatDuration(recording.duration))
                     .font(.caption)

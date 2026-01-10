@@ -5,13 +5,15 @@ public struct WhisperModel: Identifiable, Equatable, Hashable {
     public let name: String
     public let displayName: String
     public let sizeMB: Int
+    public let isMultilingual: Bool
     public var isDownloaded: Bool
 
-    public init(name: String, displayName: String, sizeMB: Int, isDownloaded: Bool = false) {
+    public init(name: String, displayName: String, sizeMB: Int, isMultilingual: Bool = true, isDownloaded: Bool = false) {
         self.id = name
         self.name = name
         self.displayName = displayName
         self.sizeMB = sizeMB
+        self.isMultilingual = isMultilingual
         self.isDownloaded = isDownloaded
     }
 
@@ -40,7 +42,7 @@ public struct WhisperModel: Identifiable, Equatable, Hashable {
         WhisperModel(name: "openai_whisper-small", displayName: "Small", sizeMB: 244),
         WhisperModel(name: "openai_whisper-medium", displayName: "Medium", sizeMB: 769),
         WhisperModel(name: "openai_whisper-large-v3", displayName: "Large V3", sizeMB: 1550),
-        WhisperModel(name: "distil-whisper_distil-large-v3", displayName: "Distil Large V3", sizeMB: 756),
+        WhisperModel(name: "distil-whisper_distil-large-v3", displayName: "Distil Large V3", sizeMB: 756, isMultilingual: false),
     ]
 
     nonisolated(unsafe) public static let defaultModel = availableModels.first!

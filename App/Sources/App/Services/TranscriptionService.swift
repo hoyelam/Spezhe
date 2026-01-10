@@ -23,11 +23,11 @@ public class TranscriptionService: ObservableObject {
         let startTime = Date()
 
         do {
-            logDebug("Creating WhisperKitConfig with prewarm enabled...", category: .transcription)
+            logDebug("Creating WhisperKitConfig...", category: .transcription)
             let config = WhisperKitConfig(
                 model: modelName,
                 verbose: true,
-                prewarm: true,
+                prewarm: false,  // Skip prewarm - CoreML compiles on first use and caches
                 load: true
             )
 
@@ -78,7 +78,7 @@ public class TranscriptionService: ObservableObject {
         }
     }
 
-    public func transcribe(audioArray: [Float]) async throws -> TranscriptionResult {
+    public func transcribe(audioArray: [Float], language: String? = nil) async throws -> TranscriptionResult {
         logInfo("Starting transcription...", category: .transcription)
 
         guard let whisperKit = whisperKit else {
@@ -104,11 +104,29 @@ public class TranscriptionService: ObservableObject {
             logWarning("Audio appears to be silent (max amplitude < 0.001)", category: .transcription)
         }
 
+        // Determine effective language (nil or "auto" means auto-detect)
+        let effectiveLanguage: String? = (language == nil || language == "auto") ? nil : language
+        if let lang = effectiveLanguage {
+            logInfo("Forcing transcription language: \(lang)", category: .transcription)
+        } else {
+            logDebug("Language will be auto-detected", category: .transcription)
+        }
+
         let startTime = Date()
 
         do {
             logDebug("Calling WhisperKit.transcribe()...", category: .transcription)
-            let results = try await whisperKit.transcribe(audioArray: audioArray)
+            // When forcing a language, both usePrefillPrompt and usePrefillCache must be true
+            // Based on WhisperKit example: https://github.com/argmaxinc/whisperkit
+            let options = DecodingOptions(
+                verbose: true,
+                task: .transcribe,
+                language: effectiveLanguage,
+                usePrefillPrompt: true,  // Always true - forces task/language tokens
+                usePrefillCache: true    // Always true - uses precomputed KV caches
+            )
+            logDebug("DecodingOptions: language=\(effectiveLanguage ?? "auto"), usePrefillPrompt=true, usePrefillCache=true", category: .transcription)
+            let results = try await whisperKit.transcribe(audioArray: audioArray, decodeOptions: options)
 
             let transcriptionTime = Date().timeIntervalSince(startTime)
             logDebug("WhisperKit.transcribe() completed in \(String(format: "%.2f", transcriptionTime)) seconds", category: .transcription)

@@ -14,6 +14,7 @@ enum Constants {
         static let selectedModelName = "selectedModelName"
         static let autoPasteEnabled = "autoPasteEnabled"
         static let hasCompletedOnboarding = "hasCompletedOnboarding"
+        static let activeProfileId = "activeProfileId"
     }
 
     enum Defaults {

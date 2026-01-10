@@ -20,12 +20,17 @@ public struct SettingsView: View {
                     Label("Models", systemImage: "cpu")
                 }
 
+            ProfilesSettingsTab()
+                .tabItem {
+                    Label("Profiles", systemImage: "person.crop.rectangle.stack")
+                }
+
             PermissionsTab(viewModel: settingsViewModel)
                 .tabItem {
                     Label("Permissions", systemImage: "lock.shield")
                 }
         }
-        .frame(width: 500, height: 400)
+        .frame(width: 500, height: 450)
         .onChange(of: settingsViewModel.selectedModelName) { oldValue, newValue in
             guard oldValue != newValue else { return }
             settingsViewModel.saveSettings()

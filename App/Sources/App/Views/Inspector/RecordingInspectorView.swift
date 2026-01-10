@@ -39,6 +39,20 @@ public struct RecordingInspectorView: View {
                 LabeledContent("Model Used") {
                     Text(formatModelName(recording.modelUsed))
                 }
+
+                if let profileId = recording.profileId,
+                   let profile = ProfileRepository.shared.fetch(byId: profileId) {
+                    LabeledContent("Profile") {
+                        Text(profile.name)
+                    }
+                }
+
+                if recording.processedText != nil {
+                    LabeledContent("AI Processed") {
+                        Image(systemName: "checkmark.circle.fill")
+                            .foregroundColor(.green)
+                    }
+                }
             }
         }
         .formStyle(.grouped)

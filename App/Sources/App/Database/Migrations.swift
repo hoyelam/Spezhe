@@ -24,5 +24,22 @@ struct AppMigrations {
                 t.add(column: "summary", .text)
             }
         }
+
+        migrator.registerMigration("v3_addTranscriptionProfiles") { db in
+            try db.create(table: "transcription_profiles") { t in
+                t.autoIncrementedPrimaryKey("id")
+                t.column("name", .text).notNull()
+                t.column("modelName", .text)
+                t.column("language", .text)
+                t.column("customPrompt", .text)
+                t.column("createdAt", .datetime).notNull()
+                t.column("updatedAt", .datetime).notNull()
+            }
+
+            try db.alter(table: "recordings") { t in
+                t.add(column: "profileId", .integer).references("transcription_profiles", onDelete: .setNull)
+                t.add(column: "processedText", .text)
+            }
+        }
     }
 }

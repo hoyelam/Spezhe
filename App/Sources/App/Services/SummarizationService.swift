@@ -347,6 +347,60 @@ public class SummarizationService: ObservableObject {
             return truncated + "..."
         }
     }
+
+    /// Processes transcription text using a custom user-defined prompt
+    /// - Parameters:
+    ///   - transcription: The full transcription text to process
+    ///   - customPrompt: The user's custom prompt/instructions for processing
+    /// - Returns: The processed text, or nil if processing failed or is unavailable
+    public func processWithCustomPrompt(transcription: String, customPrompt: String) async -> String? {
+        guard isAvailable else {
+            logWarning("Custom prompt processing skipped: Foundation Models not available", category: .app)
+            return nil
+        }
+
+        let trimmedText = transcription.trimmingCharacters(in: .whitespacesAndNewlines)
+        let trimmedPrompt = customPrompt.trimmingCharacters(in: .whitespacesAndNewlines)
+
+        guard !trimmedText.isEmpty else {
+            logWarning("Custom prompt processing skipped: Empty transcription", category: .app)
+            return nil
+        }
+
+        guard !trimmedPrompt.isEmpty else {
+            logWarning("Custom prompt processing skipped: Empty prompt", category: .app)
+            return nil
+        }
+
+        isProcessing = true
+        defer { isProcessing = false }
+
+        logInfo("Processing transcription with custom prompt (\(trimmedText.count) chars)...", category: .app)
+        let startTime = Date()
+
+        guard #available(macOS 26.0, *) else {
+            logWarning("Custom prompt processing skipped: macOS 26.0 required", category: .app)
+            return nil
+        }
+
+        #if canImport(FoundationModels)
+        do {
+            let session = LanguageModelSession(instructions: trimmedPrompt)
+            let response = try await session.respond(to: trimmedText)
+            let processedText = response.content.trimmingCharacters(in: .whitespacesAndNewlines)
+
+            let duration = Date().timeIntervalSince(startTime)
+            logInfo("Custom prompt processing completed in \(String(format: "%.2f", duration))s (\(processedText.count) chars)", category: .app)
+
+            return processedText.isEmpty ? nil : processedText
+        } catch {
+            logError("Failed to process with custom prompt: \(error.localizedDescription)", category: .app)
+            return nil
+        }
+        #else
+        return nil
+        #endif
+    }
 }
 
 public enum SummarizationError: LocalizedError {
