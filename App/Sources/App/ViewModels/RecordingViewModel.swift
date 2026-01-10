@@ -171,15 +171,6 @@ public class RecordingViewModel: ObservableObject {
             let transcriptionResult = try await transcriptionService.transcribe(audioArray: audioResult.samples)
             logInfo("Transcription successful: '\(transcriptionResult.text)'", category: .app)
 
-            // Generate AI summaries (one-liner + summary)
-            let (oneLiner, summary) = await summarizationService.generateSummaries(from: transcriptionResult.text)
-            if let ol = oneLiner {
-                logInfo("AI one-liner generated: '\(ol)'", category: .app)
-            }
-            if let s = summary {
-                logInfo("AI summary generated: '\(s)'", category: .app)
-            }
-
             // Save audio file
             let (audioFileName, fileSize) = try AudioFileManager.shared.saveAudio(
                 audioResult.samples,
@@ -187,12 +178,12 @@ public class RecordingViewModel: ObservableObject {
             )
             logInfo("Audio saved: \(audioFileName), size: \(fileSize) bytes", category: .app)
 
-            // Create and save recording to database
+            // Create and save recording to database immediately (without summaries)
             var recording = Recording(
                 title: "",
                 transcriptionText: transcriptionResult.text,
-                oneLiner: oneLiner,
-                summary: summary,
+                oneLiner: nil,
+                summary: nil,
                 audioFileName: audioFileName,
                 createdAt: Date(),
                 duration: audioResult.duration,
@@ -205,6 +196,13 @@ public class RecordingViewModel: ObservableObject {
 
             try RecordingRepository.shared.insert(&recording)
             logInfo("Recording saved to database with ID: \(recording.id ?? -1)", category: .app)
+
+            // Generate AI summaries asynchronously (don't block the UI)
+            if let recordingId = recording.id {
+                Task {
+                    await generateSummariesAsync(for: recordingId, text: transcriptionResult.text)
+                }
+            }
 
             // Notify UI of new recording
             newRecordingID = recording.id
@@ -254,6 +252,36 @@ public class RecordingViewModel: ObservableObject {
         state = .idle
         showPopup(false)
         logDebug("Recording cancelled", category: .app)
+    }
+
+    /// Generates AI summaries asynchronously and updates the recording in the database
+    private func generateSummariesAsync(for recordingId: Int64, text: String) async {
+        logDebug("Starting async summary generation for recording \(recordingId)", category: .app)
+
+        let (oneLiner, summary) = await summarizationService.generateSummaries(from: text)
+
+        if let ol = oneLiner {
+            logInfo("AI one-liner generated: '\(ol)'", category: .app)
+        }
+        if let s = summary {
+            logInfo("AI summary generated: '\(s)'", category: .app)
+        }
+
+        // Update the recording in the database with the generated summaries
+        guard var recording = RecordingRepository.shared.fetch(byId: recordingId) else {
+            logWarning("Recording \(recordingId) not found for summary update", category: .app)
+            return
+        }
+
+        recording.oneLiner = oneLiner
+        recording.summary = summary
+
+        do {
+            try RecordingRepository.shared.update(recording)
+            logInfo("Recording \(recordingId) updated with AI summaries", category: .app)
+        } catch {
+            logError("Failed to update recording with summaries: \(error.localizedDescription)", category: .app)
+        }
     }
 
     private func showPopup(_ show: Bool) {
