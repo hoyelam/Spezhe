@@ -55,7 +55,10 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     private func setupKeyboardShortcut() {
-        KeyboardShortcuts.setShortcut(.init(.space, modifiers: [.option]), for: .toggleRecording)
+        // Only set the default shortcut if no custom shortcut has been configured
+        if KeyboardShortcuts.getShortcut(for: .toggleRecording) == nil {
+            KeyboardShortcuts.setShortcut(.init(.space, modifiers: [.option]), for: .toggleRecording)
+        }
 
         KeyboardShortcuts.onKeyUp(for: .toggleRecording) { [weak self] in
             Task { @MainActor in
