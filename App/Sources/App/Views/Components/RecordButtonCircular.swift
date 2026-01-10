@@ -11,20 +11,20 @@ public struct RecordButtonCircular: View {
         }) {
             ZStack {
                 Circle()
-                    .fill(viewModel.state.isRecording ? Color.red.opacity(0.2) : Color.clear)
+                    .fill(viewModel.state.isRecording ? Color.accentColor.opacity(0.2) : Color.clear)
                     .frame(width: 60, height: 60)
 
                 Circle()
-                    .stroke(Color.red, lineWidth: 3)
+                    .stroke(Color.accentColor, lineWidth: 3)
                     .frame(width: 50, height: 50)
 
                 if viewModel.state.isRecording {
                     RoundedRectangle(cornerRadius: 4)
-                        .fill(Color.red)
+                        .fill(Color.accentColor)
                         .frame(width: 20, height: 20)
                 } else {
                     Circle()
-                        .fill(Color.red)
+                        .fill(Color.accentColor)
                         .frame(width: 36, height: 36)
                 }
             }

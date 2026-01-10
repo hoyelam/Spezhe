@@ -40,13 +40,10 @@ public struct WaveformView: View {
 
     private func barColor(for index: Int) -> Color {
         let intensity = Double(level)
-        if intensity > 0.7 {
-            return .orange
-        } else if intensity > 0.4 {
-            return .green
-        } else {
-            return .blue
-        }
+        // Map intensity to opacity with lower threshold - reaches full opacity at ~40% audio level
+        let scaledIntensity = min(intensity / 0.4, 1.0)
+        let opacity = 0.4 + (scaledIntensity * 0.6)
+        return Color.accentColor.opacity(opacity)
     }
 }
 

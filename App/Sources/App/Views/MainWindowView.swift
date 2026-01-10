@@ -148,7 +148,7 @@ struct RecordButtonToolbar: View {
                 systemImage: viewModel.state.isRecording ? "stop.circle.fill" : "record.circle"
             )
         }
-        .tint(viewModel.state.isRecording ? .red : nil)
+        .tint(viewModel.state.isRecording ? .accentColor : nil)
         .disabled(viewModel.state.isProcessing)
         .help(viewModel.state.isRecording ? "Stop Recording (⌘⌃1)" : "Start Recording (⌘⌃1)")
     }

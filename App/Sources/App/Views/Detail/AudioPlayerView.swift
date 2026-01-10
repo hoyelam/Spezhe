@@ -41,6 +41,7 @@ public struct AudioPlayerView: View {
                         .font(.title2)
                 }
                 .buttonStyle(.plain)
+                .foregroundColor(.accentColor)
                 .disabled(viewModel.currentTime <= 0)
 
                 Button {
@@ -50,6 +51,7 @@ public struct AudioPlayerView: View {
                         .font(.system(size: 44))
                 }
                 .buttonStyle(.plain)
+                .foregroundColor(.accentColor)
 
                 Button {
                     viewModel.skip(seconds: 15)
@@ -58,6 +60,7 @@ public struct AudioPlayerView: View {
                         .font(.title2)
                 }
                 .buttonStyle(.plain)
+                .foregroundColor(.accentColor)
                 .disabled(viewModel.currentTime >= viewModel.duration)
             }
         }

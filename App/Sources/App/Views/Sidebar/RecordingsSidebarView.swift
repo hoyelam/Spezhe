@@ -42,7 +42,7 @@ public struct RecordingsSidebarView: View {
                 }
                 .padding()
                 .frame(maxWidth: .infinity)
-                .background(.bar)
+                .background(Color.secondaryBackground)
             }
         }
     }

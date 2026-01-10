@@ -97,6 +97,7 @@ struct LoadingIndicatorView: View {
             ProgressView()
                 .scaleEffect(1.0)
                 .progressViewStyle(CircularProgressViewStyle())
+                .tint(.accentColor)
 
             VStack(alignment: .leading, spacing: 4) {
                 Text(title)
