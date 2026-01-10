@@ -26,10 +26,11 @@ public struct SettingsView: View {
                 }
         }
         .frame(width: 500, height: 400)
-        .onChange(of: settingsViewModel.selectedModelName) { _, _ in
+        .onChange(of: settingsViewModel.selectedModelName) { oldValue, newValue in
+            guard oldValue != newValue else { return }
             settingsViewModel.saveSettings()
             Task {
-                await recordingViewModel.reloadModel()
+                await recordingViewModel.reloadModelIfNeeded(newValue)
             }
         }
         .onChange(of: settingsViewModel.autoPasteEnabled) { _, _ in

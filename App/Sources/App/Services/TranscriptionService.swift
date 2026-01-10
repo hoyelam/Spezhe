@@ -8,6 +8,7 @@ public class TranscriptionService: ObservableObject {
     @Published public private(set) var isLoading = false
     @Published public private(set) var loadingProgress: Double = 0
     @Published public private(set) var isWarmedUp = false
+    @Published public private(set) var loadedModelName: String?
 
     public init() {
         logDebug("TranscriptionService initialized", category: .transcription)
@@ -35,6 +36,7 @@ public class TranscriptionService: ObservableObject {
 
             let loadTime = Date().timeIntervalSince(startTime)
             isModelLoaded = true
+            loadedModelName = modelName
             loadingProgress = 0.5
             logInfo("Model '\(modelName)' loaded in \(String(format: "%.2f", loadTime)) seconds, starting warm-up...", category: .transcription)
 
@@ -146,6 +148,7 @@ public class TranscriptionService: ObservableObject {
         logInfo("Unloading model", category: .transcription)
         whisperKit = nil
         isModelLoaded = false
+        loadedModelName = nil
         isWarmedUp = false
     }
 }

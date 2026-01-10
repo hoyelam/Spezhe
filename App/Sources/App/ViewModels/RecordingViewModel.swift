@@ -263,10 +263,26 @@ public class RecordingViewModel: ObservableObject {
     }
 
     public func reloadModel() async {
-        logInfo("Reloading model: \(settings.selectedModelName)", category: .app)
+        await reloadModelIfNeeded(settings.selectedModelName)
+    }
+
+    public func reloadModelIfNeeded(_ modelName: String) async {
+        // Skip if already loading a model
+        guard modelLoadTask == nil || modelLoadTask?.isCancelled == true else {
+            logDebug("Model load already in progress, skipping reload", category: .app)
+            return
+        }
+
+        // Skip if the requested model is already loaded
+        if transcriptionService.isModelLoaded && transcriptionService.loadedModelName == modelName {
+            logDebug("Model '\(modelName)' already loaded, skipping reload", category: .app)
+            return
+        }
+
+        logInfo("Reloading model: \(modelName)", category: .app)
         transcriptionService.unloadModel()
         do {
-            try await transcriptionService.loadModel(named: settings.selectedModelName)
+            try await transcriptionService.loadModel(named: modelName)
             logInfo("Model reloaded successfully", category: .app)
         } catch {
             logError("Failed to reload model: \(error.localizedDescription)", category: .app)
