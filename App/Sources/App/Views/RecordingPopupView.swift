@@ -1,4 +1,5 @@
 import SwiftUI
+import KeyboardShortcuts
 
 public struct RecordingPopupView: View {
     @EnvironmentObject private var viewModel: RecordingViewModel
@@ -46,7 +47,7 @@ public struct RecordingPopupView: View {
                             HStack(spacing: 6) {
                                 Text("Stop")
                                     .font(.system(size: 13))
-                                KeyboardShortcutBadge(keys: ["⌃", "Space"])
+                                ToggleRecordingShortcutBadge()
                             }
                         }
                         .buttonStyle(.plain)
@@ -132,6 +133,86 @@ struct KeyboardShortcutBadge: View {
                     )
             }
         }
+    }
+}
+
+// Dynamic keyboard shortcut badge that observes settings changes
+struct ToggleRecordingShortcutBadge: View {
+    @State private var shortcutKeys: [String] = ["⌥", "Space"]
+
+    var body: some View {
+        KeyboardShortcutBadge(keys: shortcutKeys)
+            .onAppear {
+                updateShortcut()
+            }
+            .onReceive(NotificationCenter.default.publisher(for: Notification.Name("KeyboardShortcuts_shortcutByNameDidChange"))) { _ in
+                updateShortcut()
+            }
+    }
+
+    private func updateShortcut() {
+        if let shortcut = KeyboardShortcuts.getShortcut(for: .toggleRecording) {
+            shortcutKeys = shortcutToKeys(shortcut)
+        } else {
+            shortcutKeys = ["⌥", "Space"] // Default fallback
+        }
+    }
+
+    private func shortcutToKeys(_ shortcut: KeyboardShortcuts.Shortcut) -> [String] {
+        var keys: [String] = []
+
+        // Add modifier symbols in standard order
+        if shortcut.modifiers.contains(.control) {
+            keys.append("⌃")
+        }
+        if shortcut.modifiers.contains(.option) {
+            keys.append("⌥")
+        }
+        if shortcut.modifiers.contains(.shift) {
+            keys.append("⇧")
+        }
+        if shortcut.modifiers.contains(.command) {
+            keys.append("⌘")
+        }
+
+        // Add the key
+        if let key = shortcut.key {
+            keys.append(keyToString(key))
+        }
+
+        return keys
+    }
+
+    private func keyToString(_ key: KeyboardShortcuts.Key) -> String {
+        // Map Carbon key codes to characters
+        let carbonKeyCodeMap: [Int: String] = [
+            // Letters
+            0: "A", 1: "S", 2: "D", 3: "F", 4: "H", 5: "G", 6: "Z", 7: "X",
+            8: "C", 9: "V", 11: "B", 12: "Q", 13: "W", 14: "E", 15: "R",
+            16: "Y", 17: "T", 18: "1", 19: "2", 20: "3", 21: "4", 22: "6",
+            23: "5", 24: "=", 25: "9", 26: "7", 27: "-", 28: "8", 29: "0",
+            30: "]", 31: "O", 32: "U", 33: "[", 34: "I", 35: "P", 37: "L",
+            38: "J", 39: "'", 40: "K", 41: ";", 42: "\\", 43: ",", 44: "/",
+            45: "N", 46: "M", 47: ".",
+            // Special keys
+            36: "↩", 48: "⇥", 49: "Space", 51: "⌫", 53: "⎋",
+            // Arrow keys
+            123: "←", 124: "→", 125: "↓", 126: "↑",
+            // Function keys
+            122: "F1", 120: "F2", 99: "F3", 118: "F4", 96: "F5", 97: "F6",
+            98: "F7", 100: "F8", 101: "F9", 109: "F10", 103: "F11", 111: "F12",
+            // Numpad
+            82: "0", 83: "1", 84: "2", 85: "3", 86: "4", 87: "5",
+            88: "6", 89: "7", 91: "8", 92: "9",
+            50: "`"
+        ]
+
+        if let character = carbonKeyCodeMap[key.rawValue] {
+            return character
+        }
+
+        // Fallback for unmapped keys
+        return "Key \(key.rawValue)"
     }
 }
 

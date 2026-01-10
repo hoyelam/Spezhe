@@ -22,7 +22,7 @@ struct ShortcutTutorialStepView: View {
             }
 
             HStack(spacing: 8) {
-                KeyboardKeyView(key: "control")
+                KeyboardKeyView(key: "option")
                 Text("+")
                     .font(.title2)
                     .foregroundColor(.secondary)
@@ -79,7 +79,7 @@ private struct KeyboardKeyView: View {
         Text(key)
             .font(.system(size: 16, weight: .medium, design: .rounded))
             .foregroundColor(.primary)
-            .padding(.horizontal, key == "control" ? 12 : 16)
+            .padding(.horizontal, key == "option" ? 12 : 16)
             .padding(.vertical, 10)
             .background(
                 RoundedRectangle(cornerRadius: 8)

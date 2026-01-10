@@ -25,7 +25,7 @@ struct ReadyStepView: View {
 
                 QuickTip(
                     icon: "keyboard",
-                    text: "Press control + Space to start recording anytime"
+                    text: "Press Option + Space to start recording anytime"
                 )
 
                 QuickTip(

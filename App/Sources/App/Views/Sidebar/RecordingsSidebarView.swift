@@ -1,4 +1,5 @@
 import SwiftUI
+import KeyboardShortcuts
 
 public struct RecordingsSidebarView: View {
     let recordings: [Recording]
@@ -35,12 +36,12 @@ public struct RecordingsSidebarView: View {
         .safeAreaInset(edge: .bottom) {
             VStack(spacing: 0) {
                 Divider()
-                HStack {
-                    Spacer()
+                VStack(spacing: 8) {
                     RecordButtonCircular()
-                    Spacer()
+                    ToggleRecordingShortcutBadge()
                 }
                 .padding()
+                .frame(maxWidth: .infinity)
                 .background(.bar)
             }
         }

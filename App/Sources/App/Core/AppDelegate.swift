@@ -55,7 +55,7 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
     }
 
     private func setupKeyboardShortcut() {
-        KeyboardShortcuts.setShortcut(.init(.space, modifiers: [.control]), for: .toggleRecording)
+        KeyboardShortcuts.setShortcut(.init(.space, modifiers: [.option]), for: .toggleRecording)
 
         KeyboardShortcuts.onKeyUp(for: .toggleRecording) { [weak self] in
             Task { @MainActor in
