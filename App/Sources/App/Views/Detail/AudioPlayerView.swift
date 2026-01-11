@@ -9,20 +9,23 @@ public struct AudioPlayerView: View {
 
     public var body: some View {
         VStack(spacing: 12) {
-            PlaybackWaveformView(
-                audioSamples: viewModel.waveformSamples,
-                currentProgress: viewModel.progress
-            )
+            GeometryReader { geometry in
+                PlaybackWaveformView(
+                    audioSamples: viewModel.waveformSamples,
+                    currentProgress: viewModel.progress
+                )
+                .contentShape(Rectangle())
+                .gesture(
+                    DragGesture(minimumDistance: 0)
+                        .onChanged { value in
+                            let width = max(1, geometry.size.width)
+                            let clampedX = min(max(0, value.location.x), width)
+                            let progress = clampedX / width
+                            viewModel.seek(toProgress: progress)
+                        }
+                )
+            }
             .frame(height: 60)
-            .contentShape(Rectangle())
-            .gesture(
-                DragGesture(minimumDistance: 0)
-                    .onChanged { value in
-                        let width = value.startLocation.x + value.translation.width
-                        let progress = width / 300
-                        viewModel.seek(toProgress: progress)
-                    }
-            )
 
             HStack {
                 Text(formatTime(viewModel.currentTime))

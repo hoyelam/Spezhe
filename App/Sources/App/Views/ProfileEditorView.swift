@@ -1,6 +1,7 @@
 import SwiftUI
 
 struct ProfileEditorView: View {
+    @Environment(\.dismiss) private var dismiss
     @State private var name: String
     @State private var useCustomModel: Bool
     @State private var modelName: String
@@ -10,8 +11,7 @@ struct ProfileEditorView: View {
     @State private var customPrompt: String
 
     private let originalProfile: TranscriptionProfile
-    private let onSave: (TranscriptionProfile) -> Void
-    private let onCancel: () -> Void
+    private let onSave: (TranscriptionProfile) -> Bool
 
     private var isNewProfile: Bool {
         originalProfile.id == nil
@@ -27,10 +27,9 @@ struct ProfileEditorView: View {
         return effectiveModel?.isMultilingual == false
     }
 
-    init(profile: TranscriptionProfile, onSave: @escaping (TranscriptionProfile) -> Void, onCancel: @escaping () -> Void) {
+    init(profile: TranscriptionProfile, onSave: @escaping (TranscriptionProfile) -> Bool) {
         self.originalProfile = profile
         self.onSave = onSave
-        self.onCancel = onCancel
 
         _name = State(initialValue: profile.name)
         _useCustomModel = State(initialValue: profile.modelName != nil)
@@ -147,7 +146,7 @@ struct ProfileEditorView: View {
 
             HStack {
                 Button("Cancel") {
-                    onCancel()
+                    dismiss()
                 }
                 .keyboardShortcut(.escape, modifiers: [])
 
@@ -175,14 +174,15 @@ struct ProfileEditorView: View {
             : nil
         updatedProfile.updatedAt = Date()
 
-        onSave(updatedProfile)
+        if onSave(updatedProfile) {
+            dismiss()
+        }
     }
 }
 
 #Preview {
     ProfileEditorView(
         profile: TranscriptionProfile(name: "Test Profile"),
-        onSave: { _ in },
-        onCancel: {}
+        onSave: { _ in true }
     )
 }

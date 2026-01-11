@@ -80,14 +80,11 @@ struct ProfilesSettingsTab: View {
         }
         .formStyle(.grouped)
         .padding()
-        .sheet(isPresented: $viewModel.isEditing) {
-            if let profile = viewModel.editingProfile {
-                ProfileEditorView(
-                    profile: profile,
-                    onSave: viewModel.saveProfile,
-                    onCancel: viewModel.cancelEditing
-                )
-            }
+        .sheet(item: $viewModel.editingProfile) { profile in
+            ProfileEditorView(
+                profile: profile,
+                onSave: viewModel.saveProfile
+            )
         }
         .alert("Delete Profile", isPresented: $showDeleteConfirmation, presenting: profileToDelete) { profile in
             Button("Delete", role: .destructive) {

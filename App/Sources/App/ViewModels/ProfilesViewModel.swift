@@ -5,7 +5,6 @@ import Combine
 public class ProfilesViewModel: ObservableObject {
     @Published public var profiles: [TranscriptionProfile] = []
     @Published public var activeProfileId: Int64?
-    @Published public var isEditing = false
     @Published public var editingProfile: TranscriptionProfile?
     @Published public var errorMessage: String?
 
@@ -35,15 +34,13 @@ public class ProfilesViewModel: ObservableObject {
 
     public func createNewProfile() {
         editingProfile = TranscriptionProfile(name: "")
-        isEditing = true
     }
 
     public func editProfile(_ profile: TranscriptionProfile) {
         editingProfile = profile
-        isEditing = true
     }
 
-    public func saveProfile(_ profile: TranscriptionProfile) {
+    public func saveProfile(_ profile: TranscriptionProfile) -> Bool {
         do {
             var mutableProfile = profile
             if profile.id == nil {
@@ -53,12 +50,12 @@ public class ProfilesViewModel: ObservableObject {
                 try profileRepository.update(mutableProfile)
                 logInfo("Updated profile: \(mutableProfile.name)", category: .app)
             }
-            isEditing = false
-            editingProfile = nil
             errorMessage = nil
+            return true
         } catch {
             errorMessage = "Failed to save profile: \(error.localizedDescription)"
             logError("Failed to save profile: \(error)", category: .app)
+            return false
         }
     }
 
@@ -83,7 +80,6 @@ public class ProfilesViewModel: ObservableObject {
     }
 
     public func cancelEditing() {
-        isEditing = false
         editingProfile = nil
     }
 
