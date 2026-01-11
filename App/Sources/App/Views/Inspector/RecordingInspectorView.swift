@@ -90,6 +90,11 @@ public struct RecordingInspectorView: View {
 
     private func formatModelName(_ name: String) -> String {
         let modelDisplayNames: [String: String] = [
+            "openai_whisper-base": "Whisper Base",
+            "openai_whisper-small": "Whisper Small",
+            "openai_whisper-medium": "Whisper Medium",
+            "openai_whisper-large-v3": "Whisper Large V3",
+            "distil-whisper_distil-large-v3": "Distil Large V3",
             "base": "Whisper Base",
             "small": "Whisper Small",
             "medium": "Whisper Medium",

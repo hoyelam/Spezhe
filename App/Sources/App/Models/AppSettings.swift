@@ -6,7 +6,12 @@ public class AppSettings: ObservableObject {
 
     @Published public var selectedModelName: String {
         didSet {
-            UserDefaults.standard.set(selectedModelName, forKey: Constants.UserDefaultsKeys.selectedModelName)
+            let normalized = Self.normalizeModelName(selectedModelName)
+            if normalized != selectedModelName {
+                selectedModelName = normalized
+                return
+            }
+            UserDefaults.standard.set(normalized, forKey: Constants.UserDefaultsKeys.selectedModelName)
         }
     }
 
@@ -27,7 +32,12 @@ public class AppSettings: ObservableObject {
     }
 
     private init() {
-        self.selectedModelName = UserDefaults.standard.string(forKey: Constants.UserDefaultsKeys.selectedModelName) ?? Constants.Defaults.modelName
+        let storedModelName = UserDefaults.standard.string(forKey: Constants.UserDefaultsKeys.selectedModelName)
+        let normalizedModelName = Self.normalizeModelName(storedModelName)
+        self.selectedModelName = normalizedModelName
+        if storedModelName != normalizedModelName {
+            UserDefaults.standard.set(normalizedModelName, forKey: Constants.UserDefaultsKeys.selectedModelName)
+        }
         self.autoPasteEnabled = UserDefaults.standard.object(forKey: Constants.UserDefaultsKeys.autoPasteEnabled) as? Bool ?? Constants.Defaults.autoPasteEnabled
 
         if let storedId = UserDefaults.standard.object(forKey: Constants.UserDefaultsKeys.activeProfileId) as? Int64 {
@@ -44,5 +54,27 @@ public class AppSettings: ObservableObject {
     public var activeProfile: TranscriptionProfile? {
         guard let id = activeProfileId else { return nil }
         return ProfileRepository.shared.fetch(byId: id)
+    }
+
+    private static func normalizeModelName(_ name: String?) -> String {
+        let fallback = Constants.Defaults.modelName
+        guard let name, !name.isEmpty else { return fallback }
+
+        let legacyMap: [String: String] = [
+            "base": "openai_whisper-base",
+            "small": "openai_whisper-small",
+            "medium": "openai_whisper-medium",
+            "large-v3": "openai_whisper-large-v3",
+            "distil-large-v3": "distil-whisper_distil-large-v3"
+        ]
+        if let mapped = legacyMap[name] {
+            return mapped
+        }
+
+        if WhisperModel.model(named: name) != nil {
+            return name
+        }
+
+        return fallback
     }
 }

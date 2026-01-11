@@ -36,7 +36,7 @@ public class ModelManagerService: ObservableObject {
 
         do {
             logDebug("Creating WhisperKitConfig for download...", category: .model)
-            let config = WhisperKitConfig(model: model.name)
+            let config = WhisperKitConfig(model: model.name, prewarm: false, load: true)
 
             logDebug("Initializing WhisperKit to trigger download...", category: .model)
             _ = try await WhisperKit(config)

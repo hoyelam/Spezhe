@@ -37,49 +37,86 @@ public class RecordingViewModel: ObservableObject {
     }
 
     private func loadModelIfNeeded() {
+        startModelLoadIfNeeded()
+    }
+
+    private func startModelLoadIfNeeded() {
+        guard modelLoadTask == nil || modelLoadTask?.isCancelled == true else { return }
+        if transcriptionService.isModelLoaded && transcriptionService.loadedModelName == settings.selectedModelName {
+            return
+        }
+
         let modelName = settings.selectedModelName
         logInfo("Pre-loading model: \(modelName)", category: .app)
 
         modelLoadTask = Task {
             defer { modelLoadTask = nil }
 
-            // Check if model is already downloaded
-            await ModelManagerService.shared.refreshDownloadedModels()
-            let isDownloaded = ModelManagerService.shared.isModelDownloaded(modelName)
-
-            if isDownloaded {
-                // Model is downloaded, load it directly
-                do {
-                    try await transcriptionService.loadModel(named: modelName)
+            do {
+                try await loadSelectedModel(allowFallbackIfNeedsConfirmation: false)
+                if transcriptionService.isModelLoaded {
                     logInfo("Model pre-loaded successfully", category: .app)
-                } catch {
-                    logError("Failed to pre-load model: \(error.localizedDescription)", category: .app)
                 }
-            } else {
-                // Model not downloaded - check if it requires confirmation
-                guard let model = WhisperModel.model(named: modelName) else {
-                    logError("Unknown model: \(modelName)", category: .app)
-                    return
-                }
-
-                if model.requiresDownloadConfirmation {
-                    // Large model - require user confirmation
-                    logInfo("Model \(modelName) requires download confirmation (\(model.sizeDescription))", category: .app)
-                    pendingDownloadModel = model
-                    showDownloadConfirmation = true
-                } else {
-                    // Small model (e.g., Base) - download silently
-                    logInfo("Downloading small model \(modelName) (\(model.sizeDescription))", category: .app)
-                    do {
-                        try await ModelManagerService.shared.downloadModel(model)
-                        try await transcriptionService.loadModel(named: modelName)
-                        logInfo("Model downloaded and pre-loaded successfully", category: .app)
-                    } catch {
-                        logError("Failed to download/load model: \(error.localizedDescription)", category: .app)
-                    }
-                }
+            } catch {
+                logError("Failed to pre-load model: \(error.localizedDescription)", category: .app)
             }
         }
+    }
+
+    private func loadSelectedModel(allowFallbackIfNeedsConfirmation: Bool) async throws {
+        let modelName = settings.selectedModelName
+        await ModelManagerService.shared.refreshDownloadedModels()
+        let isDownloaded = ModelManagerService.shared.isModelDownloaded(modelName)
+
+        if isDownloaded {
+            try await transcriptionService.loadModel(named: modelName)
+            return
+        }
+
+        guard let model = WhisperModel.model(named: modelName) else {
+            logError("Unknown model: \(modelName)", category: .app)
+            throw RecordingError.unknownModel(modelName)
+        }
+
+        if model.requiresDownloadConfirmation {
+            if allowFallbackIfNeedsConfirmation {
+                logInfo("Model \(modelName) not downloaded and requires confirmation, falling back to Base", category: .app)
+                let baseModel = WhisperModel.defaultModel
+
+                if ModelManagerService.shared.isModelDownloaded(baseModel.name) {
+                    settings.selectedModelName = baseModel.name
+                    try await transcriptionService.loadModel(named: baseModel.name)
+                } else {
+                    logInfo("Downloading Base model for fallback", category: .app)
+                    try await ModelManagerService.shared.downloadModel(baseModel)
+                    settings.selectedModelName = baseModel.name
+                    try await transcriptionService.loadModel(named: baseModel.name)
+                }
+            } else {
+                logInfo("Model \(modelName) requires download confirmation (\(model.sizeDescription))", category: .app)
+                pendingDownloadModel = model
+                showDownloadConfirmation = true
+            }
+            return
+        }
+
+        logInfo("Downloading small model \(modelName) (\(model.sizeDescription))", category: .app)
+        try await ModelManagerService.shared.downloadModel(model)
+        try await transcriptionService.loadModel(named: modelName)
+    }
+
+    private func ensureModelReadyForTranscription() async throws {
+        if let existingTask = modelLoadTask {
+            logDebug("Waiting for existing model load task to complete...", category: .app)
+            await existingTask.value
+            modelLoadTask = nil
+        }
+
+        if transcriptionService.isModelLoaded && transcriptionService.loadedModelName == settings.selectedModelName {
+            return
+        }
+
+        try await loadSelectedModel(allowFallbackIfNeedsConfirmation: true)
     }
 
     public func toggleRecording() async {
@@ -100,63 +137,14 @@ public class RecordingViewModel: ObservableObject {
         logInfo("Starting recording flow...", category: .app)
 
         do {
-            // Wait for any existing model load task to complete
-            if let existingTask = modelLoadTask {
-                logDebug("Waiting for existing model load task to complete...", category: .app)
-                state = .loadingModel
-                showPopup(true)
-                await existingTask.value
-                modelLoadTask = nil
-            }
-
-            if !transcriptionService.isModelLoaded {
-                logInfo("Model not loaded, loading now...", category: .app)
-                state = .loadingModel
-                showPopup(true)
-
-                let modelName = settings.selectedModelName
-                let isDownloaded = ModelManagerService.shared.isModelDownloaded(modelName)
-
-                if isDownloaded {
-                    // Model is downloaded, load it
-                    try await transcriptionService.loadModel(named: modelName)
-                } else {
-                    // Model not downloaded - check if it requires confirmation
-                    guard let model = WhisperModel.model(named: modelName) else {
-                        throw RecordingError.unknownModel(modelName)
-                    }
-
-                    if model.requiresDownloadConfirmation {
-                        // Large model needs confirmation - fallback to Base
-                        logInfo("Model \(modelName) not downloaded and requires confirmation, falling back to Base", category: .app)
-                        let baseModel = WhisperModel.defaultModel
-
-                        // Check if Base is downloaded
-                        if ModelManagerService.shared.isModelDownloaded(baseModel.name) {
-                            settings.selectedModelName = baseModel.name
-                            try await transcriptionService.loadModel(named: baseModel.name)
-                        } else {
-                            // Download Base silently (it's small)
-                            logInfo("Downloading Base model for fallback", category: .app)
-                            try await ModelManagerService.shared.downloadModel(baseModel)
-                            settings.selectedModelName = baseModel.name
-                            try await transcriptionService.loadModel(named: baseModel.name)
-                        }
-                    } else {
-                        // Small model - download silently
-                        logInfo("Downloading small model \(modelName)", category: .app)
-                        try await ModelManagerService.shared.downloadModel(model)
-                        try await transcriptionService.loadModel(named: modelName)
-                    }
-                }
-            }
-
             state = .recording
             showPopup(true)
             logDebug("State set to .recording, popup shown", category: .app)
 
             try await audioService.startRecording()
             logInfo("Recording started", category: .app)
+
+            startModelLoadIfNeeded()
         } catch {
             logError("Failed to start recording: \(error.localizedDescription)", category: .app)
             state = .error(error.localizedDescription)
@@ -175,6 +163,15 @@ public class RecordingViewModel: ObservableObject {
             let audioResult = try await audioService.stopRecording()
             logInfo("Audio captured: \(audioResult.samples.count) samples, duration: \(audioResult.duration)s", category: .app)
 
+            if transcriptionService.isModelLoaded && transcriptionService.loadedModelName == settings.selectedModelName {
+                state = .processing
+                logDebug("State set to .processing", category: .app)
+            } else {
+                state = .loadingModel
+                logDebug("State set to .loadingModel", category: .app)
+            }
+
+            try await ensureModelReadyForTranscription()
             state = .processing
             logDebug("State set to .processing", category: .app)
 

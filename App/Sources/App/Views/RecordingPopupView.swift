@@ -79,6 +79,10 @@ public struct RecordingPopupView: View {
         .frame(width: 420, height: 140)
         .background(Color(nsColor: .windowBackgroundColor))
         .clipShape(RoundedRectangle(cornerRadius: 12))
+        .onReceive(NotificationCenter.default.publisher(for: .cycleProfileShortcut)) { _ in
+            guard viewModel.state.isRecording else { return }
+            profilesViewModel.cycleToNextProfile()
+        }
     }
 }
 

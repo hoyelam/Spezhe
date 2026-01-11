@@ -5,6 +5,10 @@ extension KeyboardShortcuts.Name {
     static let toggleRecording = Self("toggleRecording")
 }
 
+extension Notification.Name {
+    static let cycleProfileShortcut = Notification.Name("Spetra.cycleProfileShortcut")
+}
+
 enum Constants {
     static let bundleIdentifier = "com.kin-yee.spetra"
     static let appSupportDirectory = "Spetra"
@@ -18,7 +22,7 @@ enum Constants {
     }
 
     enum Defaults {
-        static let modelName = "base"
+        static let modelName = "openai_whisper-base"
         static let autoPasteEnabled = true
     }
 }

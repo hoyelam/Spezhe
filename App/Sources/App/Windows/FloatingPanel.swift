@@ -45,7 +45,9 @@ public class FloatingPanel: NSPanel {
     }
 
     public override func keyDown(with event: NSEvent) {
-        if event.keyCode == 53 { // Escape key
+        if isPlainTab(event) {
+            NotificationCenter.default.post(name: .cycleProfileShortcut, object: nil)
+        } else if event.keyCode == 53 { // Escape key
             onCancel?()
         } else {
             super.keyDown(with: event)
@@ -64,7 +66,10 @@ public class FloatingPanel: NSPanel {
 
         // Local monitor for when app is focused
         localEventMonitor = NSEvent.addLocalMonitorForEvents(matching: .keyDown) { [weak self] event in
-            if event.keyCode == 53 { // Escape key
+            if self?.isPlainTab(event) == true {
+                NotificationCenter.default.post(name: .cycleProfileShortcut, object: nil)
+                return nil // Consume the event
+            } else if event.keyCode == 53 { // Escape key
                 DispatchQueue.main.async {
                     self?.onCancel?()
                 }
@@ -87,5 +92,11 @@ public class FloatingPanel: NSPanel {
 
     public func activatePanel() {
         orderFrontRegardless()
+    }
+
+    private func isPlainTab(_ event: NSEvent) -> Bool {
+        guard event.keyCode == 48 else { return false } // Tab key
+        let modifiers = event.modifierFlags.intersection([.shift, .control, .option, .command])
+        return modifiers.isEmpty
     }
 }

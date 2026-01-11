@@ -9,6 +9,8 @@ public class TranscriptionService: ObservableObject {
     @Published public private(set) var loadingProgress: Double = 0
     @Published public private(set) var isWarmedUp = false
     @Published public private(set) var loadedModelName: String?
+    private var warmUpTask: Task<Void, Never>?
+    private var warmedModelNames = Set<String>()
 
     public init() {
         logDebug("TranscriptionService initialized", category: .transcription)
@@ -19,8 +21,11 @@ public class TranscriptionService: ObservableObject {
         isLoading = true
         loadingProgress = 0
         isWarmedUp = false
+        warmUpTask?.cancel()
+        warmUpTask = nil
 
         let startTime = Date()
+        defer { isLoading = false }
 
         do {
             logDebug("Creating WhisperKitConfig...", category: .transcription)
@@ -37,26 +42,34 @@ public class TranscriptionService: ObservableObject {
             let loadTime = Date().timeIntervalSince(startTime)
             isModelLoaded = true
             loadedModelName = modelName
-            loadingProgress = 0.5
-            logInfo("Model '\(modelName)' loaded in \(String(format: "%.2f", loadTime)) seconds, starting warm-up...", category: .transcription)
-
-            // Warm up the model with a short silent audio to force CoreML compilation
-            await warmUpModel()
-
-            let totalTime = Date().timeIntervalSince(startTime)
             loadingProgress = 1.0
-            logInfo("Model '\(modelName)' fully ready in \(String(format: "%.2f", totalTime)) seconds", category: .transcription)
+            logInfo("Model '\(modelName)' loaded in \(String(format: "%.2f", loadTime)) seconds", category: .transcription)
+
+            startWarmUpIfNeeded(for: modelName)
         } catch {
             isModelLoaded = false
+            loadedModelName = nil
             logError("Failed to load model '\(modelName)': \(error.localizedDescription)", category: .transcription)
             throw TranscriptionError.modelLoadFailed(error.localizedDescription)
         }
-
-        isLoading = false
     }
 
-    private func warmUpModel() async {
-        guard let whisperKit = whisperKit else { return }
+    private func startWarmUpIfNeeded(for modelName: String) {
+        guard whisperKit != nil else { return }
+        if warmedModelNames.contains(modelName) {
+            isWarmedUp = true
+            return
+        }
+
+        warmUpTask?.cancel()
+        warmUpTask = Task { [weak self] in
+            await self?.warmUpModel(modelName: modelName)
+        }
+    }
+
+    private func warmUpModel(modelName: String) async {
+        guard loadedModelName == modelName, let whisperKit = whisperKit else { return }
+        defer { warmUpTask = nil }
 
         logDebug("Warming up model with silent audio...", category: .transcription)
         let warmUpStartTime = Date()
@@ -68,11 +81,15 @@ public class TranscriptionService: ObservableObject {
             // Run a transcription to compile the CoreML model
             _ = try await whisperKit.transcribe(audioArray: silentAudio)
             let warmUpTime = Date().timeIntervalSince(warmUpStartTime)
+            guard loadedModelName == modelName else { return }
+            warmedModelNames.insert(modelName)
             isWarmedUp = true
             logInfo("Model warm-up completed in \(String(format: "%.2f", warmUpTime)) seconds", category: .transcription)
         } catch {
             // Warm-up might fail on silent audio, but that's OK - the model is still compiled
             let warmUpTime = Date().timeIntervalSince(warmUpStartTime)
+            guard loadedModelName == modelName else { return }
+            warmedModelNames.insert(modelName)
             isWarmedUp = true
             logDebug("Model warm-up finished in \(String(format: "%.2f", warmUpTime)) seconds (expected for silent audio)", category: .transcription)
         }
@@ -110,6 +127,11 @@ public class TranscriptionService: ObservableObject {
             logInfo("Forcing transcription language: \(lang)", category: .transcription)
         } else {
             logDebug("Language will be auto-detected", category: .transcription)
+        }
+
+        if let warmUpTask = warmUpTask {
+            logDebug("Waiting for model warm-up to complete...", category: .transcription)
+            await warmUpTask.value
         }
 
         let startTime = Date()
@@ -164,6 +186,8 @@ public class TranscriptionService: ObservableObject {
 
     public func unloadModel() {
         logInfo("Unloading model", category: .transcription)
+        warmUpTask?.cancel()
+        warmUpTask = nil
         whisperKit = nil
         isModelLoaded = false
         loadedModelName = nil
