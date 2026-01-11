@@ -5,6 +5,7 @@ import Combine
 public class SettingsViewModel: ObservableObject {
     @Published public var selectedModelName: String
     @Published public var autoPasteEnabled: Bool
+    @Published public var analyticsEnabled: Bool
     @Published public var isAccessibilityEnabled: Bool
 
     private let settings = AppSettings.shared
@@ -13,12 +14,14 @@ public class SettingsViewModel: ObservableObject {
     public init() {
         self.selectedModelName = settings.selectedModelName
         self.autoPasteEnabled = settings.autoPasteEnabled
+        self.analyticsEnabled = settings.analyticsEnabled
         self.isAccessibilityEnabled = accessibilityManager.isAccessibilityEnabled
     }
 
     public func saveSettings() {
         settings.selectedModelName = selectedModelName
         settings.autoPasteEnabled = autoPasteEnabled
+        settings.analyticsEnabled = analyticsEnabled
     }
 
     public func refreshAccessibilityStatus() {

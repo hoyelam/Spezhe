@@ -19,6 +19,9 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
         _ = AudioFileManager.shared
         logInfo("Database and file manager initialized", category: .app)
 
+        AnalyticsService.shared.configure()
+        AnalyticsService.shared.track(.appLaunched)
+
         setupStatusItem()
         setupKeyboardShortcut()
         setupFloatingPanel()
@@ -62,7 +65,7 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
 
         KeyboardShortcuts.onKeyUp(for: .toggleRecording) { [weak self] in
             Task { @MainActor in
-                await self?.recordingViewModel.toggleRecording()
+                await self?.recordingViewModel.toggleRecording(source: .keyboardShortcut)
             }
         }
     }

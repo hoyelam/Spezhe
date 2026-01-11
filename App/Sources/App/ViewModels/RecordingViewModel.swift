@@ -20,6 +20,7 @@ public class RecordingViewModel: ObservableObject {
     private let summarizationService = SummarizationService.shared
     private let clipboardService = ClipboardService.shared
     private let settings = AppSettings.shared
+    private let analytics = AnalyticsService.shared
 
     private var cancellables = Set<AnyCancellable>()
     private var modelLoadTask: Task<Void, Never>?
@@ -119,21 +120,21 @@ public class RecordingViewModel: ObservableObject {
         try await loadSelectedModel(allowFallbackIfNeedsConfirmation: true)
     }
 
-    public func toggleRecording() async {
+    public func toggleRecording(source: RecordingTriggerSource = .unknown) async {
         logDebug("toggleRecording() called, current state: \(state)", category: .app)
 
         switch state {
         case .idle, .completed, .error:
-            await startRecording()
+            await startRecording(source: source)
         case .recording:
-            await stopRecording()
+            await stopRecording(source: source)
         case .loadingModel, .processing:
             logWarning("toggleRecording() ignored - currently processing", category: .app)
             break
         }
     }
 
-    private func startRecording() async {
+    private func startRecording(source: RecordingTriggerSource) async {
         logInfo("Starting recording flow...", category: .app)
 
         do {
@@ -143,6 +144,7 @@ public class RecordingViewModel: ObservableObject {
 
             try await audioService.startRecording()
             logInfo("Recording started", category: .app)
+            analytics.track(.recordingStarted, properties: analyticsContextProperties(source: source, profile: settings.activeProfile))
 
             startModelLoadIfNeeded()
         } catch {
@@ -155,13 +157,26 @@ public class RecordingViewModel: ObservableObject {
         }
     }
 
-    public func stopRecording() async {
+    public func stopRecording(source: RecordingTriggerSource = .unknown) async {
         logInfo("Stopping recording flow...", category: .app)
+
+        let activeProfile = settings.activeProfile
+        let baseProperties = analyticsContextProperties(source: source, profile: activeProfile)
+        var failureStage = "stop_recording"
+        var audioDuration: Double?
+        var samplesCount: Int?
 
         do {
             logDebug("Stopping audio service...", category: .app)
             let audioResult = try await audioService.stopRecording()
             logInfo("Audio captured: \(audioResult.samples.count) samples, duration: \(audioResult.duration)s", category: .app)
+
+            audioDuration = audioResult.duration
+            samplesCount = audioResult.samples.count
+            var recordingStoppedProperties = baseProperties
+            recordingStoppedProperties["duration_sec"] = audioResult.duration
+            recordingStoppedProperties["samples_count"] = audioResult.samples.count
+            analytics.track(.recordingStopped, properties: recordingStoppedProperties)
 
             if transcriptionService.isModelLoaded && transcriptionService.loadedModelName == settings.selectedModelName {
                 state = .processing
@@ -171,12 +186,12 @@ public class RecordingViewModel: ObservableObject {
                 logDebug("State set to .loadingModel", category: .app)
             }
 
+            failureStage = "model_load"
             try await ensureModelReadyForTranscription()
             state = .processing
             logDebug("State set to .processing", category: .app)
 
             // Get active profile settings
-            let activeProfile = settings.activeProfile
             let language = activeProfile?.language
 
             logDebug("Starting transcription...", category: .app)
@@ -188,8 +203,16 @@ public class RecordingViewModel: ObservableObject {
                     logWarning("Model '\(model.displayName)' is English-only. Language forcing to '\(lang)' may not work correctly.", category: .app)
                 }
             }
-            var transcriptionResult = try await transcriptionService.transcribe(audioArray: audioResult.samples, language: language)
+            failureStage = "transcription"
+            var transcriptionStartedProperties = baseProperties
+            transcriptionStartedProperties["audio_duration_sec"] = audioResult.duration
+            analytics.track(.transcriptionStarted, properties: transcriptionStartedProperties)
+
+            let transcriptionStart = Date()
+            let transcriptionResult = try await transcriptionService.transcribe(audioArray: audioResult.samples, language: language)
+            let transcriptionDuration = Date().timeIntervalSince(transcriptionStart)
             logInfo("Transcription successful: '\(transcriptionResult.text)'", category: .app)
+            let wordCount = transcriptionResult.text.split(separator: " ").count
 
             // Apply custom prompt if profile has one
             var processedText: String?
@@ -204,7 +227,16 @@ public class RecordingViewModel: ObservableObject {
                 }
             }
 
+            var transcriptionCompletedProperties = baseProperties
+            transcriptionCompletedProperties["audio_duration_sec"] = audioResult.duration
+            transcriptionCompletedProperties["transcription_duration_sec"] = transcriptionDuration
+            transcriptionCompletedProperties["word_count"] = wordCount
+            transcriptionCompletedProperties["detected_language"] = transcriptionResult.detectedLanguage
+            transcriptionCompletedProperties["used_custom_prompt"] = processedText != nil
+            analytics.track(.transcriptionCompleted, properties: transcriptionCompletedProperties)
+
             // Save audio file
+            failureStage = "audio_save"
             let (audioFileName, fileSize) = try AudioFileManager.shared.saveAudio(
                 audioResult.samples,
                 sampleRate: audioResult.sampleRate
@@ -212,6 +244,7 @@ public class RecordingViewModel: ObservableObject {
             logInfo("Audio saved: \(audioFileName), size: \(fileSize) bytes", category: .app)
 
             // Create and save recording to database immediately (without summaries)
+            failureStage = "database_insert"
             var recording = Recording(
                 title: "",
                 transcriptionText: transcriptionResult.text,
@@ -221,7 +254,7 @@ public class RecordingViewModel: ObservableObject {
                 createdAt: Date(),
                 duration: audioResult.duration,
                 detectedLanguage: transcriptionResult.detectedLanguage,
-                wordCount: transcriptionResult.text.split(separator: " ").count,
+                wordCount: wordCount,
                 modelUsed: settings.selectedModelName,
                 fileSize: fileSize,
                 profileId: activeProfile?.id,
@@ -275,6 +308,18 @@ public class RecordingViewModel: ObservableObject {
             }
         } catch {
             logError("Recording flow failed: \(error.localizedDescription)", category: .app)
+            var failureProperties = baseProperties
+            failureProperties["stage"] = failureStage
+            let nsError = error as NSError
+            failureProperties["error_domain"] = nsError.domain
+            failureProperties["error_code"] = nsError.code
+            if let audioDuration {
+                failureProperties["audio_duration_sec"] = audioDuration
+            }
+            if let samplesCount {
+                failureProperties["samples_count"] = samplesCount
+            }
+            analytics.track(.transcriptionFailed, properties: failureProperties)
             state = .error(error.localizedDescription)
             DispatchQueue.main.asyncAfter(deadline: .now() + 2) { [weak self] in
                 self?.state = .idle
@@ -283,9 +328,10 @@ public class RecordingViewModel: ObservableObject {
         }
     }
 
-    public func cancelRecording() async {
+    public func cancelRecording(source: RecordingTriggerSource = .unknown) async {
         logInfo("Cancelling recording...", category: .app)
         _ = try? await audioService.stopRecording()
+        analytics.track(.recordingCancelled, properties: analyticsContextProperties(source: source, profile: settings.activeProfile))
         state = .idle
         showPopup(false)
         logDebug("Recording cancelled", category: .app)
@@ -304,6 +350,12 @@ public class RecordingViewModel: ObservableObject {
             logInfo("AI summary generated: '\(s)'", category: .app)
         }
 
+        analytics.track(.summaryGenerated, properties: [
+            "one_liner_generated": oneLiner != nil,
+            "summary_generated": summary != nil,
+            "word_count": text.split(separator: " ").count
+        ])
+
         // Update the recording in the database with the generated summaries
         guard var recording = RecordingRepository.shared.fetch(byId: recordingId) else {
             logWarning("Recording \(recordingId) not found for summary update", category: .app)
@@ -319,6 +371,21 @@ public class RecordingViewModel: ObservableObject {
         } catch {
             logError("Failed to update recording with summaries: \(error.localizedDescription)", category: .app)
         }
+    }
+
+    private func analyticsContextProperties(source: RecordingTriggerSource, profile: TranscriptionProfile?) -> [String: Any] {
+        var properties: [String: Any] = [
+            "source": source.rawValue,
+            "model_name": settings.selectedModelName,
+            "auto_paste_enabled": settings.autoPasteEnabled,
+            "language_setting": profile?.language ?? "auto"
+        ]
+
+        if let profileId = profile?.id, let profileIdInt = Int(exactly: profileId) {
+            properties["profile_id"] = profileIdInt
+        }
+
+        return properties
     }
 
     private func showPopup(_ show: Bool) {

@@ -50,7 +50,7 @@ public class FloatingPanelController {
         panel?.onCancel = { [weak self] in
             guard let self = self else { return }
             Task { @MainActor in
-                await self.viewModel.cancelRecording()
+                await self.viewModel.cancelRecording(source: .popupButton)
             }
         }
 

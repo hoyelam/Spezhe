@@ -19,10 +19,14 @@ enum Constants {
         static let autoPasteEnabled = "autoPasteEnabled"
         static let hasCompletedOnboarding = "hasCompletedOnboarding"
         static let activeProfileId = "activeProfileId"
+        static let analyticsEnabled = "analyticsEnabled"
+        static let analyticsDistinctId = "analyticsDistinctId"
+        static let trackingAuthorizationRequested = "trackingAuthorizationRequested"
     }
 
     enum Defaults {
         static let modelName = "openai_whisper-base"
         static let autoPasteEnabled = true
+        static let analyticsEnabled = true
     }
 }

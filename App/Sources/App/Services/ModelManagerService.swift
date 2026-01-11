@@ -33,6 +33,10 @@ public class ModelManagerService: ObservableObject {
         downloadProgress[model.name] = 0
 
         let startTime = Date()
+        AnalyticsService.shared.track(.modelDownloadStarted, properties: [
+            "model_name": model.name,
+            "size_description": model.sizeDescription
+        ])
 
         do {
             logDebug("Creating WhisperKitConfig for download...", category: .model)
@@ -45,9 +49,21 @@ public class ModelManagerService: ObservableObject {
             downloadProgress[model.name] = 1.0
             downloadedModels.insert(model.name)
             logInfo("Model '\(model.name)' downloaded successfully in \(String(format: "%.2f", downloadTime)) seconds", category: .model)
+            AnalyticsService.shared.track(.modelDownloadCompleted, properties: [
+                "model_name": model.name,
+                "size_description": model.sizeDescription,
+                "download_duration_sec": downloadTime
+            ])
         } catch {
             downloadProgress.removeValue(forKey: model.name)
             logError("Failed to download model '\(model.name)': \(error.localizedDescription)", category: .model)
+            let nsError = error as NSError
+            AnalyticsService.shared.track(.modelDownloadFailed, properties: [
+                "model_name": model.name,
+                "size_description": model.sizeDescription,
+                "error_domain": nsError.domain,
+                "error_code": nsError.code
+            ])
             throw ModelManagerError.downloadFailed(error.localizedDescription)
         }
     }

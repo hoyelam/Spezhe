@@ -6,7 +6,7 @@ public struct RecordButtonCircular: View {
     public var body: some View {
         Button(action: {
             Task {
-                await viewModel.toggleRecording()
+                await viewModel.toggleRecording(source: .sidebarButton)
             }
         }) {
             ZStack {

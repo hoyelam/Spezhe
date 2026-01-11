@@ -41,6 +41,10 @@ public struct SettingsView: View {
         .onChange(of: settingsViewModel.autoPasteEnabled) { _, _ in
             settingsViewModel.saveSettings()
         }
+        .onChange(of: settingsViewModel.analyticsEnabled) { _, _ in
+            settingsViewModel.saveSettings()
+            AnalyticsService.shared.setEnabled(settingsViewModel.analyticsEnabled)
+        }
     }
 }
 
@@ -77,6 +81,12 @@ struct GeneralSettingsTab: View {
                 }
             } header: {
                 Text("Current Settings")
+            }
+
+            Section {
+                Toggle("Share anonymous usage analytics", isOn: $viewModel.analyticsEnabled)
+            } header: {
+                Text("Privacy")
             }
         }
         .formStyle(.grouped)

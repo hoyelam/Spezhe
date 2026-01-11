@@ -33,6 +33,10 @@ public struct MainWindowView: View {
                 selectedRecordingID = id
             }
         }
+        .onChange(of: selectedRecordingID) { _, newID in
+            guard newID != nil else { return }
+            TrackingAuthorizationService.shared.requestIfNeeded()
+        }
         .onChange(of: recordingsStore.recordings) { _, updatedRecordings in
             guard let selectedID = selectedRecordingID else { return }
             if updatedRecordings.first(where: { $0.id == selectedID }) == nil {
@@ -140,7 +144,7 @@ struct RecordButtonToolbar: View {
     var body: some View {
         Button {
             Task {
-                await viewModel.toggleRecording()
+                await viewModel.toggleRecording(source: .mainWindowButton)
             }
         } label: {
             Label(

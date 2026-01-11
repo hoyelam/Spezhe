@@ -44,6 +44,11 @@ public class OnboardingViewModel: ObservableObject {
                 continuation.resume(returning: granted)
             }
         }
+
+        AnalyticsService.shared.track(.permissionMicrophoneResult, properties: [
+            "granted": microphonePermissionGranted,
+            "source": "onboarding"
+        ])
     }
 
     public func requestAccessibilityPermission() {
@@ -66,5 +71,8 @@ public class OnboardingViewModel: ObservableObject {
 
     public func completeOnboarding() {
         UserDefaults.standard.set(true, forKey: Constants.UserDefaultsKeys.hasCompletedOnboarding)
+        AnalyticsService.shared.track(.onboardingCompleted, properties: [
+            "steps_completed": OnboardingStep.allCases.count
+        ])
     }
 }

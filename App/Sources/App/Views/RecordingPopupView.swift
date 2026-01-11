@@ -43,7 +43,7 @@ public struct RecordingPopupView: View {
                         // Stop button
                         Button {
                             Task {
-                                await viewModel.stopRecording()
+                                await viewModel.stopRecording(source: .popupButton)
                             }
                         } label: {
                             HStack(spacing: 6) {
@@ -58,7 +58,7 @@ public struct RecordingPopupView: View {
                         // Cancel button
                         Button {
                             Task {
-                                await viewModel.cancelRecording()
+                                await viewModel.cancelRecording(source: .popupButton)
                             }
                         } label: {
                             HStack(spacing: 6) {

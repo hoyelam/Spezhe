@@ -31,6 +31,12 @@ public class AppSettings: ObservableObject {
         }
     }
 
+    @Published public var analyticsEnabled: Bool {
+        didSet {
+            UserDefaults.standard.set(analyticsEnabled, forKey: Constants.UserDefaultsKeys.analyticsEnabled)
+        }
+    }
+
     private init() {
         let storedModelName = UserDefaults.standard.string(forKey: Constants.UserDefaultsKeys.selectedModelName)
         let normalizedModelName = Self.normalizeModelName(storedModelName)
@@ -45,6 +51,8 @@ public class AppSettings: ObservableObject {
         } else {
             self.activeProfileId = nil
         }
+
+        self.analyticsEnabled = UserDefaults.standard.object(forKey: Constants.UserDefaultsKeys.analyticsEnabled) as? Bool ?? Constants.Defaults.analyticsEnabled
     }
 
     public var selectedModel: WhisperModel {
