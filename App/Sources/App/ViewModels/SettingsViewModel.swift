@@ -7,6 +7,9 @@ public class SettingsViewModel: ObservableObject {
     @Published public var autoPasteEnabled: Bool
     @Published public var analyticsEnabled: Bool
     @Published public var isAccessibilityEnabled: Bool
+    @Published public var soundFeedbackEnabled: Bool
+    @Published public var recordingStartSound: String
+    @Published public var recordingStopSound: String
 
     private let settings = AppSettings.shared
     private let accessibilityManager = AccessibilityManager.shared
@@ -16,12 +19,18 @@ public class SettingsViewModel: ObservableObject {
         self.autoPasteEnabled = settings.autoPasteEnabled
         self.analyticsEnabled = settings.analyticsEnabled
         self.isAccessibilityEnabled = accessibilityManager.isAccessibilityEnabled
+        self.soundFeedbackEnabled = settings.soundFeedbackEnabled
+        self.recordingStartSound = settings.recordingStartSound
+        self.recordingStopSound = settings.recordingStopSound
     }
 
     public func saveSettings() {
         settings.selectedModelName = selectedModelName
         settings.autoPasteEnabled = autoPasteEnabled
         settings.analyticsEnabled = analyticsEnabled
+        settings.soundFeedbackEnabled = soundFeedbackEnabled
+        settings.recordingStartSound = recordingStartSound
+        settings.recordingStopSound = recordingStopSound
     }
 
     public func refreshAccessibilityStatus() {

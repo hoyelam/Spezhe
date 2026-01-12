@@ -37,6 +37,24 @@ public class AppSettings: ObservableObject {
         }
     }
 
+    @Published public var soundFeedbackEnabled: Bool {
+        didSet {
+            UserDefaults.standard.set(soundFeedbackEnabled, forKey: Constants.UserDefaultsKeys.soundFeedbackEnabled)
+        }
+    }
+
+    @Published public var recordingStartSound: String {
+        didSet {
+            UserDefaults.standard.set(recordingStartSound, forKey: Constants.UserDefaultsKeys.recordingStartSound)
+        }
+    }
+
+    @Published public var recordingStopSound: String {
+        didSet {
+            UserDefaults.standard.set(recordingStopSound, forKey: Constants.UserDefaultsKeys.recordingStopSound)
+        }
+    }
+
     private init() {
         let storedModelName = UserDefaults.standard.string(forKey: Constants.UserDefaultsKeys.selectedModelName)
         let normalizedModelName = Self.normalizeModelName(storedModelName)
@@ -53,6 +71,10 @@ public class AppSettings: ObservableObject {
         }
 
         self.analyticsEnabled = UserDefaults.standard.object(forKey: Constants.UserDefaultsKeys.analyticsEnabled) as? Bool ?? Constants.Defaults.analyticsEnabled
+
+        self.soundFeedbackEnabled = UserDefaults.standard.object(forKey: Constants.UserDefaultsKeys.soundFeedbackEnabled) as? Bool ?? Constants.Defaults.soundFeedbackEnabled
+        self.recordingStartSound = UserDefaults.standard.string(forKey: Constants.UserDefaultsKeys.recordingStartSound) ?? Constants.Defaults.recordingStartSound
+        self.recordingStopSound = UserDefaults.standard.string(forKey: Constants.UserDefaultsKeys.recordingStopSound) ?? Constants.Defaults.recordingStopSound
     }
 
     public var selectedModel: WhisperModel {

@@ -45,6 +45,15 @@ public struct SettingsView: View {
             settingsViewModel.saveSettings()
             AnalyticsService.shared.setEnabled(settingsViewModel.analyticsEnabled)
         }
+        .onChange(of: settingsViewModel.soundFeedbackEnabled) { _, _ in
+            settingsViewModel.saveSettings()
+        }
+        .onChange(of: settingsViewModel.recordingStartSound) { _, _ in
+            settingsViewModel.saveSettings()
+        }
+        .onChange(of: settingsViewModel.recordingStopSound) { _, _ in
+            settingsViewModel.saveSettings()
+        }
     }
 }
 
@@ -73,6 +82,54 @@ struct GeneralSettingsTab: View {
                 }
             } header: {
                 Text("Behavior")
+            }
+
+            Section {
+                Toggle("Play sounds when recording", isOn: $viewModel.soundFeedbackEnabled)
+
+                if viewModel.soundFeedbackEnabled {
+                    HStack {
+                        Text("Start sound")
+                        Spacer()
+                        Picker("", selection: $viewModel.recordingStartSound) {
+                            ForEach(SystemSoundName.allCases) { sound in
+                                Text(sound.displayName).tag(sound.rawValue)
+                            }
+                        }
+                        .labelsHidden()
+                        .frame(width: 120)
+
+                        Button {
+                            SoundFeedbackService.shared.previewSound(named: viewModel.recordingStartSound)
+                        } label: {
+                            Image(systemName: "speaker.wave.2")
+                        }
+                        .buttonStyle(.borderless)
+                        .help("Preview sound")
+                    }
+
+                    HStack {
+                        Text("Stop sound")
+                        Spacer()
+                        Picker("", selection: $viewModel.recordingStopSound) {
+                            ForEach(SystemSoundName.allCases) { sound in
+                                Text(sound.displayName).tag(sound.rawValue)
+                            }
+                        }
+                        .labelsHidden()
+                        .frame(width: 120)
+
+                        Button {
+                            SoundFeedbackService.shared.previewSound(named: viewModel.recordingStopSound)
+                        } label: {
+                            Image(systemName: "speaker.wave.2")
+                        }
+                        .buttonStyle(.borderless)
+                        .help("Preview sound")
+                    }
+                }
+            } header: {
+                Text("Sound Feedback")
             }
 
             Section {

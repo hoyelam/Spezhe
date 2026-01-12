@@ -19,6 +19,7 @@ public class RecordingViewModel: ObservableObject {
     private let transcriptionService = TranscriptionService()
     private let summarizationService = SummarizationService.shared
     private let clipboardService = ClipboardService.shared
+    private let soundFeedbackService = SoundFeedbackService.shared
     private let settings = AppSettings.shared
     private let analytics = AnalyticsService.shared
 
@@ -143,6 +144,7 @@ public class RecordingViewModel: ObservableObject {
             logDebug("State set to .recording, popup shown", category: .app)
 
             try await audioService.startRecording()
+            soundFeedbackService.playRecordingStartSound()
             logInfo("Recording started", category: .app)
             analytics.track(.recordingStarted, properties: analyticsContextProperties(source: source, profile: settings.activeProfile))
 
@@ -159,6 +161,7 @@ public class RecordingViewModel: ObservableObject {
 
     public func stopRecording(source: RecordingTriggerSource = .unknown) async {
         logInfo("Stopping recording flow...", category: .app)
+        soundFeedbackService.playRecordingStopSound()
 
         let activeProfile = settings.activeProfile
         let baseProperties = analyticsContextProperties(source: source, profile: activeProfile)
