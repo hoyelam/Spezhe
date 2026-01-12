@@ -1,0 +1,3 @@
+[submodule "spetra-site"]
+	path = spetra-site
+	url = git@github.com:hoyelam/Spetra-website.git
