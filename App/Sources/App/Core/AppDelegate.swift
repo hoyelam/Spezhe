@@ -22,6 +22,8 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
         AnalyticsService.shared.configure()
         AnalyticsService.shared.track(.appLaunched)
 
+        SubscriptionService.shared.configure()
+
         setupStatusItem()
         setupKeyboardShortcut()
         setupFloatingPanel()

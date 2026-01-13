@@ -3,8 +3,10 @@ import SwiftUI
 public struct MainWindowView: View {
     @EnvironmentObject private var viewModel: RecordingViewModel
     @EnvironmentObject private var recordingsStore: RecordingRepository
+    @ObservedObject private var subscriptionService = SubscriptionService.shared
     @State private var selectedRecordingID: Int64?
     @State private var showInspector = false
+    @State private var showPaywall = false
     @State private var columnVisibility: NavigationSplitViewVisibility = .all
     @State private var showOnboarding = !UserDefaults.standard.bool(
         forKey: Constants.UserDefaultsKeys.hasCompletedOnboarding
@@ -61,6 +63,9 @@ public struct MainWindowView: View {
             OnboardingView(isPresented: $showOnboarding)
                 .interactiveDismissDisabled()
         }
+        .sheet(isPresented: $showPaywall) {
+            PaywallView(isPresented: $showPaywall)
+        }
     }
 
     private var sidebarView: some View {
@@ -98,6 +103,15 @@ public struct MainWindowView: View {
     private var toolbarContent: some ToolbarContent {
         ToolbarItemGroup(placement: .primaryAction) {
             RecordButtonToolbar()
+
+            if !subscriptionService.isSubscribed {
+                Button {
+                    showPaywall = true
+                } label: {
+                    Label("Upgrade", systemImage: "star.fill")
+                }
+                .help("Upgrade to Pro")
+            }
 
             Button {
                 showInspector.toggle()
