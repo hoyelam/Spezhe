@@ -1,4 +1,5 @@
 import SwiftUI
+import Foundation
 
 public struct ModelSelectionView: View {
     @ObservedObject var viewModel: ModelDownloadViewModel
@@ -25,12 +26,14 @@ public struct ModelSelectionView: View {
             }
 
             List(viewModel.models) { model in
+                let isDownloadingModel = viewModel.downloadProgress[model.name] != nil
                 ModelRowView(
                     model: model,
                     isSelected: model.name == selectedModelName,
                     downloadProgress: viewModel.downloadProgress[model.name],
+                    isDownloadDisabled: viewModel.isDownloading && !isDownloadingModel,
                     onSelect: {
-                        if model.isDownloaded {
+                        if model.isDownloaded || model.isDefault {
                             selectedModelName = model.name
                         }
                     },
@@ -51,7 +54,8 @@ public struct ModelSelectionView: View {
 struct ModelRowView: View {
     let model: WhisperModel
     let isSelected: Bool
-    let downloadProgress: Double?
+    let downloadProgress: ModelDownloadProgress?
+    let isDownloadDisabled: Bool
     let onSelect: () -> Void
     let onDownload: () -> Void
     let onDelete: () -> Void
@@ -71,12 +75,21 @@ struct ModelRowView: View {
                 Text(model.sizeDescription)
                     .font(.caption)
                     .foregroundColor(.secondary)
+                if let progress = downloadProgress, progress.fractionCompleted < 1.0 {
+                    Text(downloadStatusText(for: progress))
+                        .font(.caption2)
+                        .foregroundColor(.secondary)
+                } else if isDownloadDisabled && !model.isDownloaded {
+                    Text("Another model is downloading")
+                        .font(.caption2)
+                        .foregroundColor(.secondary)
+                }
             }
 
             Spacer()
 
-            if let progress = downloadProgress, progress < 1.0 {
-                ProgressView(value: progress)
+            if let progress = downloadProgress, progress.fractionCompleted < 1.0 {
+                ProgressView(value: progress.fractionCompleted)
                     .progressViewStyle(.linear)
                     .frame(width: 60)
             } else if model.isDownloaded {
@@ -88,22 +101,33 @@ struct ModelRowView: View {
                         .buttonStyle(.bordered)
                         .controlSize(.small)
                     }
-                    Button(role: .destructive) {
-                        onDelete()
-                    } label: {
-                        Image(systemName: "trash")
-                            .frame(width: 24, height: 24)
-                            .contentShape(Rectangle())
+                    if !model.isDefault {
+                        Button(role: .destructive) {
+                            onDelete()
+                        } label: {
+                            Image(systemName: "trash")
+                                .frame(width: 24, height: 24)
+                                .contentShape(Rectangle())
+                        }
+                        .buttonStyle(.borderless)
+                        .foregroundColor(.red)
                     }
-                    .buttonStyle(.borderless)
-                    .foregroundColor(.red)
                 }
             } else {
-                Button("Download") {
-                    onDownload()
+                if model.isDefault && !isSelected {
+                    Button("Select") {
+                        onSelect()
+                    }
+                    .buttonStyle(.bordered)
+                    .controlSize(.small)
+                } else {
+                    Button("Download") {
+                        onDownload()
+                    }
+                    .buttonStyle(.bordered)
+                    .controlSize(.small)
+                    .disabled(isDownloadDisabled)
                 }
-                .buttonStyle(.bordered)
-                .controlSize(.small)
             }
         }
         .padding(.vertical, 4)
@@ -111,11 +135,17 @@ struct ModelRowView: View {
             Color.clear
                 .contentShape(Rectangle())
                 .onTapGesture {
-                    if model.isDownloaded {
+                    if model.isDownloaded || model.isDefault {
                         onSelect()
                     }
                 }
         }
+    }
+
+    private func downloadStatusText(for progress: ModelDownloadProgress) -> String {
+        let completed = ByteCountFormatter.string(fromByteCount: progress.completedBytes, countStyle: .file)
+        let total = ByteCountFormatter.string(fromByteCount: progress.totalBytes, countStyle: .file)
+        return "Downloading \(completed) of \(total)"
     }
 }
 

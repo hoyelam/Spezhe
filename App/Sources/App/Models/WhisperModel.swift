@@ -32,6 +32,10 @@ public struct WhisperModel: Identifiable, Equatable, Hashable {
         sizeMB > Self.downloadConfirmationThresholdMB
     }
 
+    public var isDefault: Bool {
+        name == Self.defaultModel.name
+    }
+
     /// Find a model by its name
     public static func model(named name: String) -> WhisperModel? {
         availableModels.first { $0.name == name }

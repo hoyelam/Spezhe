@@ -24,7 +24,8 @@ public class RecordingViewModel: ObservableObject {
     private let analytics = AnalyticsService.shared
 
     private var cancellables = Set<AnyCancellable>()
-    private var modelLoadTask: Task<Void, Never>?
+    private var modelLoadTask: Task<Void, Error>?
+    private var modelLoadTargetName: String?
 
     public init() {
         logDebug("RecordingViewModel initialized", category: .app)
@@ -43,20 +44,17 @@ public class RecordingViewModel: ObservableObject {
     }
 
     private func startModelLoadIfNeeded() {
-        guard modelLoadTask == nil || modelLoadTask?.isCancelled == true else { return }
-        if transcriptionService.isModelLoaded && transcriptionService.loadedModelName == settings.selectedModelName {
-            return
-        }
-
         let modelName = settings.selectedModelName
-        logInfo("Pre-loading model: \(modelName)", category: .app)
-
-        modelLoadTask = Task {
-            defer { modelLoadTask = nil }
-
+        Task { [weak self] in
+            guard let self else { return }
             do {
-                try await loadSelectedModel(allowFallbackIfNeedsConfirmation: false)
-                if transcriptionService.isModelLoaded {
+                try await ensureModelLoaded(
+                    named: modelName,
+                    allowFallbackIfNeedsConfirmation: false,
+                    bypassDownloadConfirmation: false,
+                    context: "pre-load"
+                )
+                if transcriptionService.isModelLoaded && transcriptionService.loadedModelName == modelName {
                     logInfo("Model pre-loaded successfully", category: .app)
                 }
             } catch {
@@ -65,8 +63,57 @@ public class RecordingViewModel: ObservableObject {
         }
     }
 
-    private func loadSelectedModel(allowFallbackIfNeedsConfirmation: Bool) async throws {
-        let modelName = settings.selectedModelName
+    private func ensureModelLoaded(
+        named modelName: String,
+        allowFallbackIfNeedsConfirmation: Bool,
+        bypassDownloadConfirmation: Bool,
+        context: String
+    ) async throws {
+        if transcriptionService.isModelLoaded && transcriptionService.loadedModelName == modelName {
+            return
+        }
+
+        if let existingTask = modelLoadTask, modelLoadTargetName == modelName {
+            logDebug("Model \(modelName) already loading (\(context)), awaiting", category: .app)
+            try await existingTask.value
+            return
+        }
+
+        if let existingTask = modelLoadTask {
+            logInfo("Cancelling model load for \(modelLoadTargetName ?? "unknown") in favor of \(modelName)", category: .app)
+            existingTask.cancel()
+        }
+
+        modelLoadTargetName = modelName
+        logInfo("Loading model (\(context)): \(modelName)", category: .app)
+        modelLoadTask = Task { [weak self] in
+            guard let self else { return }
+            defer {
+                if self.modelLoadTargetName == modelName {
+                    self.modelLoadTask = nil
+                    self.modelLoadTargetName = nil
+                }
+            }
+            try await self.loadSelectedModel(
+                named: modelName,
+                allowFallbackIfNeedsConfirmation: allowFallbackIfNeedsConfirmation,
+                bypassDownloadConfirmation: bypassDownloadConfirmation
+            )
+        }
+
+        let loadTask = modelLoadTask
+        try await loadTask?.value
+    }
+
+    private func loadSelectedModel(
+        named modelName: String,
+        allowFallbackIfNeedsConfirmation: Bool,
+        bypassDownloadConfirmation: Bool
+    ) async throws {
+        if transcriptionService.isModelLoaded && transcriptionService.loadedModelName == modelName {
+            return
+        }
+
         await ModelManagerService.shared.refreshDownloadedModels()
         let isDownloaded = ModelManagerService.shared.isModelDownloaded(modelName)
 
@@ -80,7 +127,7 @@ public class RecordingViewModel: ObservableObject {
             throw RecordingError.unknownModel(modelName)
         }
 
-        if model.requiresDownloadConfirmation {
+        if model.requiresDownloadConfirmation && !bypassDownloadConfirmation {
             if allowFallbackIfNeedsConfirmation {
                 logInfo("Model \(modelName) not downloaded and requires confirmation, falling back to Base", category: .app)
                 let baseModel = WhisperModel.defaultModel
@@ -108,17 +155,13 @@ public class RecordingViewModel: ObservableObject {
     }
 
     private func ensureModelReadyForTranscription() async throws {
-        if let existingTask = modelLoadTask {
-            logDebug("Waiting for existing model load task to complete...", category: .app)
-            await existingTask.value
-            modelLoadTask = nil
-        }
-
-        if transcriptionService.isModelLoaded && transcriptionService.loadedModelName == settings.selectedModelName {
-            return
-        }
-
-        try await loadSelectedModel(allowFallbackIfNeedsConfirmation: true)
+        let modelName = settings.selectedModelName
+        try await ensureModelLoaded(
+            named: modelName,
+            allowFallbackIfNeedsConfirmation: true,
+            bypassDownloadConfirmation: false,
+            context: "transcription"
+        )
     }
 
     public func toggleRecording(source: RecordingTriggerSource = .unknown) async {
@@ -402,12 +445,6 @@ public class RecordingViewModel: ObservableObject {
     }
 
     public func reloadModelIfNeeded(_ modelName: String) async {
-        // Skip if already loading a model
-        guard modelLoadTask == nil || modelLoadTask?.isCancelled == true else {
-            logDebug("Model load already in progress, skipping reload", category: .app)
-            return
-        }
-
         // Skip if the requested model is already loaded
         if transcriptionService.isModelLoaded && transcriptionService.loadedModelName == modelName {
             logDebug("Model '\(modelName)' already loaded, skipping reload", category: .app)
@@ -415,10 +452,16 @@ public class RecordingViewModel: ObservableObject {
         }
 
         logInfo("Reloading model: \(modelName)", category: .app)
-        transcriptionService.unloadModel()
         do {
-            try await transcriptionService.loadModel(named: modelName)
-            logInfo("Model reloaded successfully", category: .app)
+            try await ensureModelLoaded(
+                named: modelName,
+                allowFallbackIfNeedsConfirmation: false,
+                bypassDownloadConfirmation: false,
+                context: "reload"
+            )
+            if transcriptionService.isModelLoaded && transcriptionService.loadedModelName == modelName {
+                logInfo("Model reloaded successfully", category: .app)
+            }
         } catch {
             logError("Failed to reload model: \(error.localizedDescription)", category: .app)
         }
@@ -438,7 +481,12 @@ public class RecordingViewModel: ObservableObject {
 
         do {
             try await ModelManagerService.shared.downloadModel(model)
-            try await transcriptionService.loadModel(named: model.name)
+            try await ensureModelLoaded(
+                named: model.name,
+                allowFallbackIfNeedsConfirmation: false,
+                bypassDownloadConfirmation: true,
+                context: "confirmed download"
+            )
             logInfo("Model \(model.name) downloaded and loaded successfully", category: .app)
         } catch {
             logError("Failed to download/load model: \(error.localizedDescription)", category: .app)

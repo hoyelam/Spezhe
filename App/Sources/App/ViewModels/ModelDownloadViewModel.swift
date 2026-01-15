@@ -4,7 +4,7 @@ import Combine
 @MainActor
 public class ModelDownloadViewModel: ObservableObject {
     @Published public var models: [WhisperModel] = WhisperModel.availableModels
-    @Published public var downloadProgress: [String: Double] = [:]
+    @Published public var downloadProgress: [String: ModelDownloadProgress] = [:]
     @Published public var errorMessage: String?
     @Published public var isDownloading = false
 

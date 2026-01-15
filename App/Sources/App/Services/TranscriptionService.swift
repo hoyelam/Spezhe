@@ -11,6 +11,7 @@ public class TranscriptionService: ObservableObject {
     @Published public private(set) var loadedModelName: String?
     private var warmUpTask: Task<Void, Never>?
     private var warmedModelNames = Set<String>()
+    private var currentLoadID = UUID()
 
     public init() {
         logDebug("TranscriptionService initialized", category: .transcription)
@@ -18,6 +19,8 @@ public class TranscriptionService: ObservableObject {
 
     public func loadModel(named modelName: String) async throws {
         logInfo("Loading model: \(modelName)", category: .transcription)
+        let loadID = UUID()
+        currentLoadID = loadID
         isLoading = true
         loadingProgress = 0
         isWarmedUp = false
@@ -25,7 +28,11 @@ public class TranscriptionService: ObservableObject {
         warmUpTask = nil
 
         let startTime = Date()
-        defer { isLoading = false }
+        defer {
+            if currentLoadID == loadID {
+                isLoading = false
+            }
+        }
 
         do {
             logDebug("Creating WhisperKitConfig...", category: .transcription)
@@ -37,7 +44,12 @@ public class TranscriptionService: ObservableObject {
             )
 
             logDebug("Initializing WhisperKit (this may download the model)...", category: .transcription)
-            whisperKit = try await WhisperKit(config)
+            let whisperKitInstance = try await WhisperKit(config)
+            guard !Task.isCancelled, currentLoadID == loadID else {
+                logDebug("Model load for '\(modelName)' was superseded or cancelled", category: .transcription)
+                return
+            }
+            whisperKit = whisperKitInstance
 
             let loadTime = Date().timeIntervalSince(startTime)
             isModelLoaded = true
@@ -47,6 +59,14 @@ public class TranscriptionService: ObservableObject {
 
             startWarmUpIfNeeded(for: modelName)
         } catch {
+            guard currentLoadID == loadID else {
+                logDebug("Ignoring load error for superseded model '\(modelName)': \(error.localizedDescription)", category: .transcription)
+                return
+            }
+            if error is CancellationError {
+                logDebug("Model load for '\(modelName)' cancelled", category: .transcription)
+                return
+            }
             isModelLoaded = false
             loadedModelName = nil
             logError("Failed to load model '\(modelName)': \(error.localizedDescription)", category: .transcription)
