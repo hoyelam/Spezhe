@@ -78,4 +78,25 @@ public final class ProfileRepository: ObservableObject {
             return nil
         }
     }
+
+    public func clearModelOverrides(named modelName: String) throws -> Int {
+        let updatedAt = Date()
+        let updatedCount = try DatabaseManager.shared.dbQueue.write { db in
+            try db.execute(
+                sql: """
+                UPDATE transcription_profiles
+                SET modelName = NULL, updatedAt = ?
+                WHERE modelName = ?
+                """,
+                arguments: [updatedAt, modelName]
+            )
+            return db.changesCount
+        }
+
+        if updatedCount > 0 {
+            logInfo("Cleared model override '\(modelName)' for \(updatedCount) profile(s)", category: .app)
+        }
+
+        return updatedCount
+    }
 }

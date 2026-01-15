@@ -103,15 +103,21 @@ public class ModelManagerService: ObservableObject {
 
         if matchingFolders.isEmpty {
             logWarning("No model folders found for \(model.name)", category: .model)
-            return
-        }
-
-        for folder in matchingFolders {
-            logDebug("Removing model folder: \(folder.path)", category: .model)
-            try fileManager.removeItem(at: folder)
+        } else {
+            for folder in matchingFolders {
+                logDebug("Removing model folder: \(folder.path)", category: .model)
+                try fileManager.removeItem(at: folder)
+            }
         }
 
         downloadedModels.remove(model.name)
+
+        do {
+            _ = try ProfileRepository.shared.clearModelOverrides(named: model.name)
+        } catch {
+            logError("Failed to clear profile overrides for model '\(model.name)': \(error)", category: .model)
+        }
+
         logInfo("Model '\(model.name)' deleted successfully", category: .model)
     }
 

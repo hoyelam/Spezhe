@@ -28,7 +28,7 @@ public struct RecordingPopupView: View {
                 // Left side - Profile/Model selector
                 ProfileSelectorButton(
                     activeProfile: profilesViewModel.activeProfile,
-                    modelName: settings.selectedModel.displayName,
+                    modelName: settings.effectiveModel.displayName,
                     showPicker: $showProfilePicker
                 )
                 .popover(isPresented: $showProfilePicker, arrowEdge: .bottom) {

@@ -44,7 +44,8 @@ public class RecordingViewModel: ObservableObject {
     }
 
     private func startModelLoadIfNeeded() {
-        let modelName = settings.selectedModelName
+        let activeProfile = settings.activeProfile
+        let modelName = settings.resolvedModelName(for: activeProfile)
         Task { [weak self] in
             guard let self else { return }
             do {
@@ -154,8 +155,7 @@ public class RecordingViewModel: ObservableObject {
         try await transcriptionService.loadModel(named: modelName)
     }
 
-    private func ensureModelReadyForTranscription() async throws {
-        let modelName = settings.selectedModelName
+    private func ensureModelReadyForTranscription(modelName: String) async throws {
         try await ensureModelLoaded(
             named: modelName,
             allowFallbackIfNeedsConfirmation: true,
@@ -189,7 +189,9 @@ public class RecordingViewModel: ObservableObject {
             try await audioService.startRecording()
             soundFeedbackService.playRecordingStartSound()
             logInfo("Recording started", category: .app)
-            analytics.track(.recordingStarted, properties: analyticsContextProperties(source: source, profile: settings.activeProfile))
+            let activeProfile = settings.activeProfile
+            let modelName = settings.resolvedModelName(for: activeProfile)
+            analytics.track(.recordingStarted, properties: analyticsContextProperties(source: source, profile: activeProfile, modelName: modelName))
 
             startModelLoadIfNeeded()
         } catch {
@@ -207,7 +209,8 @@ public class RecordingViewModel: ObservableObject {
         soundFeedbackService.playRecordingStopSound()
 
         let activeProfile = settings.activeProfile
-        let baseProperties = analyticsContextProperties(source: source, profile: activeProfile)
+        let modelName = settings.resolvedModelName(for: activeProfile)
+        let baseProperties = analyticsContextProperties(source: source, profile: activeProfile, modelName: modelName)
         var failureStage = "stop_recording"
         var audioDuration: Double?
         var samplesCount: Int?
@@ -224,7 +227,7 @@ public class RecordingViewModel: ObservableObject {
             recordingStoppedProperties["samples_count"] = audioResult.samples.count
             analytics.track(.recordingStopped, properties: recordingStoppedProperties)
 
-            if transcriptionService.isModelLoaded && transcriptionService.loadedModelName == settings.selectedModelName {
+            if transcriptionService.isModelLoaded && transcriptionService.loadedModelName == modelName {
                 state = .processing
                 logDebug("State set to .processing", category: .app)
             } else {
@@ -233,7 +236,8 @@ public class RecordingViewModel: ObservableObject {
             }
 
             failureStage = "model_load"
-            try await ensureModelReadyForTranscription()
+            try await ensureModelReadyForTranscription(modelName: modelName)
+            let effectiveModelName = transcriptionService.loadedModelName ?? modelName
             state = .processing
             logDebug("State set to .processing", category: .app)
 
@@ -245,13 +249,14 @@ public class RecordingViewModel: ObservableObject {
                 logInfo("Using forced language from profile: \(lang)", category: .app)
 
                 // Check if current model supports multilingual
-                if let model = WhisperModel.model(named: settings.selectedModelName), !model.isMultilingual {
+                if let model = WhisperModel.model(named: effectiveModelName), !model.isMultilingual {
                     logWarning("Model '\(model.displayName)' is English-only. Language forcing to '\(lang)' may not work correctly.", category: .app)
                 }
             }
             failureStage = "transcription"
             var transcriptionStartedProperties = baseProperties
             transcriptionStartedProperties["audio_duration_sec"] = audioResult.duration
+            transcriptionStartedProperties["model_name"] = effectiveModelName
             analytics.track(.transcriptionStarted, properties: transcriptionStartedProperties)
 
             let transcriptionStart = Date()
@@ -279,6 +284,7 @@ public class RecordingViewModel: ObservableObject {
             transcriptionCompletedProperties["word_count"] = wordCount
             transcriptionCompletedProperties["detected_language"] = transcriptionResult.detectedLanguage
             transcriptionCompletedProperties["used_custom_prompt"] = processedText != nil
+            transcriptionCompletedProperties["model_name"] = effectiveModelName
             analytics.track(.transcriptionCompleted, properties: transcriptionCompletedProperties)
 
             // Save audio file
@@ -301,7 +307,7 @@ public class RecordingViewModel: ObservableObject {
                 duration: audioResult.duration,
                 detectedLanguage: transcriptionResult.detectedLanguage,
                 wordCount: wordCount,
-                modelUsed: settings.selectedModelName,
+                modelUsed: effectiveModelName,
                 fileSize: fileSize,
                 profileId: activeProfile?.id,
                 processedText: processedText
@@ -377,7 +383,9 @@ public class RecordingViewModel: ObservableObject {
     public func cancelRecording(source: RecordingTriggerSource = .unknown) async {
         logInfo("Cancelling recording...", category: .app)
         _ = try? await audioService.stopRecording()
-        analytics.track(.recordingCancelled, properties: analyticsContextProperties(source: source, profile: settings.activeProfile))
+        let activeProfile = settings.activeProfile
+        let modelName = settings.resolvedModelName(for: activeProfile)
+        analytics.track(.recordingCancelled, properties: analyticsContextProperties(source: source, profile: activeProfile, modelName: modelName))
         state = .idle
         showPopup(false)
         logDebug("Recording cancelled", category: .app)
@@ -419,10 +427,14 @@ public class RecordingViewModel: ObservableObject {
         }
     }
 
-    private func analyticsContextProperties(source: RecordingTriggerSource, profile: TranscriptionProfile?) -> [String: Any] {
+    private func analyticsContextProperties(
+        source: RecordingTriggerSource,
+        profile: TranscriptionProfile?,
+        modelName: String
+    ) -> [String: Any] {
         var properties: [String: Any] = [
             "source": source.rawValue,
-            "model_name": settings.selectedModelName,
+            "model_name": modelName,
             "auto_paste_enabled": settings.autoPasteEnabled,
             "language_setting": profile?.language ?? "auto"
         ]
@@ -441,7 +453,7 @@ public class RecordingViewModel: ObservableObject {
     }
 
     public func reloadModel() async {
-        await reloadModelIfNeeded(settings.selectedModelName)
+        await reloadModelIfNeeded(settings.effectiveModelName)
     }
 
     public func reloadModelIfNeeded(_ modelName: String) async {

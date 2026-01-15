@@ -81,30 +81,47 @@ public class AppSettings: ObservableObject {
         WhisperModel.availableModels.first { $0.name == selectedModelName } ?? WhisperModel.defaultModel
     }
 
+    public var effectiveModelName: String {
+        resolvedModelName(for: activeProfile)
+    }
+
+    public var effectiveModel: WhisperModel {
+        WhisperModel.availableModels.first { $0.name == effectiveModelName } ?? WhisperModel.defaultModel
+    }
+
     public var activeProfile: TranscriptionProfile? {
         guard let id = activeProfileId else { return nil }
         return ProfileRepository.shared.fetch(byId: id)
     }
 
+    public func resolvedModelName(for profile: TranscriptionProfile?) -> String {
+        guard let overrideName = Self.canonicalModelName(profile?.modelName) else {
+            return selectedModelName
+        }
+
+        guard ModelManagerService.shared.isModelDownloaded(overrideName) else {
+            return selectedModelName
+        }
+
+        return overrideName
+    }
+
+    private static let legacyModelNameMap: [String: String] = [
+        "base": "openai_whisper-base",
+        "small": "openai_whisper-small",
+        "medium": "openai_whisper-medium",
+        "large-v3": "openai_whisper-large-v3",
+        "distil-large-v3": "distil-whisper_distil-large-v3"
+    ]
+
+    private static func canonicalModelName(_ name: String?) -> String? {
+        guard let name, !name.isEmpty else { return nil }
+        let normalized = legacyModelNameMap[name] ?? name
+        guard WhisperModel.model(named: normalized) != nil else { return nil }
+        return normalized
+    }
+
     private static func normalizeModelName(_ name: String?) -> String {
-        let fallback = Constants.Defaults.modelName
-        guard let name, !name.isEmpty else { return fallback }
-
-        let legacyMap: [String: String] = [
-            "base": "openai_whisper-base",
-            "small": "openai_whisper-small",
-            "medium": "openai_whisper-medium",
-            "large-v3": "openai_whisper-large-v3",
-            "distil-large-v3": "distil-whisper_distil-large-v3"
-        ]
-        if let mapped = legacyMap[name] {
-            return mapped
-        }
-
-        if WhisperModel.model(named: name) != nil {
-            return name
-        }
-
-        return fallback
+        canonicalModelName(name) ?? Constants.Defaults.modelName
     }
 }

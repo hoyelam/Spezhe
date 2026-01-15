@@ -9,12 +9,22 @@ struct ProfileEditorView: View {
     @State private var language: String
     @State private var useCustomPrompt: Bool
     @State private var customPrompt: String
+    @StateObject private var modelManager = ModelManagerService.shared
 
     private let originalProfile: TranscriptionProfile
     private let onSave: (TranscriptionProfile) -> Bool
 
     private var isNewProfile: Bool {
         originalProfile.id == nil
+    }
+
+    private var availableModels: [WhisperModel] {
+        let downloaded = modelManager.downloadedModels
+        return WhisperModel.availableModels.filter { downloaded.contains($0.name) }
+    }
+
+    private var canSelectCustomModel: Bool {
+        !availableModels.isEmpty
     }
 
     private var effectiveModel: WhisperModel? {
@@ -52,19 +62,26 @@ struct ProfileEditorView: View {
 
                 Section {
                     Toggle("Override app default model", isOn: $useCustomModel)
+                        .disabled(!canSelectCustomModel && !useCustomModel)
 
                     if useCustomModel {
-                        Picker("Model", selection: $modelName) {
-                            ForEach(WhisperModel.availableModels, id: \.name) { model in
-                                HStack {
-                                    Text(model.displayName)
-                                    Text("(\(model.sizeDescription))")
-                                        .foregroundColor(.secondary)
+                        if canSelectCustomModel {
+                            Picker("Model", selection: $modelName) {
+                                ForEach(availableModels, id: \.name) { model in
+                                    HStack {
+                                        Text(model.displayName)
+                                        Text("(\(model.sizeDescription))")
+                                            .foregroundColor(.secondary)
+                                    }
+                                    .tag(model.name)
                                 }
-                                .tag(model.name)
                             }
+                            .pickerStyle(.menu)
+                        } else {
+                            Text("Download a model in Settings > Models to enable overrides.")
+                                .font(.caption)
+                                .foregroundColor(.secondary)
                         }
-                        .pickerStyle(.menu)
                     }
                 } header: {
                     Text("Whisper Model")
@@ -162,12 +179,26 @@ struct ProfileEditorView: View {
             .padding()
         }
         .frame(width: 450, height: 520)
+        .task {
+            await modelManager.refreshDownloadedModels()
+            syncModelSelectionIfNeeded()
+        }
+        .onChange(of: modelManager.downloadedModels) { _, _ in
+            syncModelSelectionIfNeeded()
+        }
+        .onChange(of: useCustomModel) { _, _ in
+            syncModelSelectionIfNeeded()
+        }
     }
 
     private func saveProfile() {
         var updatedProfile = originalProfile
         updatedProfile.name = name.trimmingCharacters(in: .whitespaces)
-        updatedProfile.modelName = useCustomModel ? modelName : nil
+        if useCustomModel, availableModels.contains(where: { $0.name == modelName }) {
+            updatedProfile.modelName = modelName
+        } else {
+            updatedProfile.modelName = nil
+        }
         updatedProfile.language = useCustomLanguage ? language : nil
         updatedProfile.customPrompt = useCustomPrompt && !customPrompt.trimmingCharacters(in: .whitespaces).isEmpty
             ? customPrompt.trimmingCharacters(in: .whitespaces)
@@ -176,6 +207,14 @@ struct ProfileEditorView: View {
 
         if onSave(updatedProfile) {
             dismiss()
+        }
+    }
+
+    private func syncModelSelectionIfNeeded() {
+        guard useCustomModel else { return }
+        guard let firstAvailable = availableModels.first else { return }
+        if !availableModels.contains(where: { $0.name == modelName }) {
+            modelName = firstAvailable.name
         }
     }
 }
