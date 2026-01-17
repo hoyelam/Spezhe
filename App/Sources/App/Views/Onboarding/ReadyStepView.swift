@@ -12,7 +12,7 @@ struct ReadyStepView: View {
                     .font(.largeTitle)
                     .fontWeight(.bold)
 
-                Text("Spetra is ready to transcribe your voice.")
+                Text("Spezhe is ready to transcribe your voice.")
                     .font(.title3)
                     .foregroundColor(.secondary)
             }

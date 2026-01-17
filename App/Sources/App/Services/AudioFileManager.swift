@@ -30,7 +30,24 @@ public final class AudioFileManager {
     private init() {
         let fileManager = FileManager.default
         let appSupportURL = fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
-        recordingsDirectory = appSupportURL.appendingPathComponent("Spetra/Recordings")
+        let appSupportDir = appSupportURL.appendingPathComponent(Constants.appSupportDirectory)
+        let legacyAppSupportDir = appSupportURL.appendingPathComponent(Constants.legacyAppSupportDirectory)
+        let legacyRecordingsDir = legacyAppSupportDir.appendingPathComponent(Constants.recordingsDirectoryName)
+        let newRecordingsDir = appSupportDir.appendingPathComponent(Constants.recordingsDirectoryName)
+
+        if !fileManager.fileExists(atPath: appSupportDir.path),
+           fileManager.fileExists(atPath: legacyAppSupportDir.path) {
+            try? fileManager.moveItem(at: legacyAppSupportDir, to: appSupportDir)
+        }
+
+        try? fileManager.createDirectory(at: appSupportDir, withIntermediateDirectories: true)
+
+        if !fileManager.fileExists(atPath: newRecordingsDir.path),
+           fileManager.fileExists(atPath: legacyRecordingsDir.path) {
+            try? fileManager.moveItem(at: legacyRecordingsDir, to: newRecordingsDir)
+        }
+
+        recordingsDirectory = newRecordingsDir
 
         do {
             try fileManager.createDirectory(at: recordingsDirectory, withIntermediateDirectories: true)

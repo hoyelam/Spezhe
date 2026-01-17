@@ -11,27 +11,27 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		171694AE2F0A897B00D3F670 /* spetra.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = spetra.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		171694AE2F0A897B00D3F670 /* spezhe.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = spezhe.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		171694C12F0A8A0000D3F670 /* App */ = {isa = PBXFileReference; lastKnownFileType = folder; path = App; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
 /* Begin PBXFileSystemSynchronizedBuildFileExceptionSet section */
-		17A5455B2F0B09350013397F /* Exceptions for "spetra" folder in "spetra" target */ = {
+		17A5455B2F0B09350013397F /* Exceptions for "spezhe" folder in "spezhe" target */ = {
 			isa = PBXFileSystemSynchronizedBuildFileExceptionSet;
 			membershipExceptions = (
 				Info.plist,
 			);
-			target = 171694AD2F0A897B00D3F670 /* spetra */;
+			target = 171694AD2F0A897B00D3F670 /* spezhe */;
 		};
 /* End PBXFileSystemSynchronizedBuildFileExceptionSet section */
 
 /* Begin PBXFileSystemSynchronizedRootGroup section */
-		171694B02F0A897B00D3F670 /* spetra */ = {
+		171694B02F0A897B00D3F670 /* spezhe */ = {
 			isa = PBXFileSystemSynchronizedRootGroup;
 			exceptions = (
-				17A5455B2F0B09350013397F /* Exceptions for "spetra" folder in "spetra" target */,
+				17A5455B2F0B09350013397F /* Exceptions for "spezhe" folder in "spezhe" target */,
 			);
-			path = spetra;
+			path = spezhe;
 			sourceTree = "<group>";
 		};
 /* End PBXFileSystemSynchronizedRootGroup section */
@@ -51,7 +51,7 @@
 		171694A52F0A897B00D3F670 = {
 			isa = PBXGroup;
 			children = (
-				171694B02F0A897B00D3F670 /* spetra */,
+				171694B02F0A897B00D3F670 /* spezhe */,
 				171694BD2F0A8A0000D3F670 /* Packages */,
 				171694AF2F0A897B00D3F670 /* Products */,
 			);
@@ -60,7 +60,7 @@
 		171694AF2F0A897B00D3F670 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				171694AE2F0A897B00D3F670 /* spetra.app */,
+				171694AE2F0A897B00D3F670 /* spezhe.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -76,9 +76,9 @@
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
-		171694AD2F0A897B00D3F670 /* spetra */ = {
+		171694AD2F0A897B00D3F670 /* spezhe */ = {
 			isa = PBXNativeTarget;
-			buildConfigurationList = 171694B92F0A897C00D3F670 /* Build configuration list for PBXNativeTarget "spetra" */;
+			buildConfigurationList = 171694B92F0A897C00D3F670 /* Build configuration list for PBXNativeTarget "spezhe" */;
 			buildPhases = (
 				171694AA2F0A897B00D3F670 /* Sources */,
 				171694AB2F0A897B00D3F670 /* Frameworks */,
@@ -89,14 +89,14 @@
 			dependencies = (
 			);
 			fileSystemSynchronizedGroups = (
-				171694B02F0A897B00D3F670 /* spetra */,
+				171694B02F0A897B00D3F670 /* spezhe */,
 			);
-			name = spetra;
+			name = spezhe;
 			packageProductDependencies = (
 				171694BF2F0A8A0000D3F670 /* App */,
 			);
-			productName = spetra;
-			productReference = 171694AE2F0A897B00D3F670 /* spetra.app */;
+			productName = spezhe;
+			productReference = 171694AE2F0A897B00D3F670 /* spezhe.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */
@@ -114,7 +114,7 @@
 					};
 				};
 			};
-			buildConfigurationList = 171694A92F0A897B00D3F670 /* Build configuration list for PBXProject "spetra" */;
+			buildConfigurationList = 171694A92F0A897B00D3F670 /* Build configuration list for PBXProject "spezhe" */;
 			developmentRegion = en;
 			hasScannedForEncodings = 0;
 			knownRegions = (
@@ -131,7 +131,7 @@
 			projectDirPath = "";
 			projectRoot = "";
 			targets = (
-				171694AD2F0A897B00D3F670 /* spetra */,
+				171694AD2F0A897B00D3F670 /* spezhe */,
 			);
 		};
 /* End PBXProject section */
@@ -278,7 +278,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = spetra/spetra.entitlements;
+				CODE_SIGN_ENTITLEMENTS = spezhe/spezhe.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = P6D2V789F7;
@@ -287,7 +287,8 @@
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = spetra/Info.plist;
+				INFOPLIST_FILE = spezhe/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = Spezhe;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
@@ -303,7 +304,7 @@
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 26.0;
 				MARKETING_VERSION = 2026.1;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.kin-yee.spetra";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.kin-yee.spezhe";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				REGISTER_APP_GROUPS = YES;
 				SDKROOT = auto;
@@ -324,7 +325,7 @@
 			buildSettings = {
 				ASSETCATALOG_COMPILER_APPICON_NAME = AppIcon;
 				ASSETCATALOG_COMPILER_GLOBAL_ACCENT_COLOR_NAME = AccentColor;
-				CODE_SIGN_ENTITLEMENTS = spetra/spetra.entitlements;
+				CODE_SIGN_ENTITLEMENTS = spezhe/spezhe.entitlements;
 				CODE_SIGN_STYLE = Automatic;
 				CURRENT_PROJECT_VERSION = 1;
 				DEVELOPMENT_TEAM = P6D2V789F7;
@@ -333,7 +334,8 @@
 				ENABLE_PREVIEWS = YES;
 				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
-				INFOPLIST_FILE = spetra/Info.plist;
+				INFOPLIST_FILE = spezhe/Info.plist;
+				INFOPLIST_KEY_CFBundleDisplayName = Spezhe;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSupportsIndirectInputEvents[sdk=iphoneos*]" = YES;
@@ -349,7 +351,7 @@
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 26.0;
 				MARKETING_VERSION = 2026.1;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.kin-yee.spetra";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.kin-yee.spezhe";
 				PRODUCT_NAME = "$(TARGET_NAME)";
 				REGISTER_APP_GROUPS = YES;
 				SDKROOT = auto;
@@ -368,7 +370,7 @@
 /* End XCBuildConfiguration section */
 
 /* Begin XCConfigurationList section */
-		171694A92F0A897B00D3F670 /* Build configuration list for PBXProject "spetra" */ = {
+		171694A92F0A897B00D3F670 /* Build configuration list for PBXProject "spezhe" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				171694B72F0A897C00D3F670 /* Debug */,
@@ -377,7 +379,7 @@
 			defaultConfigurationIsVisible = 0;
 			defaultConfigurationName = Release;
 		};
-		171694B92F0A897C00D3F670 /* Build configuration list for PBXNativeTarget "spetra" */ = {
+		171694B92F0A897C00D3F670 /* Build configuration list for PBXNativeTarget "spezhe" */ = {
 			isa = XCConfigurationList;
 			buildConfigurations = (
 				171694BA2F0A897C00D3F670 /* Debug */,

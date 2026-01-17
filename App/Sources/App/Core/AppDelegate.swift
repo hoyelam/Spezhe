@@ -46,7 +46,7 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
         statusItem = NSStatusBar.system.statusItem(withLength: NSStatusItem.variableLength)
 
         if let button = statusItem?.button {
-            button.image = NSImage(systemSymbolName: "waveform", accessibilityDescription: "Spetra")
+            button.image = NSImage(systemSymbolName: "waveform", accessibilityDescription: "Spezhe")
             button.action = #selector(togglePopover)
             button.target = self
         }
@@ -54,7 +54,7 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
         let menu = NSMenu()
         menu.addItem(NSMenuItem(title: "Settings...", action: #selector(openSettings), keyEquivalent: ","))
         menu.addItem(NSMenuItem.separator())
-        menu.addItem(NSMenuItem(title: "Quit Spetra", action: #selector(quitApp), keyEquivalent: "q"))
+        menu.addItem(NSMenuItem(title: "Quit Spezhe", action: #selector(quitApp), keyEquivalent: "q"))
 
         statusItem?.menu = menu
     }

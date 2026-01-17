@@ -14,7 +14,7 @@ public enum LogCategory: String {
 public final class Logger: @unchecked Sendable {
     public static let shared = Logger()
 
-    private let subsystem = "com.kin-yee.spetra"
+    private let subsystem = "com.kin-yee.spezhe"
     private let loggers: [LogCategory: os.Logger]
 
     private init() {

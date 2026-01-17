@@ -14,7 +14,7 @@ struct PermissionsStepView: View {
                     .font(.title)
                     .fontWeight(.bold)
 
-                Text("Spetra needs access to your microphone to record audio.")
+                Text("Spezhe needs access to your microphone to record audio.")
                     .font(.body)
                     .foregroundColor(.secondary)
                     .multilineTextAlignment(.center)

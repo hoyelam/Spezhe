@@ -1,6 +1,6 @@
 //
-//  spetraApp.swift
-//  spetra
+//  SpezheApp.swift
+//  Spezhe
 //
 //  Created by Hoye Lam on 04/01/2026.
 //
@@ -9,7 +9,7 @@ import SwiftUI
 import App
 
 @main
-struct spetraApp: App {
+struct SpezheApp: App {
     @NSApplicationDelegateAdaptor(AppDelegate.self) var appDelegate
     @StateObject private var recordingsStore = RecordingRepository.shared
 

@@ -6,13 +6,17 @@ extension KeyboardShortcuts.Name {
 }
 
 extension Notification.Name {
-    static let cycleProfileShortcut = Notification.Name("Spetra.cycleProfileShortcut")
+    static let cycleProfileShortcut = Notification.Name("Spezhe.cycleProfileShortcut")
 }
 
 enum Constants {
-    static let bundleIdentifier = "com.kin-yee.spetra"
-    static let appSupportDirectory = "Spetra"
+    static let bundleIdentifier = "com.kin-yee.spezhe"
+    static let appSupportDirectory = "Spezhe"
+    static let legacyAppSupportDirectory = "Spetra"
     static let modelsDirectory = "Models"
+    static let recordingsDirectoryName = "Recordings"
+    static let databaseFileName = "spezhe.sqlite"
+    static let legacyDatabaseFileName = "spetra.sqlite"
 
     enum UserDefaultsKeys {
         static let selectedModelName = "selectedModelName"

@@ -95,6 +95,10 @@ public final class SubscriptionService: NSObject, ObservableObject {
         status == .subscribed
     }
 
+    public var canUseProfiles: Bool {
+        isSubscribed
+    }
+
     // MARK: - Offerings
 
     public func loadOfferings() async {

@@ -8,7 +8,7 @@ struct WelcomeStepView: View {
                 .foregroundStyle(.tint)
 
             VStack(spacing: 12) {
-                Text("Welcome to Spetra")
+                Text("Welcome to Spezhe")
                     .font(.largeTitle)
                     .fontWeight(.bold)
 

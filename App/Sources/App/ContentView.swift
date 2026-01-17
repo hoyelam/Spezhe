@@ -1,6 +1,6 @@
 //
 //  ContentView.swift
-//  spetra
+//  spezhe
 //
 //  Created by Hoye Lam on 04/01/2026.
 //
@@ -15,7 +15,7 @@ public struct ContentView: View {
             Image(systemName: "waveform")
                 .imageScale(.large)
                 .foregroundStyle(.tint)
-            Text("Spetra is running in the menu bar")
+            Text("Spezhe is running in the menu bar")
                 .font(.headline)
             Text("Press ⌘⌃1 to start recording")
                 .font(.caption)

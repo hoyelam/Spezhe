@@ -15,16 +15,45 @@ public final class DatabaseManager {
         do {
             let fileManager = FileManager.default
             let appSupportURL = fileManager.urls(for: .applicationSupportDirectory, in: .userDomainMask).first!
-            let spetraDir = appSupportURL.appendingPathComponent("Spetra")
+            let appSupportDir = appSupportURL.appendingPathComponent(Constants.appSupportDirectory)
+            let legacyAppSupportDir = appSupportURL.appendingPathComponent(Constants.legacyAppSupportDirectory)
 
-            try fileManager.createDirectory(at: spetraDir, withIntermediateDirectories: true)
+            if !fileManager.fileExists(atPath: appSupportDir.path),
+               fileManager.fileExists(atPath: legacyAppSupportDir.path) {
+                do {
+                    try fileManager.moveItem(at: legacyAppSupportDir, to: appSupportDir)
+                } catch {
+                    logWarning("Failed to migrate legacy app support directory: \(error)", category: .app)
+                }
+            }
 
-            let dbPath = spetraDir.appendingPathComponent("spetra.sqlite").path
-            dbQueue = try DatabaseQueue(path: dbPath)
+            try fileManager.createDirectory(at: appSupportDir, withIntermediateDirectories: true)
+
+            let dbURL = appSupportDir.appendingPathComponent(Constants.databaseFileName)
+            let legacyDbURL = legacyAppSupportDir.appendingPathComponent(Constants.legacyDatabaseFileName)
+            let legacyDbURLInNewDir = appSupportDir.appendingPathComponent(Constants.legacyDatabaseFileName)
+
+            if !fileManager.fileExists(atPath: dbURL.path) {
+                if fileManager.fileExists(atPath: legacyDbURLInNewDir.path) {
+                    do {
+                        try fileManager.moveItem(at: legacyDbURLInNewDir, to: dbURL)
+                    } catch {
+                        logWarning("Failed to migrate legacy database file: \(error)", category: .app)
+                    }
+                } else if fileManager.fileExists(atPath: legacyDbURL.path) {
+                    do {
+                        try fileManager.moveItem(at: legacyDbURL, to: dbURL)
+                    } catch {
+                        logWarning("Failed to migrate legacy database file: \(error)", category: .app)
+                    }
+                }
+            }
+
+            dbQueue = try DatabaseQueue(path: dbURL.path)
 
             runMigrations()
 
-            logInfo("Database initialized at: \(dbPath)", category: .app)
+            logInfo("Database initialized at: \(dbURL.path)", category: .app)
         } catch {
             logError("Failed to setup database: \(error)", category: .app)
             fatalError("Database setup failed: \(error)")

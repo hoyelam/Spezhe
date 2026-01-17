@@ -90,6 +90,7 @@ public class AppSettings: ObservableObject {
     }
 
     public var activeProfile: TranscriptionProfile? {
+        guard SubscriptionService.shared.canUseProfiles else { return nil }
         guard let id = activeProfileId else { return nil }
         return ProfileRepository.shared.fetch(byId: id)
     }

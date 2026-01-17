@@ -5,7 +5,9 @@ public struct RecordingPopupView: View {
     @EnvironmentObject private var viewModel: RecordingViewModel
     @StateObject private var settings = AppSettings.shared
     @StateObject private var profilesViewModel = ProfilesViewModel()
+    @ObservedObject private var subscriptionService = SubscriptionService.shared
     @State private var showProfilePicker = false
+    @State private var showPaywall = false
 
     public var body: some View {
         VStack(spacing: 0) {
@@ -29,7 +31,14 @@ public struct RecordingPopupView: View {
                 ProfileSelectorButton(
                     activeProfile: profilesViewModel.activeProfile,
                     modelName: settings.effectiveModel.displayName,
-                    showPicker: $showProfilePicker
+                    isLocked: !subscriptionService.canUseProfiles,
+                    onTap: {
+                        if subscriptionService.canUseProfiles {
+                            showProfilePicker.toggle()
+                        } else {
+                            showPaywall = true
+                        }
+                    }
                 )
                 .popover(isPresented: $showProfilePicker, arrowEdge: .bottom) {
                     ProfilePickerPopover(viewModel: profilesViewModel)
@@ -81,7 +90,11 @@ public struct RecordingPopupView: View {
         .clipShape(RoundedRectangle(cornerRadius: 12))
         .onReceive(NotificationCenter.default.publisher(for: .cycleProfileShortcut)) { _ in
             guard viewModel.state.isRecording else { return }
+            guard subscriptionService.canUseProfiles else { return }
             profilesViewModel.cycleToNextProfile()
+        }
+        .sheet(isPresented: $showPaywall) {
+            PaywallView(isPresented: $showPaywall, source: "profiles_popup")
         }
     }
 }
@@ -227,33 +240,23 @@ struct ToggleRecordingShortcutBadge: View {
 struct ProfileSelectorButton: View {
     let activeProfile: TranscriptionProfile?
     let modelName: String
-    @Binding var showPicker: Bool
+    let isLocked: Bool
+    let onTap: () -> Void
 
     var body: some View {
-        Button {
-            showPicker.toggle()
-        } label: {
+        Button(action: onTap) {
             HStack(spacing: 8) {
-                Image(systemName: activeProfile != nil ? "person.crop.rectangle.stack.fill" : "rectangle.dashed")
+                Image(systemName: iconName)
                     .font(.system(size: 14))
-                    .foregroundColor(activeProfile != nil ? .accentColor : .secondary)
+                    .foregroundColor(iconColor)
 
                 VStack(alignment: .leading, spacing: 1) {
-                    if let profile = activeProfile {
-                        Text(profile.name)
-                            .font(.system(size: 12, weight: .medium))
-                            .foregroundColor(.primary)
-                        Text(modelName)
-                            .font(.system(size: 10))
-                            .foregroundColor(.secondary)
-                    } else {
-                        Text("No Profile")
-                            .font(.system(size: 12))
-                            .foregroundColor(.secondary)
-                        Text(modelName)
-                            .font(.system(size: 10))
-                            .foregroundColor(.secondary)
-                    }
+                    Text(titleText)
+                        .font(.system(size: 12, weight: titleWeight))
+                        .foregroundColor(titleColor)
+                    Text(subtitleText)
+                        .font(.system(size: 10))
+                        .foregroundColor(.secondary)
                 }
 
                 Image(systemName: "chevron.down")
@@ -262,6 +265,49 @@ struct ProfileSelectorButton: View {
             }
         }
         .buttonStyle(.plain)
+        .opacity(isLocked ? 0.8 : 1.0)
+    }
+
+    private var iconName: String {
+        if isLocked {
+            return "lock.fill"
+        }
+        return activeProfile != nil ? "person.crop.rectangle.stack.fill" : "rectangle.dashed"
+    }
+
+    private var iconColor: Color {
+        if isLocked {
+            return .secondary
+        }
+        return activeProfile != nil ? .accentColor : .secondary
+    }
+
+    private var titleText: String {
+        if isLocked {
+            return "Profiles (Pro)"
+        }
+        return activeProfile?.name ?? "No Profile"
+    }
+
+    private var subtitleText: String {
+        if isLocked {
+            return "Upgrade to use"
+        }
+        return modelName
+    }
+
+    private var titleWeight: Font.Weight {
+        if isLocked || activeProfile != nil {
+            return .medium
+        }
+        return .regular
+    }
+
+    private var titleColor: Color {
+        if isLocked {
+            return .secondary
+        }
+        return activeProfile != nil ? .primary : .secondary
     }
 }
 

@@ -4,13 +4,15 @@ import RevenueCat
 public struct PaywallView: View {
     @ObservedObject private var subscriptionService = SubscriptionService.shared
     @Binding var isPresented: Bool
+    private let source: String?
 
     @State private var selectedPackage: Package?
     @State private var showingRestoreAlert = false
     @State private var restoreAlertMessage = ""
 
-    public init(isPresented: Binding<Bool>) {
+    public init(isPresented: Binding<Bool>, source: String? = nil) {
         self._isPresented = isPresented
+        self.source = source
     }
 
     public var body: some View {
@@ -43,7 +45,11 @@ public struct PaywallView: View {
             Task {
                 await subscriptionService.loadOfferings()
             }
-            AnalyticsService.shared.track(.paywallViewed)
+            var properties: [String: Any] = [:]
+            if let source {
+                properties["source"] = source
+            }
+            AnalyticsService.shared.track(.paywallViewed, properties: properties)
         }
         .alert("Restore Purchases", isPresented: $showingRestoreAlert) {
             Button("OK") { }
@@ -77,25 +83,29 @@ public struct PaywallView: View {
                 .font(.system(size: 64))
                 .foregroundStyle(.tint)
 
-            Text("Spetra Pro")
+            Text("Profiles")
                 .font(.largeTitle)
                 .fontWeight(.bold)
 
-            Text("Unlock the full power of voice transcription")
+            Text("Automate post-processing after transcription for formatting, translations, and more.")
                 .font(.headline)
                 .foregroundStyle(.secondary)
                 .multilineTextAlignment(.center)
 
             featuresGrid
+
+            Text("Transcription and models always stay free.")
+                .font(.caption)
+                .foregroundStyle(.secondary)
         }
     }
 
     private var featuresGrid: some View {
         VStack(alignment: .leading, spacing: 12) {
-            FeatureRow(icon: "cpu", title: "Advanced Models", description: "Access larger, more accurate Whisper models")
-            FeatureRow(icon: "globe", title: "All Languages", description: "Transcribe in 99+ languages")
-            FeatureRow(icon: "clock.arrow.circlepath", title: "Unlimited History", description: "Keep all your recordings forever")
-            FeatureRow(icon: "sparkles", title: "AI Summaries", description: "Get smart summaries of your transcriptions")
+            FeatureRow(icon: "person.crop.rectangle.stack", title: "Profile presets", description: "Save model, language, and prompt settings per workflow")
+            FeatureRow(icon: "sparkles", title: "Post-processing", description: "Automatically format or translate text after transcription")
+            FeatureRow(icon: "wand.and.stars", title: "Consistent output", description: "Apply the same instructions every time")
+            FeatureRow(icon: "bolt.fill", title: "Quick switching", description: "Pick a profile from the recorder in one click")
         }
         .padding()
         .background(Color.secondaryBackground)
@@ -221,8 +231,8 @@ public struct PaywallView: View {
                 Spacer()
 
                 HStack(spacing: 16) {
-                    Link("Terms", destination: URL(string: "https://spetra.app/terms")!)
-                    Link("Privacy", destination: URL(string: "https://spetra.app/privacy")!)
+                    Link("Terms", destination: URL(string: "https://spezhe.app/terms")!)
+                    Link("Privacy", destination: URL(string: "https://spezhe.app/privacy")!)
                 }
                 .font(.caption)
                 .foregroundStyle(.secondary)

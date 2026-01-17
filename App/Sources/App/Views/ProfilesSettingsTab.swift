@@ -2,10 +2,27 @@ import SwiftUI
 
 struct ProfilesSettingsTab: View {
     @StateObject private var viewModel = ProfilesViewModel()
+    @ObservedObject private var subscriptionService = SubscriptionService.shared
     @State private var profileToDelete: TranscriptionProfile?
     @State private var showDeleteConfirmation = false
+    @State private var showPaywall = false
 
     var body: some View {
+        Group {
+            if subscriptionService.canUseProfiles {
+                profilesForm
+            } else {
+                lockedForm
+            }
+        }
+        .formStyle(.grouped)
+        .padding()
+        .sheet(isPresented: $showPaywall) {
+            PaywallView(isPresented: $showPaywall, source: "profiles_settings")
+        }
+    }
+
+    private var profilesForm: some View {
         Form {
             Section {
                 if viewModel.profiles.isEmpty {
@@ -78,8 +95,6 @@ struct ProfilesSettingsTab: View {
                 }
             }
         }
-        .formStyle(.grouped)
-        .padding()
         .sheet(item: $viewModel.editingProfile) { profile in
             ProfileEditorView(
                 profile: profile,
@@ -93,6 +108,32 @@ struct ProfilesSettingsTab: View {
             Button("Cancel", role: .cancel) {}
         } message: { profile in
             Text("Are you sure you want to delete \"\(profile.name)\"? This action cannot be undone.")
+        }
+    }
+
+    private var lockedForm: some View {
+        Form {
+            Section {
+                VStack(alignment: .leading, spacing: 12) {
+                    HStack(spacing: 8) {
+                        Image(systemName: "lock.fill")
+                            .foregroundColor(.secondary)
+                        Text("Profiles are a Pro feature")
+                            .font(.headline)
+                    }
+
+                    Text("Create profiles to automatically process transcriptions after recording, such as formatting summaries or translating into another language.")
+                        .font(.subheadline)
+                        .foregroundColor(.secondary)
+
+                    Button("Upgrade to Pro") {
+                        showPaywall = true
+                    }
+                    .buttonStyle(.borderedProminent)
+                }
+                .frame(maxWidth: .infinity, alignment: .leading)
+                .padding(.vertical, 4)
+            }
         }
     }
 }

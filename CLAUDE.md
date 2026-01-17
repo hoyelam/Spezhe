@@ -1,13 +1,13 @@
-# Spetra
+# Spezhe
 
-Spetra is a macOS voice-to-text dictation app that runs entirely on-device using WhisperKit.
+Spezhe is a macOS voice-to-text dictation app that runs entirely on-device using WhisperKit.
 
 ## Project Structure
 
 ```
-spetra/
-├── spetra/                  # Main app target (entry point)
-│   └── spetraApp.swift      # @main App struct
+spezhe/
+├── spezhe/                  # Main app target (entry point)
+│   └── SpezheApp.swift      # @main App struct
 ├── App/                     # Swift Package containing all app logic
 │   ├── Package.swift
 │   └── Sources/App/
@@ -18,8 +18,8 @@ spetra/
 │       ├── ViewModels/      # SwiftUI view models
 │       ├── Views/           # SwiftUI views
 │       └── Windows/         # Floating panel controller
-├── spetra.xcodeproj/        # Xcode project
-└── spetra-site/             # Website submodule (github.com/hoyelam/Spetra-website)
+├── spezhe.xcodeproj/        # Xcode project
+└── spezhe-site/             # Website submodule (github.com/hoyelam/Spezhe-website)
 ```
 
 ## Key Dependencies
@@ -64,7 +64,7 @@ Uses GRDB with the following tables:
 
 ### Building
 
-Open `spetra.xcodeproj` in Xcode. The App package will resolve dependencies automatically.
+Open `spezhe.xcodeproj` in Xcode. The App package will resolve dependencies automatically.
 
 ### Running
 
