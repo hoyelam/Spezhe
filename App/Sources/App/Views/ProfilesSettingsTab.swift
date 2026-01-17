@@ -3,22 +3,29 @@ import SwiftUI
 struct ProfilesSettingsTab: View {
     @StateObject private var viewModel = ProfilesViewModel()
     @ObservedObject private var subscriptionService = SubscriptionService.shared
+    private let featureFlags = FeatureFlagService.shared
     @State private var profileToDelete: TranscriptionProfile?
     @State private var showDeleteConfirmation = false
     @State private var showPaywall = false
 
     var body: some View {
         Group {
-            if subscriptionService.canUseProfiles {
-                profilesForm
+            if featureFlags.profilesEnabled {
+                if subscriptionService.canUseProfiles {
+                    profilesForm
+                } else {
+                    lockedForm
+                }
             } else {
-                lockedForm
+                EmptyView()
             }
         }
         .formStyle(.grouped)
         .padding()
         .sheet(isPresented: $showPaywall) {
-            PaywallView(isPresented: $showPaywall, source: "profiles_settings")
+            if featureFlags.subscriptionPaywallEnabled {
+                PaywallView(isPresented: $showPaywall, source: "profiles_settings")
+            }
         }
     }
 
@@ -126,10 +133,12 @@ struct ProfilesSettingsTab: View {
                         .font(.subheadline)
                         .foregroundColor(.secondary)
 
-                    Button("Upgrade to Pro") {
-                        showPaywall = true
+                    if featureFlags.subscriptionPaywallEnabled {
+                        Button("Upgrade to Pro") {
+                            showPaywall = true
+                        }
+                        .buttonStyle(.borderedProminent)
                     }
-                    .buttonStyle(.borderedProminent)
                 }
                 .frame(maxWidth: .infinity, alignment: .leading)
                 .padding(.vertical, 4)

@@ -96,7 +96,7 @@ public final class SubscriptionService: NSObject, ObservableObject {
     }
 
     public var canUseProfiles: Bool {
-        isSubscribed
+        FeatureFlagService.shared.profilesEnabled && isSubscribed
     }
 
     // MARK: - Offerings

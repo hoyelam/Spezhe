@@ -6,6 +6,7 @@ public struct RecordingPopupView: View {
     @StateObject private var settings = AppSettings.shared
     @StateObject private var profilesViewModel = ProfilesViewModel()
     @ObservedObject private var subscriptionService = SubscriptionService.shared
+    private let featureFlags = FeatureFlagService.shared
     @State private var showProfilePicker = false
     @State private var showPaywall = false
 
@@ -27,21 +28,37 @@ public struct RecordingPopupView: View {
 
             // Bottom toolbar
             HStack {
-                // Left side - Profile/Model selector
-                ProfileSelectorButton(
-                    activeProfile: profilesViewModel.activeProfile,
-                    modelName: settings.effectiveModel.displayName,
-                    isLocked: !subscriptionService.canUseProfiles,
-                    onTap: {
-                        if subscriptionService.canUseProfiles {
-                            showProfilePicker.toggle()
-                        } else {
-                            showPaywall = true
+                if featureFlags.profilesEnabled {
+                    // Left side - Profile/Model selector
+                    ProfileSelectorButton(
+                        activeProfile: profilesViewModel.activeProfile,
+                        modelName: settings.effectiveModel.displayName,
+                        isLocked: !subscriptionService.canUseProfiles,
+                        onTap: {
+                            if subscriptionService.canUseProfiles {
+                                showProfilePicker.toggle()
+                            } else if featureFlags.subscriptionPaywallEnabled {
+                                showPaywall = true
+                            }
+                        }
+                    )
+                    .popover(isPresented: $showProfilePicker, arrowEdge: .bottom) {
+                        ProfilePickerPopover(viewModel: profilesViewModel)
+                    }
+                } else {
+                    HStack(spacing: 8) {
+                        Image(systemName: "cpu")
+                            .font(.system(size: 14))
+                            .foregroundColor(.secondary)
+                        VStack(alignment: .leading, spacing: 1) {
+                            Text("Model")
+                                .font(.system(size: 12, weight: .medium))
+                                .foregroundColor(.secondary)
+                            Text(settings.effectiveModel.displayName)
+                                .font(.system(size: 10))
+                                .foregroundColor(.secondary)
                         }
                     }
-                )
-                .popover(isPresented: $showProfilePicker, arrowEdge: .bottom) {
-                    ProfilePickerPopover(viewModel: profilesViewModel)
                 }
 
                 Spacer()
@@ -90,11 +107,14 @@ public struct RecordingPopupView: View {
         .clipShape(RoundedRectangle(cornerRadius: 12))
         .onReceive(NotificationCenter.default.publisher(for: .cycleProfileShortcut)) { _ in
             guard viewModel.state.isRecording else { return }
+            guard featureFlags.profilesEnabled else { return }
             guard subscriptionService.canUseProfiles else { return }
             profilesViewModel.cycleToNextProfile()
         }
         .sheet(isPresented: $showPaywall) {
-            PaywallView(isPresented: $showPaywall, source: "profiles_popup")
+            if featureFlags.subscriptionPaywallEnabled {
+                PaywallView(isPresented: $showPaywall, source: "profiles_popup")
+            }
         }
     }
 }

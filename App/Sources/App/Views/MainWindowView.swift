@@ -4,6 +4,7 @@ public struct MainWindowView: View {
     @EnvironmentObject private var viewModel: RecordingViewModel
     @EnvironmentObject private var recordingsStore: RecordingRepository
     @ObservedObject private var subscriptionService = SubscriptionService.shared
+    private let featureFlags = FeatureFlagService.shared
     @State private var selectedRecordingID: Int64?
     @State private var showInspector = false
     @State private var showPaywall = false
@@ -64,7 +65,9 @@ public struct MainWindowView: View {
                 .interactiveDismissDisabled()
         }
         .sheet(isPresented: $showPaywall) {
-            PaywallView(isPresented: $showPaywall)
+            if featureFlags.subscriptionPaywallEnabled {
+                PaywallView(isPresented: $showPaywall)
+            }
         }
     }
 
@@ -104,7 +107,7 @@ public struct MainWindowView: View {
         ToolbarItemGroup(placement: .primaryAction) {
             RecordButtonToolbar()
 
-            if !subscriptionService.isSubscribed {
+            if featureFlags.subscriptionPaywallEnabled && !subscriptionService.isSubscribed {
                 Button {
                     showPaywall = true
                 } label: {

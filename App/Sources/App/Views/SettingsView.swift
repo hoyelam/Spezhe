@@ -5,6 +5,7 @@ public struct SettingsView: View {
     @StateObject private var settingsViewModel = SettingsViewModel()
     @StateObject private var modelViewModel = ModelDownloadViewModel()
     @EnvironmentObject private var recordingViewModel: RecordingViewModel
+    private let featureFlags = FeatureFlagService.shared
 
     public init() {}
 
@@ -20,10 +21,12 @@ public struct SettingsView: View {
                     Label("Models", systemImage: "cpu")
                 }
 
-            ProfilesSettingsTab()
-                .tabItem {
-                    Label("Profiles", systemImage: "person.crop.rectangle.stack")
-                }
+            if featureFlags.profilesEnabled {
+                ProfilesSettingsTab()
+                    .tabItem {
+                        Label("Profiles", systemImage: "person.crop.rectangle.stack")
+                    }
+            }
 
             PermissionsTab(viewModel: settingsViewModel)
                 .tabItem {
