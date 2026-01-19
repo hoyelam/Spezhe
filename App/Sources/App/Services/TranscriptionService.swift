@@ -158,16 +158,22 @@ public class TranscriptionService: ObservableObject {
 
         do {
             logDebug("Calling WhisperKit.transcribe()...", category: .transcription)
-            // When forcing a language, both usePrefillPrompt and usePrefillCache must be true
+            // WhisperKit recommends usePrefillPrompt=true with detectLanguage=true for unknown languages.
+            // If detectLanguage is false while language is nil, the prefill defaults to English.
             // Based on WhisperKit example: https://github.com/argmaxinc/whisperkit
+            let shouldDetectLanguage = effectiveLanguage == nil
             let options = DecodingOptions(
                 verbose: true,
                 task: .transcribe,
                 language: effectiveLanguage,
-                usePrefillPrompt: true,  // Always true - forces task/language tokens
-                usePrefillCache: true    // Always true - uses precomputed KV caches
+                usePrefillPrompt: true,
+                usePrefillCache: true,
+                detectLanguage: shouldDetectLanguage
             )
-            logDebug("DecodingOptions: language=\(effectiveLanguage ?? "auto"), usePrefillPrompt=true, usePrefillCache=true", category: .transcription)
+            logDebug(
+                "DecodingOptions: task=transcribe, language=\(effectiveLanguage ?? "auto"), usePrefillPrompt=true, usePrefillCache=true, detectLanguage=\(shouldDetectLanguage)",
+                category: .transcription
+            )
             let results = try await whisperKit.transcribe(audioArray: audioArray, decodeOptions: options)
 
             let transcriptionTime = Date().timeIntervalSince(startTime)

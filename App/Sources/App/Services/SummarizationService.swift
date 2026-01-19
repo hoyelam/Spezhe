@@ -68,7 +68,7 @@ public class SummarizationService: ObservableObject {
     /// Generates both a one-liner title and a longer summary from transcription text
     /// - Parameter transcription: The full transcription text
     /// - Returns: A tuple containing (oneLiner, summary), both optional
-    public func generateSummaries(from transcription: String) async -> (oneLiner: String?, summary: String?) {
+    public func generateSummaries(from transcription: String, languageCode: String? = nil) async -> (oneLiner: String?, summary: String?) {
         guard isAvailable else {
             logWarning("Summarization skipped: Foundation Models not available", category: .app)
             return (nil, nil)
@@ -100,6 +100,10 @@ public class SummarizationService: ObservableObject {
 
         // Determine if we need a summary or just a one-liner
         let needsSummary = trimmedText.count >= minCharsForSummary
+        let targetLanguageInstruction = languageInstruction(for: languageCode)
+        if let languageInstruction = targetLanguageInstruction {
+            logInfo("Summarization target language: \(languageInstruction)", category: .app)
+        }
 
         if needsSummary {
             logInfo("Generating one-liner + summary for transcription (\(trimmedText.count) chars, \(wordCount) words)...", category: .app)
@@ -120,7 +124,7 @@ public class SummarizationService: ObservableObject {
             var summary: String?
 
             // Generate one-liner
-            let oneLinerSession = LanguageModelSession(instructions: oneLinerOnlyInstructions)
+            let oneLinerSession = LanguageModelSession(instructions: withLanguageInstruction(oneLinerOnlyInstructions, instruction: targetLanguageInstruction))
             let oneLinerResponse = try await oneLinerSession.respond(to: trimmedText)
             let oneLinerText = oneLinerResponse.content.trimmingCharacters(in: .whitespacesAndNewlines)
             if !oneLinerText.isEmpty {
@@ -129,7 +133,7 @@ public class SummarizationService: ObservableObject {
 
             // Generate summary if needed
             if needsSummary {
-                let summarySession = LanguageModelSession(instructions: summaryInstructions)
+                let summarySession = LanguageModelSession(instructions: withLanguageInstruction(summaryInstructions, instruction: targetLanguageInstruction))
                 let summaryResponse = try await summarySession.respond(to: trimmedText)
                 let rawSummary = summaryResponse.content.trimmingCharacters(in: .whitespacesAndNewlines)
 
@@ -229,6 +233,23 @@ public class SummarizationService: ObservableObject {
         }
 
         return cleaned
+    }
+
+    private func withLanguageInstruction(_ base: String, instruction: String?) -> String {
+        guard let instruction = instruction else { return base }
+        return base + "\n\n" + instruction
+    }
+
+    private func languageInstruction(for languageCode: String?) -> String? {
+        guard let code = languageCode, !code.isEmpty, code.lowercased() != "auto" else {
+            return nil
+        }
+
+        let normalizedCode = code.replacingOccurrences(of: "_", with: "-")
+        let primaryCode = normalizedCode.split(separator: "-").first.map(String.init) ?? normalizedCode
+        let locale = Locale(identifier: "en")
+        let languageName = locale.localizedString(forLanguageCode: primaryCode) ?? primaryCode
+        return "Respond in \(languageName) (\(primaryCode))."
     }
 
     /// Cleans up a summary by removing common prefixes
@@ -375,7 +396,10 @@ public class SummarizationService: ObservableObject {
         isProcessing = true
         defer { isProcessing = false }
 
-        logInfo("Processing transcription with custom prompt (\(trimmedText.count) chars)...", category: .app)
+        logInfo(
+            "Processing transcription with custom prompt (prompt_chars=\(trimmedPrompt.count), text_chars=\(trimmedText.count))...",
+            category: .app
+        )
         let startTime = Date()
 
         guard #available(macOS 26.0, *) else {
@@ -388,6 +412,10 @@ public class SummarizationService: ObservableObject {
             let session = LanguageModelSession(instructions: trimmedPrompt)
             let response = try await session.respond(to: trimmedText)
             let processedText = response.content.trimmingCharacters(in: .whitespacesAndNewlines)
+            if !processedText.isEmpty {
+                let changed = processedText != trimmedText
+                logInfo("Custom prompt processing changed text: \(changed)", category: .app)
+            }
 
             let duration = Date().timeIntervalSince(startTime)
             logInfo("Custom prompt processing completed in \(String(format: "%.2f", duration))s (\(processedText.count) chars)", category: .app)

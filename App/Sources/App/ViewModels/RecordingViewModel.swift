@@ -243,6 +243,10 @@ public class RecordingViewModel: ObservableObject {
 
             // Get active profile settings
             let language = activeProfile?.language
+            logInfo(
+                "Transcription settings: profile=\(activeProfile?.name ?? "None"), language=\(language ?? "auto"), model=\(effectiveModelName)",
+                category: .app
+            )
 
             logDebug("Starting transcription...", category: .app)
             if let lang = language, lang != "auto" {
@@ -277,6 +281,7 @@ public class RecordingViewModel: ObservableObject {
                     logInfo("Custom prompt applied, processed text: '\(processed)'", category: .app)
                 }
             }
+            logInfo("Custom prompt active: \(processedText != nil)", category: .app)
 
             var transcriptionCompletedProperties = baseProperties
             transcriptionCompletedProperties["audio_duration_sec"] = audioResult.duration
@@ -320,7 +325,11 @@ public class RecordingViewModel: ObservableObject {
             // Generate AI summaries asynchronously (don't block the UI)
             if let recordingId = recording.id {
                 Task {
-                    await generateSummariesAsync(for: recordingId, text: transcriptionResult.text)
+                    await generateSummariesAsync(
+                        for: recordingId,
+                        text: transcriptionResult.text,
+                        detectedLanguage: transcriptionResult.detectedLanguage
+                    )
                 }
             }
 
@@ -392,10 +401,13 @@ public class RecordingViewModel: ObservableObject {
     }
 
     /// Generates AI summaries asynchronously and updates the recording in the database
-    private func generateSummariesAsync(for recordingId: Int64, text: String) async {
+    private func generateSummariesAsync(for recordingId: Int64, text: String, detectedLanguage: String?) async {
         logDebug("Starting async summary generation for recording \(recordingId)", category: .app)
 
-        let (oneLiner, summary) = await summarizationService.generateSummaries(from: text)
+        let (oneLiner, summary) = await summarizationService.generateSummaries(
+            from: text,
+            languageCode: detectedLanguage
+        )
 
         if let ol = oneLiner {
             logInfo("AI one-liner generated: '\(ol)'", category: .app)
