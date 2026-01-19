@@ -64,6 +64,9 @@ fastlane/test_output
 *.swo
 *~
 
+# Bundler
+vendor/bundle/
+
 # App-specific
 *.ipa
 *.dSYM.zip
