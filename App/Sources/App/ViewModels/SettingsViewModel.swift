@@ -10,6 +10,7 @@ public class SettingsViewModel: ObservableObject {
     @Published public var soundFeedbackEnabled: Bool
     @Published public var recordingStartSound: String
     @Published public var recordingStopSound: String
+    @Published public var recordingStorageLimitGB: Int
 
     private let settings = AppSettings.shared
     private let accessibilityManager = AccessibilityManager.shared
@@ -22,6 +23,7 @@ public class SettingsViewModel: ObservableObject {
         self.soundFeedbackEnabled = settings.soundFeedbackEnabled
         self.recordingStartSound = settings.recordingStartSound
         self.recordingStopSound = settings.recordingStopSound
+        self.recordingStorageLimitGB = settings.recordingStorageLimitGB
     }
 
     public func saveSettings() {
@@ -31,6 +33,7 @@ public class SettingsViewModel: ObservableObject {
         settings.soundFeedbackEnabled = soundFeedbackEnabled
         settings.recordingStartSound = recordingStartSound
         settings.recordingStopSound = recordingStopSound
+        settings.recordingStorageLimitGB = recordingStorageLimitGB
     }
 
     public func refreshAccessibilityStatus() {

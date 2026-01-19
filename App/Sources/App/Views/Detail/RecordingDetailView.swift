@@ -3,13 +3,21 @@ import SwiftUI
 public struct RecordingDetailView: View {
     let recording: Recording
     let onTitleChange: (String) -> Void
+    private let forceUnavailable: Bool
     @StateObject private var playbackViewModel: AudioPlaybackViewModel
     @State private var showOriginal = false
 
-    public init(recording: Recording, onTitleChange: @escaping (String) -> Void) {
+    public init(
+        recording: Recording,
+        onTitleChange: @escaping (String) -> Void,
+        forceUnavailable: Bool = false
+    ) {
         self.recording = recording
         self.onTitleChange = onTitleChange
-        self._playbackViewModel = StateObject(wrappedValue: AudioPlaybackViewModel(recording: recording))
+        self.forceUnavailable = forceUnavailable
+        self._playbackViewModel = StateObject(
+            wrappedValue: AudioPlaybackViewModel(recording: recording, forceUnavailable: forceUnavailable)
+        )
     }
 
     private var hasProcessedText: Bool {
@@ -78,7 +86,14 @@ public struct RecordingDetailView: View {
 
             Divider()
 
-            AudioPlayerView(viewModel: playbackViewModel)
+            if !playbackViewModel.isAudioAvailable {
+                Text("Audio unavailable")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+                    .padding(.top, 8)
+            }
+
+            AudioPlayerView(viewModel: playbackViewModel, isEnabled: playbackViewModel.isAudioAvailable)
         }
     }
 }

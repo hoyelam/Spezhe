@@ -29,6 +29,7 @@ enum Constants {
         static let soundFeedbackEnabled = "soundFeedbackEnabled"
         static let recordingStartSound = "recordingStartSound"
         static let recordingStopSound = "recordingStopSound"
+        static let recordingStorageLimitGB = "recordingStorageLimitGB"
     }
 
     enum Defaults {
@@ -38,5 +39,6 @@ enum Constants {
         static let soundFeedbackEnabled = true
         static let recordingStartSound = "Pop"
         static let recordingStopSound = "Tink"
+        static let recordingStorageLimitGB = 1
     }
 }

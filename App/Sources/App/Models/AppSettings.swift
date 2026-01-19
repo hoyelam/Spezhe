@@ -55,6 +55,17 @@ public class AppSettings: ObservableObject {
         }
     }
 
+    @Published public var recordingStorageLimitGB: Int {
+        didSet {
+            let clamped = min(max(recordingStorageLimitGB, 1), 12)
+            if clamped != recordingStorageLimitGB {
+                recordingStorageLimitGB = clamped
+                return
+            }
+            UserDefaults.standard.set(clamped, forKey: Constants.UserDefaultsKeys.recordingStorageLimitGB)
+        }
+    }
+
     private init() {
         let storedModelName = UserDefaults.standard.string(forKey: Constants.UserDefaultsKeys.selectedModelName)
         let normalizedModelName = Self.normalizeModelName(storedModelName)
@@ -75,6 +86,14 @@ public class AppSettings: ObservableObject {
         self.soundFeedbackEnabled = UserDefaults.standard.object(forKey: Constants.UserDefaultsKeys.soundFeedbackEnabled) as? Bool ?? Constants.Defaults.soundFeedbackEnabled
         self.recordingStartSound = UserDefaults.standard.string(forKey: Constants.UserDefaultsKeys.recordingStartSound) ?? Constants.Defaults.recordingStartSound
         self.recordingStopSound = UserDefaults.standard.string(forKey: Constants.UserDefaultsKeys.recordingStopSound) ?? Constants.Defaults.recordingStopSound
+
+        let storedLimit = UserDefaults.standard.object(forKey: Constants.UserDefaultsKeys.recordingStorageLimitGB) as? Int
+        let initialLimit = storedLimit ?? Constants.Defaults.recordingStorageLimitGB
+        let clampedLimit = min(max(initialLimit, 1), 12)
+        self.recordingStorageLimitGB = clampedLimit
+        if storedLimit != clampedLimit {
+            UserDefaults.standard.set(clampedLimit, forKey: Constants.UserDefaultsKeys.recordingStorageLimitGB)
+        }
     }
 
     public var selectedModel: WhisperModel {

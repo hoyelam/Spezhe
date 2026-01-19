@@ -76,9 +76,14 @@ public struct MainWindowView: View {
     @ViewBuilder
     private var detailView: some View {
         if let recording = selectedRecording {
+#if DEBUG
+            let forceUnavailable = recording.id == recordingsStore.recordings.last?.id
+#else
+            let forceUnavailable = false
+#endif
             RecordingDetailView(recording: recording, onTitleChange: { newTitle in
                 updateRecordingTitle(id: recording.id, newTitle: newTitle)
-            })
+            }, forceUnavailable: forceUnavailable)
             .id(recording.id)
         } else {
             EmptyStateView()

@@ -2,9 +2,11 @@ import SwiftUI
 
 public struct AudioPlayerView: View {
     @ObservedObject var viewModel: AudioPlaybackViewModel
+    private let isEnabled: Bool
 
-    public init(viewModel: AudioPlaybackViewModel) {
+    public init(viewModel: AudioPlaybackViewModel, isEnabled: Bool = true) {
         self.viewModel = viewModel
+        self.isEnabled = isEnabled
     }
 
     public var body: some View {
@@ -68,6 +70,8 @@ public struct AudioPlayerView: View {
             }
         }
         .padding()
+        .disabled(!isEnabled)
+        .opacity(isEnabled ? 1 : 0.45)
     }
 
     private func formatTime(_ time: TimeInterval) -> String {

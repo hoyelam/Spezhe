@@ -321,6 +321,7 @@ public class RecordingViewModel: ObservableObject {
 
             try RecordingRepository.shared.insert(&recording)
             logInfo("Recording saved to database with ID: \(recording.id ?? -1)", category: .app)
+            RecordingRetentionService.shared.enforceLimit()
 
             // Generate AI summaries asynchronously (don't block the UI)
             if let recordingId = recording.id {

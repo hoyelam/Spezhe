@@ -9,14 +9,19 @@ public final class AudioPlaybackViewModel: ObservableObject {
     @Published public private(set) var duration: TimeInterval = 0
     @Published public private(set) var progress: Double = 0
     @Published public private(set) var waveformSamples: [Float] = []
+    @Published public private(set) var isAudioAvailable = false
 
     private var audioPlayer: AVAudioPlayer?
     private var timer: Timer?
     private let recording: Recording
 
-    public init(recording: Recording) {
+    public init(recording: Recording, forceUnavailable: Bool = false) {
         self.recording = recording
         self.duration = recording.duration
+        if forceUnavailable {
+            isAudioAvailable = false
+            return
+        }
         loadAudio()
     }
 
@@ -25,6 +30,7 @@ public final class AudioPlaybackViewModel: ObservableObject {
 
         guard FileManager.default.fileExists(atPath: fileURL.path) else {
             logError("Audio file not found: \(recording.audioFileName)", category: .audio)
+            isAudioAvailable = false
             return
         }
 
@@ -33,6 +39,7 @@ public final class AudioPlaybackViewModel: ObservableObject {
             audioPlayer?.prepareToPlay()
             audioPlayer?.delegate = AudioPlayerDelegateHandler.shared
             duration = audioPlayer?.duration ?? recording.duration
+            isAudioAvailable = true
 
             AudioPlayerDelegateHandler.shared.onPlaybackFinished = { [weak self] in
                 Task { @MainActor in

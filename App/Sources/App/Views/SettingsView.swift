@@ -57,6 +57,10 @@ public struct SettingsView: View {
         .onChange(of: settingsViewModel.recordingStopSound) { _, _ in
             settingsViewModel.saveSettings()
         }
+        .onChange(of: settingsViewModel.recordingStorageLimitGB) { _, _ in
+            settingsViewModel.saveSettings()
+            RecordingRetentionService.shared.enforceLimit()
+        }
     }
 }
 
@@ -133,6 +137,20 @@ struct GeneralSettingsTab: View {
                 }
             } header: {
                 Text("Sound Feedback")
+            }
+
+            Section {
+                Stepper(
+                    "Recording storage limit: \(viewModel.recordingStorageLimitGB) GB",
+                    value: $viewModel.recordingStorageLimitGB,
+                    in: 1...12
+                )
+
+                Text("Oldest recordings are deleted automatically when you exceed this limit.")
+                    .font(.caption)
+                    .foregroundColor(.secondary)
+            } header: {
+                Text("Storage")
             }
 
             Section {
