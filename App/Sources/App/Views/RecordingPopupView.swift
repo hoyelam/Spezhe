@@ -5,10 +5,8 @@ public struct RecordingPopupView: View {
     @EnvironmentObject private var viewModel: RecordingViewModel
     @StateObject private var settings = AppSettings.shared
     @StateObject private var profilesViewModel = ProfilesViewModel()
-    @ObservedObject private var subscriptionService = SubscriptionService.shared
     private let featureFlags = FeatureFlagService.shared
     @State private var showProfilePicker = false
-    @State private var showPaywall = false
 
     public var body: some View {
         VStack(spacing: 0) {
@@ -33,13 +31,8 @@ public struct RecordingPopupView: View {
                     ProfileSelectorButton(
                         activeProfile: profilesViewModel.activeProfile,
                         modelName: settings.effectiveModel.displayName,
-                        isLocked: !subscriptionService.canUseProfiles,
                         onTap: {
-                            if subscriptionService.canUseProfiles {
-                                showProfilePicker.toggle()
-                            } else if featureFlags.subscriptionPaywallEnabled {
-                                showPaywall = true
-                            }
+                            showProfilePicker.toggle()
                         }
                     )
                     .popover(isPresented: $showProfilePicker, arrowEdge: .bottom) {
@@ -108,13 +101,7 @@ public struct RecordingPopupView: View {
         .onReceive(NotificationCenter.default.publisher(for: .cycleProfileShortcut)) { _ in
             guard viewModel.state.isRecording else { return }
             guard featureFlags.profilesEnabled else { return }
-            guard subscriptionService.canUseProfiles else { return }
             profilesViewModel.cycleToNextProfile()
-        }
-        .sheet(isPresented: $showPaywall) {
-            if featureFlags.subscriptionPaywallEnabled {
-                PaywallView(isPresented: $showPaywall, source: "profiles_popup")
-            }
         }
     }
 }
@@ -260,7 +247,6 @@ struct ToggleRecordingShortcutBadge: View {
 struct ProfileSelectorButton: View {
     let activeProfile: TranscriptionProfile?
     let modelName: String
-    let isLocked: Bool
     let onTap: () -> Void
 
     var body: some View {
@@ -285,48 +271,32 @@ struct ProfileSelectorButton: View {
             }
         }
         .buttonStyle(.plain)
-        .opacity(isLocked ? 0.8 : 1.0)
     }
 
     private var iconName: String {
-        if isLocked {
-            return "lock.fill"
-        }
         return activeProfile != nil ? "person.crop.rectangle.stack.fill" : "rectangle.dashed"
     }
 
     private var iconColor: Color {
-        if isLocked {
-            return .secondary
-        }
         return activeProfile != nil ? .accentColor : .secondary
     }
 
     private var titleText: String {
-        if isLocked {
-            return "Profiles (Pro)"
-        }
         return activeProfile?.name ?? "No Profile"
     }
 
     private var subtitleText: String {
-        if isLocked {
-            return "Upgrade to use"
-        }
         return modelName
     }
 
     private var titleWeight: Font.Weight {
-        if isLocked || activeProfile != nil {
+        if activeProfile != nil {
             return .medium
         }
         return .regular
     }
 
     private var titleColor: Color {
-        if isLocked {
-            return .secondary
-        }
         return activeProfile != nil ? .primary : .secondary
     }
 }

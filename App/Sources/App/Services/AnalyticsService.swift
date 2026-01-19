@@ -15,9 +15,6 @@ public enum AnalyticsEvent: String {
     case modelDownloadCompleted = "model_download_completed"
     case modelDownloadFailed = "model_download_failed"
     case summaryGenerated = "summary_generated"
-    case paywallViewed = "paywall_viewed"
-    case subscriptionPurchased = "subscription_purchased"
-    case subscriptionRestored = "subscription_restored"
 }
 
 @MainActor

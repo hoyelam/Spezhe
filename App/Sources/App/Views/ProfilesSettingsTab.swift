@@ -2,31 +2,20 @@ import SwiftUI
 
 struct ProfilesSettingsTab: View {
     @StateObject private var viewModel = ProfilesViewModel()
-    @ObservedObject private var subscriptionService = SubscriptionService.shared
     private let featureFlags = FeatureFlagService.shared
     @State private var profileToDelete: TranscriptionProfile?
     @State private var showDeleteConfirmation = false
-    @State private var showPaywall = false
 
     var body: some View {
         Group {
             if featureFlags.profilesEnabled {
-                if subscriptionService.canUseProfiles {
-                    profilesForm
-                } else {
-                    lockedForm
-                }
+                profilesForm
             } else {
                 EmptyView()
             }
         }
         .formStyle(.grouped)
         .padding()
-        .sheet(isPresented: $showPaywall) {
-            if featureFlags.subscriptionPaywallEnabled {
-                PaywallView(isPresented: $showPaywall, source: "profiles_settings")
-            }
-        }
     }
 
     private var profilesForm: some View {
@@ -118,33 +107,6 @@ struct ProfilesSettingsTab: View {
         }
     }
 
-    private var lockedForm: some View {
-        Form {
-            Section {
-                VStack(alignment: .leading, spacing: 12) {
-                    HStack(spacing: 8) {
-                        Image(systemName: "lock.fill")
-                            .foregroundColor(.secondary)
-                        Text("Profiles are a Pro feature")
-                            .font(.headline)
-                    }
-
-                    Text("Create profiles to automatically process transcriptions after recording, such as formatting summaries or translating into another language.")
-                        .font(.subheadline)
-                        .foregroundColor(.secondary)
-
-                    if featureFlags.subscriptionPaywallEnabled {
-                        Button("Upgrade to Pro") {
-                            showPaywall = true
-                        }
-                        .buttonStyle(.borderedProminent)
-                    }
-                }
-                .frame(maxWidth: .infinity, alignment: .leading)
-                .padding(.vertical, 4)
-            }
-        }
-    }
 }
 
 struct ProfileRow: View {
