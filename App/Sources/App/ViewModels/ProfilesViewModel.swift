@@ -10,7 +10,6 @@ public class ProfilesViewModel: ObservableObject {
 
     private let profileRepository = ProfileRepository.shared
     private let settings = AppSettings.shared
-    private let subscriptionService = SubscriptionService.shared
     private var cancellables = Set<AnyCancellable>()
 
     public init() {
@@ -31,27 +30,17 @@ public class ProfilesViewModel: ObservableObject {
                 self?.activeProfileId = id
             }
             .store(in: &cancellables)
-
-        subscriptionService.$status
-            .receive(on: DispatchQueue.main)
-            .sink { [weak self] _ in
-                self?.enforceAccessGate()
-            }
-            .store(in: &cancellables)
     }
 
     public func createNewProfile() {
-        guard canUseProfiles() else { return }
         editingProfile = TranscriptionProfile(name: "")
     }
 
     public func editProfile(_ profile: TranscriptionProfile) {
-        guard canUseProfiles() else { return }
         editingProfile = profile
     }
 
     public func saveProfile(_ profile: TranscriptionProfile) -> Bool {
-        guard canUseProfiles() else { return false }
         do {
             var mutableProfile = profile
             if profile.id == nil {
@@ -71,7 +60,6 @@ public class ProfilesViewModel: ObservableObject {
     }
 
     public func deleteProfile(_ profile: TranscriptionProfile) {
-        guard canUseProfiles() else { return }
         do {
             // If deleting the active profile, clear the selection
             if profile.id == activeProfileId {
@@ -87,12 +75,6 @@ public class ProfilesViewModel: ObservableObject {
     }
 
     public func setActiveProfile(_ profile: TranscriptionProfile?) {
-        guard canUseProfiles(reportError: false) else {
-            if settings.activeProfileId != nil {
-                settings.activeProfileId = nil
-            }
-            return
-        }
         settings.activeProfileId = profile?.id
         logInfo("Set active profile: \(profile?.name ?? "None")", category: .app)
     }
@@ -107,7 +89,6 @@ public class ProfilesViewModel: ObservableObject {
     }
 
     public func cycleToNextProfile() {
-        guard canUseProfiles() else { return }
         guard !profiles.isEmpty else { return }
 
         if let currentId = activeProfileId,
@@ -121,28 +102,5 @@ public class ProfilesViewModel: ObservableObject {
         } else {
             setActiveProfile(profiles.first)
         }
-    }
-
-    private func enforceAccessGate() {
-        switch subscriptionService.status {
-        case .notSubscribed, .error:
-            if activeProfileId != nil {
-                setActiveProfile(nil)
-            }
-            editingProfile = nil
-        case .unknown, .subscribed:
-            break
-        }
-    }
-
-    @discardableResult
-    private func canUseProfiles(reportError: Bool = true) -> Bool {
-        guard subscriptionService.canUseProfiles else {
-            if reportError {
-                logInfo("Profiles access blocked - subscription required", category: .app)
-            }
-            return false
-        }
-        return true
     }
 }
