@@ -1,0 +1,1 @@
+Speak instead of type with a global hotkey. Spezhe turns your voice into clean text in any app, on-device by default.

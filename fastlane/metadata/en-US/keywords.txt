@@ -1,0 +1,1 @@
+dictation,voice to text,transcription,whisper,mac,productivity,typing,hotkey,speech,writing
