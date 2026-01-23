@@ -1,4 +1,4 @@
-Spezhe is a voice-first macOS app that turns speech into clean text anywhere you type. Trigger dictation with a single hotkey and keep your focus while your words appear instantly.
+Spezhe is a voice-first macOS app that turns speech to text anywhere you type. Trigger dictation with a single hotkey and keep your focus while your words appear instantly.
 
 WHY SPEZHE?
 
@@ -7,7 +7,7 @@ Spezhe is built for daily work. It stays lightweight, works across apps, and kee
 FEATURES
 
 - Global Hotkey - Start and stop dictation from any app
-- App-Wide Capture - Use Spezhe in Mail, Messages, Docs, ChatGPT, Notion, and more
+- App-Wide Capture - Use Spezhe in Mail, Messages, Notes, and more
 - Smart Punctuation - Accurate transcription powered by state-of-the-art models
 - Floating Dictation UI - Keep controls close without switching windows
 - History & Replay - Review recent transcripts and replay audio for quick edits
