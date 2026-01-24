@@ -1,6 +1,7 @@
 import AppKit
 import SwiftUI
 import KeyboardShortcuts
+import Sparkle
 
 @MainActor
 public class AppDelegate: NSObject, NSApplicationDelegate {
@@ -51,6 +52,8 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
         }
 
         let menu = NSMenu()
+        menu.addItem(NSMenuItem(title: "Check for Updates...", action: #selector(checkForUpdates), keyEquivalent: ""))
+        menu.addItem(NSMenuItem.separator())
         menu.addItem(NSMenuItem(title: "Settings...", action: #selector(openSettings), keyEquivalent: ","))
         menu.addItem(NSMenuItem.separator())
         menu.addItem(NSMenuItem(title: "Quit Spezhe", action: #selector(quitApp), keyEquivalent: "q"))
@@ -103,6 +106,10 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
         }
 
         popover?.show(relativeTo: button.bounds, of: button, preferredEdge: .minY)
+    }
+
+    @objc private func checkForUpdates() {
+        UpdaterService.shared.checkForUpdates()
     }
 
     @objc private func openSettings() {
