@@ -55,6 +55,14 @@ Upload Metadata
 
 Upload Metadata Skip Screenshots
 
+### mac dmg
+
+```sh
+[bundle exec] fastlane mac dmg
+```
+
+Build, notarize, and create DMG for direct distribution
+
 ----
 
 This README.md is auto-generated and will be re-generated every time [_fastlane_](https://fastlane.tools) is run.
