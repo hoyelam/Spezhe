@@ -43,18 +43,18 @@ public struct MainWindowView: View {
                 selectedRecordingID = nil
             }
         }
-        .alert("Download Model?", isPresented: $viewModel.showDownloadConfirmation) {
-            Button("Download") {
+        .alert(L10n.Alerts.downloadModelTitle, isPresented: $viewModel.showDownloadConfirmation) {
+            Button(L10n.Common.download) {
                 Task {
                     await viewModel.confirmDownload()
                 }
             }
-            Button("Use Base Model", role: .cancel) {
+            Button(L10n.Alerts.useBaseModel, role: .cancel) {
                 viewModel.declineDownload()
             }
         } message: {
             if let model = viewModel.pendingDownloadModel {
-                Text("\(model.displayName) (\(model.sizeDescription)) needs to be downloaded. This requires an internet connection and \(model.sizeDescription) of disk space.")
+                Text(L10n.Alerts.downloadModelMessageFull(model.displayName, model.sizeDescription))
             }
         }
         .sheet(isPresented: $showOnboarding) {
@@ -70,7 +70,7 @@ public struct MainWindowView: View {
             onDelete: deleteRecording
         )
         .navigationSplitViewColumnWidth(min: 200, ideal: 250, max: 300)
-        .navigationTitle("Recordings")
+        .navigationTitle(L10n.MainWindow.recordingsTitle)
     }
 
     @ViewBuilder
@@ -95,7 +95,7 @@ public struct MainWindowView: View {
         if let recording = selectedRecording {
             RecordingInspectorView(recording: recording)
         } else {
-            Text("No Recording Selected")
+            Text(L10n.Inspector.noRecordingSelected)
                 .foregroundStyle(.secondary)
         }
     }
@@ -109,7 +109,7 @@ public struct MainWindowView: View {
             } label: {
                 Image(systemName: "sidebar.right")
             }
-            .help(showInspector ? "Hide Inspector" : "Show Inspector")
+            .help(showInspector ? L10n.MainWindow.hideInspector : L10n.MainWindow.showInspector)
         }
     }
 
@@ -153,13 +153,13 @@ struct RecordButtonToolbar: View {
             }
         } label: {
             Label(
-                viewModel.state.isRecording ? "Stop" : "Record",
+                viewModel.state.isRecording ? L10n.MainWindow.stopRecording : L10n.MainWindow.record,
                 systemImage: viewModel.state.isRecording ? "stop.circle.fill" : "record.circle"
             )
         }
         .tint(viewModel.state.isRecording ? .accentColor : nil)
         .disabled(viewModel.state.isProcessing)
-        .help(viewModel.state.isRecording ? "Stop Recording (⌘⌃1)" : "Start Recording (⌘⌃1)")
+        .help(viewModel.state.isRecording ? L10n.MainWindow.stopTooltip("⌘⌃1") : L10n.MainWindow.recordTooltip("⌘⌃1"))
     }
 }
 

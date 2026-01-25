@@ -53,7 +53,7 @@ public class ProfilesViewModel: ObservableObject {
             errorMessage = nil
             return true
         } catch {
-            errorMessage = "Failed to save profile: \(error.localizedDescription)"
+            errorMessage = L10n.Errors.profileSaveFailed(error.localizedDescription)
             logError("Failed to save profile: \(error)", category: .app)
             return false
         }
@@ -69,7 +69,7 @@ public class ProfilesViewModel: ObservableObject {
             logInfo("Deleted profile: \(profile.name)", category: .app)
             errorMessage = nil
         } catch {
-            errorMessage = "Failed to delete profile: \(error.localizedDescription)"
+            errorMessage = L10n.Errors.profileDeleteFailed(error.localizedDescription)
             logError("Failed to delete profile: \(error)", category: .app)
         }
     }

@@ -44,7 +44,7 @@ public struct RecordingPopupView: View {
                             .font(.system(size: 14))
                             .foregroundColor(.secondary)
                         VStack(alignment: .leading, spacing: 1) {
-                            Text("Model")
+                            Text(L10n.Recording.Popup.modelLabel)
                                 .font(.system(size: 12, weight: .medium))
                                 .foregroundColor(.secondary)
                             Text(settings.effectiveModel.displayName)
@@ -66,7 +66,7 @@ public struct RecordingPopupView: View {
                             }
                         } label: {
                             HStack(spacing: 6) {
-                                Text("Stop")
+                                Text(L10n.Recording.Popup.stop)
                                     .font(.system(size: 13))
                                 ToggleRecordingShortcutBadge()
                             }
@@ -81,7 +81,7 @@ public struct RecordingPopupView: View {
                             }
                         } label: {
                             HStack(spacing: 6) {
-                                Text("Cancel")
+                                Text(L10n.Common.cancel)
                                     .font(.system(size: 13))
                                 KeyboardShortcutBadge(keys: ["esc"])
                             }
@@ -111,11 +111,11 @@ struct LoadingIndicatorView: View {
     let state: RecordingState
 
     private var title: String {
-        state.isLoadingModel ? "Loading model..." : "Transcribing..."
+        state.isLoadingModel ? L10n.Recording.Popup.loadingModelTitle : L10n.Recording.Popup.transcribingTitle
     }
 
     private var subtitle: String {
-        state.isLoadingModel ? "Preparing speech recognition" : "Converting speech to text"
+        state.isLoadingModel ? L10n.Recording.Popup.loadingModelSubtitle : L10n.Recording.Popup.transcribingSubtitle
     }
 
     var body: some View {
@@ -282,7 +282,7 @@ struct ProfileSelectorButton: View {
     }
 
     private var titleText: String {
-        return activeProfile?.name ?? "No Profile"
+        return activeProfile?.name ?? L10n.Recording.Popup.noProfile
     }
 
     private var subtitleText: String {
@@ -307,7 +307,7 @@ struct ProfilePickerPopover: View {
 
     var body: some View {
         VStack(alignment: .leading, spacing: 0) {
-            Text("Select Profile")
+            Text(L10n.Profiles.selectProfile)
                 .font(.system(size: 11, weight: .semibold))
                 .foregroundColor(.secondary)
                 .padding(.horizontal, 12)
@@ -320,7 +320,7 @@ struct ProfilePickerPopover: View {
                 VStack(spacing: 2) {
                     // None option
                     ProfilePickerRow(
-                        name: "None (Use Defaults)",
+                        name: L10n.Profiles.noneUseDefaults,
                         isSelected: viewModel.activeProfileId == nil,
                         onSelect: { viewModel.setActiveProfile(nil) }
                     )
@@ -345,7 +345,7 @@ struct ProfilePickerPopover: View {
 
             if viewModel.profiles.isEmpty {
                 Divider()
-                Text("Create profiles in Settings > Profiles")
+                Text(L10n.Profiles.createProfilesHint)
                     .font(.system(size: 11))
                     .foregroundColor(.secondary)
                     .padding(.horizontal, 12)
@@ -361,7 +361,7 @@ struct ProfilePickerPopover: View {
             parts.append(SupportedLanguage.find(byId: lang)?.name ?? lang)
         }
         if profile.customPrompt != nil {
-            parts.append("AI Prompt")
+            parts.append(L10n.Profiles.aiPromptLabel)
         }
         return parts.isEmpty ? nil : parts.joined(separator: " + ")
     }

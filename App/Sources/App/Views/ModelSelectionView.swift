@@ -12,10 +12,10 @@ public struct ModelSelectionView: View {
 
     public var body: some View {
         VStack(alignment: .leading, spacing: 16) {
-            Text("Whisper Models")
+            Text(L10n.Models.title)
                 .font(.headline)
 
-            Text("Storage used: \(viewModel.totalStorageUsed)")
+            Text(L10n.Models.storageUsed(viewModel.totalStorageUsed))
                 .font(.caption)
                 .foregroundColor(.secondary)
 
@@ -80,7 +80,7 @@ struct ModelRowView: View {
                         .font(.caption2)
                         .foregroundColor(.secondary)
                 } else if isDownloadDisabled && !model.isDownloaded {
-                    Text("Another model is downloading")
+                    Text(L10n.Models.anotherModelDownloading)
                         .font(.caption2)
                         .foregroundColor(.secondary)
                 }
@@ -95,7 +95,7 @@ struct ModelRowView: View {
             } else if model.isDownloaded {
                 HStack(spacing: 8) {
                     if !isSelected {
-                        Button("Select") {
+                        Button(L10n.Common.select) {
                             onSelect()
                         }
                         .buttonStyle(.bordered)
@@ -121,7 +121,7 @@ struct ModelRowView: View {
                     .buttonStyle(.bordered)
                     .controlSize(.small)
                 } else {
-                    Button("Download") {
+                    Button(L10n.Common.download) {
                         onDownload()
                     }
                     .buttonStyle(.bordered)
@@ -145,7 +145,7 @@ struct ModelRowView: View {
     private func downloadStatusText(for progress: ModelDownloadProgress) -> String {
         let completed = ByteCountFormatter.string(fromByteCount: progress.completedBytes, countStyle: .file)
         let total = ByteCountFormatter.string(fromByteCount: progress.totalBytes, countStyle: .file)
-        return "Downloading \(completed) of \(total)"
+        return L10n.Models.downloadingProgress(completed, total)
     }
 }
 

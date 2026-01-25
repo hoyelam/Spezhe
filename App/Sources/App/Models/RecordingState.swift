@@ -31,17 +31,17 @@ public enum RecordingState: Equatable {
     var statusText: String {
         switch self {
         case .idle:
-            return "Ready"
+            return L10n.Recording.State.ready
         case .recording:
-            return "Recording..."
+            return L10n.Recording.State.recording
         case .loadingModel:
-            return "Loading model..."
+            return L10n.Recording.State.loadingModel
         case .processing:
-            return "Transcribing..."
+            return L10n.Recording.State.transcribing
         case .completed:
-            return "Done"
+            return L10n.Recording.State.done
         case .error(let message):
-            return "Error: \(message)"
+            return L10n.Recording.State.error(message)
         }
     }
 }

@@ -10,11 +10,11 @@ struct PermissionsStepView: View {
                 .foregroundStyle(.tint)
 
             VStack(spacing: 8) {
-                Text("Permissions Required")
+                Text(L10n.Onboarding.Permissions.title)
                     .font(.title)
                     .fontWeight(.bold)
 
-                Text("Spezhe needs access to your microphone to record audio.")
+                Text(L10n.Onboarding.Permissions.subtitle)
                     .font(.body)
                     .foregroundColor(.secondary)
                     .multilineTextAlignment(.center)
@@ -24,8 +24,8 @@ struct PermissionsStepView: View {
             VStack(spacing: 16) {
                 PermissionRow(
                     icon: "mic.fill",
-                    title: "Microphone",
-                    description: "Required for voice recording",
+                    title: L10n.Onboarding.Permissions.microphoneTitle,
+                    description: L10n.Onboarding.Permissions.microphoneDescription,
                     isGranted: viewModel.microphonePermissionGranted,
                     isRequired: true,
                     onRequest: {
@@ -37,8 +37,8 @@ struct PermissionsStepView: View {
 
                 PermissionRow(
                     icon: "accessibility",
-                    title: "Accessibility",
-                    description: "Optional - enables auto-paste feature",
+                    title: L10n.Onboarding.Permissions.accessibilityTitle,
+                    description: L10n.Onboarding.Permissions.accessibilityDescription,
                     isGranted: viewModel.accessibilityPermissionGranted,
                     isRequired: false,
                     onRequest: {
@@ -76,7 +76,7 @@ private struct PermissionRow: View {
                     Text(title)
                         .font(.headline)
                     if isRequired {
-                        Text("Required")
+                        Text(L10n.Common.required)
                             .font(.caption)
                             .foregroundColor(.orange)
                             .padding(.horizontal, 6)
@@ -97,7 +97,7 @@ private struct PermissionRow: View {
                     .foregroundColor(.green)
                     .font(.system(size: 20))
             } else {
-                Button("Grant") {
+                Button(L10n.Common.grant) {
                     onRequest()
                 }
                 .buttonStyle(.bordered)

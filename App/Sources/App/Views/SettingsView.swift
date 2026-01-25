@@ -13,24 +13,24 @@ public struct SettingsView: View {
         TabView {
             GeneralSettingsTab(viewModel: settingsViewModel)
                 .tabItem {
-                    Label("General", systemImage: "gear")
+                    Label(L10n.Settings.Tabs.general, systemImage: "gear")
                 }
 
             ModelSelectionView(viewModel: modelViewModel, selectedModelName: $settingsViewModel.selectedModelName)
                 .tabItem {
-                    Label("Models", systemImage: "cpu")
+                    Label(L10n.Settings.Tabs.models, systemImage: "cpu")
                 }
 
             if featureFlags.profilesEnabled {
                 ProfilesSettingsTab()
                     .tabItem {
-                        Label("Profiles", systemImage: "person.crop.rectangle.stack")
+                        Label(L10n.Settings.Tabs.profiles, systemImage: "person.crop.rectangle.stack")
                     }
             }
 
             PermissionsTab(viewModel: settingsViewModel)
                 .tabItem {
-                    Label("Permissions", systemImage: "lock.shield")
+                    Label(L10n.Settings.Tabs.permissions, systemImage: "lock.shield")
                 }
         }
         .frame(width: 500, height: 450)
@@ -70,33 +70,33 @@ struct GeneralSettingsTab: View {
     var body: some View {
         Form {
             Section {
-                KeyboardShortcuts.Recorder("Toggle Recording:", name: .toggleRecording)
+                KeyboardShortcuts.Recorder(L10n.Settings.General.toggleRecording, name: .toggleRecording)
             } header: {
-                Text("Keyboard Shortcut")
+                Text(L10n.Settings.General.keyboardShortcutHeader)
             }
 
             Section {
-                Toggle("Auto-paste transcription", isOn: $viewModel.autoPasteEnabled)
+                Toggle(L10n.Settings.General.autoPasteToggle, isOn: $viewModel.autoPasteEnabled)
 
                 if viewModel.autoPasteEnabled && !viewModel.isAccessibilityEnabled {
                     HStack {
                         Image(systemName: "exclamationmark.triangle.fill")
                             .foregroundColor(.orange)
-                        Text("Accessibility permission required for auto-paste")
+                        Text(L10n.Settings.General.autoPasteAccessibilityWarning)
                             .font(.caption)
                             .foregroundColor(.secondary)
                     }
                 }
             } header: {
-                Text("Behavior")
+                Text(L10n.Settings.General.behaviorHeader)
             }
 
             Section {
-                Toggle("Play sounds when recording", isOn: $viewModel.soundFeedbackEnabled)
+                Toggle(L10n.Settings.General.soundFeedbackToggle, isOn: $viewModel.soundFeedbackEnabled)
 
                 if viewModel.soundFeedbackEnabled {
                     HStack {
-                        Text("Start sound")
+                        Text(L10n.Settings.General.startSound)
                         Spacer()
                         Picker("", selection: $viewModel.recordingStartSound) {
                             ForEach(SystemSoundName.allCases) { sound in
@@ -112,11 +112,11 @@ struct GeneralSettingsTab: View {
                             Image(systemName: "speaker.wave.2")
                         }
                         .buttonStyle(.borderless)
-                        .help("Preview sound")
+                        .help(L10n.Settings.General.previewSoundHelp)
                     }
 
                     HStack {
-                        Text("Stop sound")
+                        Text(L10n.Settings.General.stopSound)
                         Spacer()
                         Picker("", selection: $viewModel.recordingStopSound) {
                             ForEach(SystemSoundName.allCases) { sound in
@@ -132,39 +132,39 @@ struct GeneralSettingsTab: View {
                             Image(systemName: "speaker.wave.2")
                         }
                         .buttonStyle(.borderless)
-                        .help("Preview sound")
+                        .help(L10n.Settings.General.previewSoundHelp)
                     }
                 }
             } header: {
-                Text("Sound Feedback")
+                Text(L10n.Settings.General.soundFeedbackHeader)
             }
 
             Section {
                 Stepper(
-                    "Recording storage limit: \(viewModel.recordingStorageLimitGB) GB",
+                    L10n.Settings.General.storageLimitStepper(viewModel.recordingStorageLimitGB),
                     value: $viewModel.recordingStorageLimitGB,
                     in: 1...12
                 )
 
-                Text("Oldest recordings are deleted automatically when you exceed this limit.")
+                Text(L10n.Settings.General.storageLimitDescription)
                     .font(.caption)
                     .foregroundColor(.secondary)
             } header: {
-                Text("Storage")
+                Text(L10n.Settings.General.storageHeader)
             }
 
             Section {
-                LabeledContent("Selected Model") {
+                LabeledContent(L10n.Settings.General.selectedModel) {
                     Text(AppSettings.shared.selectedModel.displayName)
                 }
             } header: {
-                Text("Current Settings")
+                Text(L10n.Settings.General.currentSettingsHeader)
             }
 
             Section {
-                Toggle("Share anonymous usage analytics", isOn: $viewModel.analyticsEnabled)
+                Toggle(L10n.Settings.General.analyticsToggle, isOn: $viewModel.analyticsEnabled)
             } header: {
-                Text("Privacy")
+                Text(L10n.Settings.General.privacyHeader)
             }
         }
         .formStyle(.grouped)
@@ -179,37 +179,37 @@ struct PermissionsTab: View {
         Form {
             Section {
                 HStack {
-                    Text("Microphone Access")
+                    Text(L10n.Settings.Permissions.microphoneAccess)
                     Spacer()
                     Image(systemName: "checkmark.circle.fill")
                         .foregroundColor(.green)
-                    Text("Granted")
+                    Text(L10n.Common.granted)
                         .foregroundColor(.secondary)
                 }
 
                 HStack {
-                    Text("Accessibility Access")
+                    Text(L10n.Settings.Permissions.accessibilityAccess)
                     Spacer()
                     if viewModel.isAccessibilityEnabled {
                         Image(systemName: "checkmark.circle.fill")
                             .foregroundColor(.green)
-                        Text("Granted")
+                        Text(L10n.Common.granted)
                             .foregroundColor(.secondary)
                     } else {
                         Image(systemName: "xmark.circle.fill")
                             .foregroundColor(.red)
-                        Text("Not Granted")
+                        Text(L10n.Common.notGranted)
                             .foregroundColor(.secondary)
                     }
                 }
 
                 if !viewModel.isAccessibilityEnabled {
                     VStack(alignment: .leading, spacing: 8) {
-                        Text("Accessibility access is required for auto-paste functionality.")
+                        Text(L10n.Settings.Permissions.accessibilityDescription)
                             .font(.caption)
                             .foregroundColor(.secondary)
 
-                        Button("Open System Preferences") {
+                        Button(L10n.Settings.Permissions.openSystemPreferences) {
                             viewModel.openAccessibilityPreferences()
                         }
                         .buttonStyle(.bordered)
@@ -217,7 +217,7 @@ struct PermissionsTab: View {
                     .padding(.vertical, 4)
                 }
             } header: {
-                Text("Permissions")
+                Text(L10n.Settings.Permissions.header)
             }
         }
         .formStyle(.grouped)

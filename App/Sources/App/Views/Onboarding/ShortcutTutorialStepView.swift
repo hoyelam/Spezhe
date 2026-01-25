@@ -11,11 +11,11 @@ struct ShortcutTutorialStepView: View {
                 .foregroundStyle(.tint)
 
             VStack(spacing: 8) {
-                Text("Your Recording Shortcut")
+                Text(L10n.Onboarding.Shortcut.title)
                     .font(.title)
                     .fontWeight(.bold)
 
-                Text("Use this shortcut from anywhere to start recording.")
+                Text(L10n.Onboarding.Shortcut.subtitle)
                     .font(.body)
                     .foregroundColor(.secondary)
                     .multilineTextAlignment(.center)
@@ -32,11 +32,11 @@ struct ShortcutTutorialStepView: View {
 
             // Try it out section
             VStack(alignment: .leading, spacing: 8) {
-                Text("Try it out")
+                Text(L10n.Onboarding.Shortcut.tryItOut)
                     .font(.headline)
 
                 HStack(spacing: 8) {
-                    TextField("Click here, then press the shortcut to record...", text: $tryItText)
+                    TextField(L10n.Onboarding.Shortcut.tryItPlaceholder, text: $tryItText)
                         .textFieldStyle(.plain)
                         .padding(10)
                         .background(
@@ -63,7 +63,7 @@ struct ShortcutTutorialStepView: View {
             }
             .padding(.horizontal, 32)
 
-            Text("You can customize this shortcut in Settings.")
+            Text(L10n.Onboarding.Shortcut.customizeHint)
                 .font(.caption)
                 .foregroundStyle(.tertiary)
                 .padding(.top, 4)

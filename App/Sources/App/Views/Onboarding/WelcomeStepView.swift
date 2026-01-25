@@ -8,11 +8,11 @@ struct WelcomeStepView: View {
                 .foregroundStyle(.tint)
 
             VStack(spacing: 12) {
-                Text("Welcome to Spezhe")
+                Text(L10n.Onboarding.Welcome.title)
                     .font(.largeTitle)
                     .fontWeight(.bold)
 
-                Text("Voice transcription, simplified.")
+                Text(L10n.Onboarding.Welcome.subtitle)
                     .font(.title3)
                     .foregroundColor(.secondary)
             }
@@ -20,20 +20,20 @@ struct WelcomeStepView: View {
             VStack(alignment: .leading, spacing: 16) {
                 FeatureRow(
                     icon: "mic.fill",
-                    title: "Record Anywhere",
-                    description: "Use the global shortcut to capture audio from any app"
+                    title: L10n.Onboarding.Welcome.recordAnywhereTitle,
+                    description: L10n.Onboarding.Welcome.recordAnywhereDescription
                 )
 
                 FeatureRow(
                     icon: "text.quote",
-                    title: "Instant Transcription",
-                    description: "Powered by OpenAI Whisper for accurate speech-to-text"
+                    title: L10n.Onboarding.Welcome.instantTranscriptionTitle,
+                    description: L10n.Onboarding.Welcome.instantTranscriptionDescription
                 )
 
                 FeatureRow(
                     icon: "doc.on.clipboard",
-                    title: "Auto-Paste",
-                    description: "Transcribed text is automatically copied and pasted"
+                    title: L10n.Onboarding.Welcome.autoPasteTitle,
+                    description: L10n.Onboarding.Welcome.autoPasteDescription
                 )
             }
             .padding(.horizontal, 32)

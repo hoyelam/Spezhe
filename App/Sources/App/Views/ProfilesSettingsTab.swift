@@ -22,7 +22,7 @@ struct ProfilesSettingsTab: View {
         Form {
             Section {
                 if viewModel.profiles.isEmpty {
-                    Text("No profiles created yet")
+                    Text(L10n.Profiles.noProfilesCreated)
                         .foregroundColor(.secondary)
                         .frame(maxWidth: .infinity, alignment: .center)
                         .padding(.vertical, 8)
@@ -42,7 +42,7 @@ struct ProfilesSettingsTab: View {
                 }
             } header: {
                 HStack {
-                    Text("Profiles")
+                    Text(L10n.Profiles.header)
                     Spacer()
                     Button(action: viewModel.createNewProfile) {
                         Image(systemName: "plus")
@@ -51,7 +51,7 @@ struct ProfilesSettingsTab: View {
                 }
             } footer: {
                 if !viewModel.profiles.isEmpty {
-                    Text("Select a profile to use its settings when recording. Choose \"None\" to use app defaults.")
+                    Text(L10n.Profiles.footerDescription)
                         .font(.caption)
                         .foregroundColor(.secondary)
                 }
@@ -59,7 +59,7 @@ struct ProfilesSettingsTab: View {
 
             Section {
                 HStack {
-                    Text("Active Profile")
+                    Text(L10n.Profiles.activeProfile)
                     Spacer()
                     Picker("", selection: Binding(
                         get: { viewModel.activeProfileId },
@@ -71,7 +71,7 @@ struct ProfilesSettingsTab: View {
                             }
                         }
                     )) {
-                        Text("None (Use Defaults)").tag(nil as Int64?)
+                        Text(L10n.Profiles.noneUseDefaults).tag(nil as Int64?)
                         ForEach(viewModel.profiles) { profile in
                             Text(profile.name).tag(profile.id as Int64?)
                         }
@@ -80,7 +80,7 @@ struct ProfilesSettingsTab: View {
                     .frame(maxWidth: 200)
                 }
             } header: {
-                Text("Quick Selection")
+                Text(L10n.Profiles.quickSelectionHeader)
             }
 
             if let error = viewModel.errorMessage {
@@ -97,13 +97,13 @@ struct ProfilesSettingsTab: View {
                 onSave: viewModel.saveProfile
             )
         }
-        .alert("Delete Profile", isPresented: $showDeleteConfirmation, presenting: profileToDelete) { profile in
-            Button("Delete", role: .destructive) {
+        .alert(L10n.Profiles.deleteProfileTitle, isPresented: $showDeleteConfirmation, presenting: profileToDelete) { profile in
+            Button(L10n.Common.delete, role: .destructive) {
                 viewModel.deleteProfile(profile)
             }
-            Button("Cancel", role: .cancel) {}
+            Button(L10n.Common.cancel, role: .cancel) {}
         } message: { profile in
-            Text("Are you sure you want to delete \"\(profile.name)\"? This action cannot be undone.")
+            Text(L10n.Profiles.deleteProfileMessage(profile.name))
         }
     }
 
@@ -144,7 +144,7 @@ struct ProfileRow: View {
                     }
 
                     if profile.customPrompt != nil {
-                        Label("AI Prompt", systemImage: "sparkles")
+                        Label(L10n.Profiles.aiPromptLabel, systemImage: "sparkles")
                             .font(.caption)
                             .foregroundColor(.secondary)
                     }
@@ -155,7 +155,7 @@ struct ProfileRow: View {
 
             HStack(spacing: 8) {
                 if !isActive {
-                    Button("Use") {
+                    Button(L10n.Common.use) {
                         onSelect()
                     }
                     .buttonStyle(.bordered)

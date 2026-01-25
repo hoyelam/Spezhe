@@ -1,0 +1,1737 @@
+{
+  "sourceLanguage" : "en",
+  "strings" : {
+    "alerts.downloadModelTitle" : {
+      "comment" : "Title for download model alert",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Download Model?"
+          }
+        }
+      }
+    },
+    "alerts.useBaseModel" : {
+      "comment" : "Button to use base model instead",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Use Base Model"
+          }
+        }
+      }
+    },
+    "Are you sure you want to delete \"%@\"? This action cannot be undone." : {
+      "comment" : "Confirmation message for profile deletion",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Are you sure you want to delete \"%@\"? This action cannot be undone."
+          }
+        }
+      }
+    },
+    "common.cancel" : {
+      "comment" : "Generic cancel button",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Cancel"
+          }
+        }
+      }
+    },
+    "common.delete" : {
+      "comment" : "Generic delete button",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Delete"
+          }
+        }
+      }
+    },
+    "common.download" : {
+      "comment" : "Generic download button",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Download"
+          }
+        }
+      }
+    },
+    "common.grant" : {
+      "comment" : "Grant permission button",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Grant"
+          }
+        }
+      }
+    },
+    "common.granted" : {
+      "comment" : "Permission granted status",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Granted"
+          }
+        }
+      }
+    },
+    "common.notGranted" : {
+      "comment" : "Permission not granted status",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Not Granted"
+          }
+        }
+      }
+    },
+    "common.required" : {
+      "comment" : "Required badge text",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Required"
+          }
+        }
+      }
+    },
+    "common.save" : {
+      "comment" : "Generic save button",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Save"
+          }
+        }
+      }
+    },
+    "common.select" : {
+      "comment" : "Generic select button",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Select"
+          }
+        }
+      }
+    },
+    "common.unknown" : {
+      "comment" : "Unknown value placeholder",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Unknown"
+          }
+        }
+      }
+    },
+    "common.use" : {
+      "comment" : "Generic use/select button",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Use"
+          }
+        }
+      }
+    },
+    "Downloading %@ of %@" : {
+      "comment" : "Download progress message",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Downloading %1$@ of %2$@"
+          }
+        }
+      }
+    },
+    "Error: %@" : {
+      "comment" : "Recording state: error with message",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Error: %@"
+          }
+        }
+      }
+    },
+    "errors.profileDeleteFailedPrefix" : {
+      "comment" : "Error prefix when profile deletion fails",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Failed to delete profile:"
+          }
+        }
+      }
+    },
+    "errors.profileSaveFailedPrefix" : {
+      "comment" : "Error prefix when profile save fails",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Failed to save profile:"
+          }
+        }
+      }
+    },
+    "inspector.created" : {
+      "comment" : "Label for creation date",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Created"
+          }
+        }
+      }
+    },
+    "inspector.detailsHeader" : {
+      "comment" : "Section header for recording details",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Details"
+          }
+        }
+      }
+    },
+    "inspector.duration" : {
+      "comment" : "Label for duration",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Duration"
+          }
+        }
+      }
+    },
+    "inspector.fileSize" : {
+      "comment" : "Label for file size",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "File Size"
+          }
+        }
+      }
+    },
+    "inspector.language" : {
+      "comment" : "Label for detected language",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Language"
+          }
+        }
+      }
+    },
+    "inspector.modelUsed" : {
+      "comment" : "Label for model used",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Model Used"
+          }
+        }
+      }
+    },
+    "inspector.noRecordingSelected" : {
+      "comment" : "Message when no recording is selected",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No Recording Selected"
+          }
+        }
+      }
+    },
+    "inspector.processingHeader" : {
+      "comment" : "Section header for processing info",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Processing"
+          }
+        }
+      }
+    },
+    "inspector.profile" : {
+      "comment" : "Label for profile used",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Profile"
+          }
+        }
+      }
+    },
+    "inspector.transcriptionHeader" : {
+      "comment" : "Section header for transcription info",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Transcription"
+          }
+        }
+      }
+    },
+    "inspector.wordCount" : {
+      "comment" : "Label for word count",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Word Count"
+          }
+        }
+      }
+    },
+    "mainWindow.hideInspector" : {
+      "comment" : "Tooltip for hide inspector button",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Hide Inspector"
+          }
+        }
+      }
+    },
+    "mainWindow.record" : {
+      "comment" : "Record button label",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Record"
+          }
+        }
+      }
+    },
+    "mainWindow.recordingsTitle" : {
+      "comment" : "Navigation title for recordings sidebar",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Recordings"
+          }
+        }
+      }
+    },
+    "mainWindow.showInspector" : {
+      "comment" : "Tooltip for show inspector button",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Show Inspector"
+          }
+        }
+      }
+    },
+    "mainWindow.stopRecording" : {
+      "comment" : "Stop recording button label",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stop"
+          }
+        }
+      }
+    },
+    "menuBar.lastTranscription" : {
+      "comment" : "Label for last transcription preview",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Last transcription:"
+          }
+        }
+      }
+    },
+    "menuBar.modelLabel" : {
+      "comment" : "Label for current model",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Model:"
+          }
+        }
+      }
+    },
+    "models.anotherModelDownloading" : {
+      "comment" : "Message when another model is downloading",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Another model is downloading"
+          }
+        }
+      }
+    },
+    "models.title" : {
+      "comment" : "Title for models section",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Whisper Models"
+          }
+        }
+      }
+    },
+    "New Recording" : {
+
+    },
+    "onboarding.back" : {
+      "comment" : "Back button in onboarding",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Back"
+          }
+        }
+      }
+    },
+    "onboarding.continue" : {
+      "comment" : "Continue button in onboarding",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Continue"
+          }
+        }
+      }
+    },
+    "onboarding.getStarted" : {
+      "comment" : "Get started button on final onboarding step",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Get Started"
+          }
+        }
+      }
+    },
+    "onboarding.permissions.accessibilityDescription" : {
+      "comment" : "Permission description: Accessibility",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Optional - enables auto-paste feature"
+          }
+        }
+      }
+    },
+    "onboarding.permissions.accessibilityTitle" : {
+      "comment" : "Permission title: Accessibility",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Accessibility"
+          }
+        }
+      }
+    },
+    "onboarding.permissions.microphoneDescription" : {
+      "comment" : "Permission description: Microphone",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Required for voice recording"
+          }
+        }
+      }
+    },
+    "onboarding.permissions.microphoneTitle" : {
+      "comment" : "Permission title: Microphone",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Microphone"
+          }
+        }
+      }
+    },
+    "onboarding.permissions.subtitle" : {
+      "comment" : "Subtitle for permissions step",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Spezhe needs access to your microphone to record audio."
+          }
+        }
+      }
+    },
+    "onboarding.permissions.title" : {
+      "comment" : "Title for permissions step",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Permissions Required"
+          }
+        }
+      }
+    },
+    "onboarding.ready.menuBarTip" : {
+      "comment" : "Tip about menu bar icon",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Look for the waveform icon in your menu bar"
+          }
+        }
+      }
+    },
+    "onboarding.ready.settingsTip" : {
+      "comment" : "Tip about accessing settings",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Access settings from the menu bar or press Command + ,"
+          }
+        }
+      }
+    },
+    "onboarding.ready.shortcutTip" : {
+      "comment" : "Tip about keyboard shortcut",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Press Option + Space to start recording anytime"
+          }
+        }
+      }
+    },
+    "onboarding.ready.subtitle" : {
+      "comment" : "Subtitle for ready step",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Spezhe is ready to transcribe your voice."
+          }
+        }
+      }
+    },
+    "onboarding.ready.title" : {
+      "comment" : "Title for ready step",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "You're All Set!"
+          }
+        }
+      }
+    },
+    "onboarding.shortcut.customizeHint" : {
+      "comment" : "Hint about customizing shortcut",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "You can customize this shortcut in Settings."
+          }
+        }
+      }
+    },
+    "onboarding.shortcut.subtitle" : {
+      "comment" : "Subtitle for shortcut tutorial",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Use this shortcut from anywhere to start recording."
+          }
+        }
+      }
+    },
+    "onboarding.shortcut.title" : {
+      "comment" : "Title for shortcut tutorial",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Your Recording Shortcut"
+          }
+        }
+      }
+    },
+    "onboarding.shortcut.tryItOut" : {
+      "comment" : "Header for try it out section",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Try it out"
+          }
+        }
+      }
+    },
+    "onboarding.shortcut.tryItPlaceholder" : {
+      "comment" : "Placeholder for try it text field",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Click here, then press the shortcut to record..."
+          }
+        }
+      }
+    },
+    "onboarding.skip" : {
+      "comment" : "Skip onboarding button",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Skip"
+          }
+        }
+      }
+    },
+    "onboarding.welcome.autoPasteDescription" : {
+      "comment" : "Feature description: Auto-Paste",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Transcribed text is automatically copied and pasted"
+          }
+        }
+      }
+    },
+    "onboarding.welcome.autoPasteTitle" : {
+      "comment" : "Feature title: Auto-Paste",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Auto-Paste"
+          }
+        }
+      }
+    },
+    "onboarding.welcome.instantTranscriptionDescription" : {
+      "comment" : "Feature description: Instant Transcription",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Powered by OpenAI Whisper for accurate speech-to-text"
+          }
+        }
+      }
+    },
+    "onboarding.welcome.instantTranscriptionTitle" : {
+      "comment" : "Feature title: Instant Transcription",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Instant Transcription"
+          }
+        }
+      }
+    },
+    "onboarding.welcome.recordAnywhereDescription" : {
+      "comment" : "Feature description: Record Anywhere",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Use the global shortcut to capture audio from any app"
+          }
+        }
+      }
+    },
+    "onboarding.welcome.recordAnywhereTitle" : {
+      "comment" : "Feature title: Record Anywhere",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Record Anywhere"
+          }
+        }
+      }
+    },
+    "onboarding.welcome.subtitle" : {
+      "comment" : "Subtitle on welcome screen",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Voice transcription, simplified."
+          }
+        }
+      }
+    },
+    "onboarding.welcome.title" : {
+      "comment" : "Main title on welcome screen",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Welcome to Spezhe"
+          }
+        }
+      }
+    },
+    "profileEditor.aiPostProcessingHeader" : {
+      "comment" : "Section header for AI processing",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "AI Post-Processing"
+          }
+        }
+      }
+    },
+    "profileEditor.createProfile" : {
+      "comment" : "Button to create new profile",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Create Profile"
+          }
+        }
+      }
+    },
+    "profileEditor.customPromptDescription" : {
+      "comment" : "Description for custom prompt feature",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The transcription will be processed with this prompt. Examples: \"Make it professional and fix grammar\" or \"Format as bullet points\""
+          }
+        }
+      }
+    },
+    "profileEditor.customPromptToggle" : {
+      "comment" : "Toggle for custom AI prompt",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Apply custom AI prompt"
+          }
+        }
+      }
+    },
+    "profileEditor.downloadModelHint" : {
+      "comment" : "Hint to download models",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Download a model in Settings > Models to enable overrides."
+          }
+        }
+      }
+    },
+    "profileEditor.forceLanguageToggle" : {
+      "comment" : "Toggle for language forcing",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Force specific language"
+          }
+        }
+      }
+    },
+    "profileEditor.languageAutoDescription" : {
+      "comment" : "Description for auto language detection",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Language will be automatically detected from the audio."
+          }
+        }
+      }
+    },
+    "profileEditor.languageForceDescription" : {
+      "comment" : "Description for language forcing",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Forces Whisper to transcribe in the selected language instead of auto-detecting."
+          }
+        }
+      }
+    },
+    "profileEditor.languageHeader" : {
+      "comment" : "Section header for language selection",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Transcription Language"
+          }
+        }
+      }
+    },
+    "profileEditor.languageLabel" : {
+      "comment" : "Label for language picker",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Language"
+          }
+        }
+      }
+    },
+    "profileEditor.modelLabel" : {
+      "comment" : "Label for model picker",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Model"
+          }
+        }
+      }
+    },
+    "profileEditor.modelOverrideDescription" : {
+      "comment" : "Description for model override",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The selected model will be used instead of the app's default model."
+          }
+        }
+      }
+    },
+    "profileEditor.nameHeader" : {
+      "comment" : "Section header for profile name",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Name"
+          }
+        }
+      }
+    },
+    "profileEditor.overrideModelToggle" : {
+      "comment" : "Toggle for model override",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Override app default model"
+          }
+        }
+      }
+    },
+    "profileEditor.profileNamePlaceholder" : {
+      "comment" : "Placeholder for profile name field",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Profile Name"
+          }
+        }
+      }
+    },
+    "profileEditor.saveChanges" : {
+      "comment" : "Button to save profile changes",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Save Changes"
+          }
+        }
+      }
+    },
+    "profileEditor.whisperModelHeader" : {
+      "comment" : "Section header for model selection",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Whisper Model"
+          }
+        }
+      }
+    },
+    "profiles.activeProfile" : {
+      "comment" : "Label for active profile picker",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Active Profile"
+          }
+        }
+      }
+    },
+    "profiles.aiPromptLabel" : {
+      "comment" : "Label for AI prompt feature",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "AI Prompt"
+          }
+        }
+      }
+    },
+    "profiles.createProfilesHint" : {
+      "comment" : "Hint to create profiles in settings",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Create profiles in Settings > Profiles"
+          }
+        }
+      }
+    },
+    "profiles.deleteProfileTitle" : {
+      "comment" : "Title for delete profile alert",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Delete Profile"
+          }
+        }
+      }
+    },
+    "profiles.footerDescription" : {
+      "comment" : "Footer description for profiles",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Select a profile to use its settings when recording. Choose \"None\" to use app defaults."
+          }
+        }
+      }
+    },
+    "profiles.header" : {
+      "comment" : "Section header for profiles",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Profiles"
+          }
+        }
+      }
+    },
+    "profiles.noneUseDefaults" : {
+      "comment" : "Option to use default settings",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "None (Use Defaults)"
+          }
+        }
+      }
+    },
+    "profiles.noProfilesCreated" : {
+      "comment" : "Empty state for profiles list",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No profiles created yet"
+          }
+        }
+      }
+    },
+    "profiles.quickSelectionHeader" : {
+      "comment" : "Section header for quick selection",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Quick Selection"
+          }
+        }
+      }
+    },
+    "profiles.selectProfile" : {
+      "comment" : "Title for profile picker popover",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Select Profile"
+          }
+        }
+      }
+    },
+    "Recording storage limit: %lld GB" : {
+      "comment" : "Stepper for storage limit in GB",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Recording storage limit: %lld GB"
+          }
+        }
+      }
+    },
+    "recording.detail.aiProcessed" : {
+      "comment" : "Label for AI processed transcription",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "AI Processed"
+          }
+        }
+      }
+    },
+    "recording.detail.audioUnavailable" : {
+      "comment" : "Message when audio file is unavailable",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Audio unavailable"
+          }
+        }
+      }
+    },
+    "recording.detail.originalTranscription" : {
+      "comment" : "Label for original transcription",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Original Transcription"
+          }
+        }
+      }
+    },
+    "recording.detail.showOriginal" : {
+      "comment" : "Button to show original text",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Show Original"
+          }
+        }
+      }
+    },
+    "recording.detail.showProcessed" : {
+      "comment" : "Button to show processed text",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Show Processed"
+          }
+        }
+      }
+    },
+    "recording.detail.titlePlaceholder" : {
+      "comment" : "Placeholder for recording title",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Title"
+          }
+        }
+      }
+    },
+    "recording.empty.subtitle" : {
+      "comment" : "Subtitle for empty state",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Select a recording from the sidebar or create a new one"
+          }
+        }
+      }
+    },
+    "recording.empty.title" : {
+      "comment" : "Title for empty state",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No Recording Selected"
+          }
+        }
+      }
+    },
+    "recording.popup.loadingModelSubtitle" : {
+      "comment" : "Loading indicator subtitle for model loading",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Preparing speech recognition"
+          }
+        }
+      }
+    },
+    "recording.popup.loadingModelTitle" : {
+      "comment" : "Loading indicator title for model loading",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Loading model..."
+          }
+        }
+      }
+    },
+    "recording.popup.modelLabel" : {
+      "comment" : "Label for model display in popup",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Model"
+          }
+        }
+      }
+    },
+    "recording.popup.noProfile" : {
+      "comment" : "Label when no profile is selected",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "No Profile"
+          }
+        }
+      }
+    },
+    "recording.popup.stop" : {
+      "comment" : "Stop recording button",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stop"
+          }
+        }
+      }
+    },
+    "recording.popup.transcribingSubtitle" : {
+      "comment" : "Loading indicator subtitle for transcribing",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Converting speech to text"
+          }
+        }
+      }
+    },
+    "recording.popup.transcribingTitle" : {
+      "comment" : "Loading indicator title for transcribing",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Transcribing..."
+          }
+        }
+      }
+    },
+    "recording.state.done" : {
+      "comment" : "Recording state: completed",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Done"
+          }
+        }
+      }
+    },
+    "recording.state.loadingModel" : {
+      "comment" : "Recording state: loading AI model",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Loading model..."
+          }
+        }
+      }
+    },
+    "recording.state.ready" : {
+      "comment" : "Recording state: ready to record",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Ready"
+          }
+        }
+      }
+    },
+    "recording.state.recording" : {
+      "comment" : "Recording state: actively recording",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Recording..."
+          }
+        }
+      }
+    },
+    "recording.state.transcribing" : {
+      "comment" : "Recording state: transcribing audio",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Transcribing..."
+          }
+        }
+      }
+    },
+    "settings.general.analyticsToggle" : {
+      "comment" : "Toggle for analytics sharing",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Share anonymous usage analytics"
+          }
+        }
+      }
+    },
+    "settings.general.autoPasteAccessibilityWarning" : {
+      "comment" : "Warning about accessibility permission",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Accessibility permission required for auto-paste"
+          }
+        }
+      }
+    },
+    "settings.general.autoPasteToggle" : {
+      "comment" : "Toggle for auto-paste feature",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Auto-paste transcription"
+          }
+        }
+      }
+    },
+    "settings.general.behaviorHeader" : {
+      "comment" : "Section header for behavior settings",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Behavior"
+          }
+        }
+      }
+    },
+    "settings.general.currentSettingsHeader" : {
+      "comment" : "Section header for current settings",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Current Settings"
+          }
+        }
+      }
+    },
+    "settings.general.keyboardShortcutHeader" : {
+      "comment" : "Section header for keyboard shortcut",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Keyboard Shortcut"
+          }
+        }
+      }
+    },
+    "settings.general.previewSoundHelp" : {
+      "comment" : "Help text for preview sound button",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Preview sound"
+          }
+        }
+      }
+    },
+    "settings.general.privacyHeader" : {
+      "comment" : "Section header for privacy settings",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Privacy"
+          }
+        }
+      }
+    },
+    "settings.general.selectedModel" : {
+      "comment" : "Label for selected model",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Selected Model"
+          }
+        }
+      }
+    },
+    "settings.general.soundFeedbackHeader" : {
+      "comment" : "Section header for sound settings",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Sound Feedback"
+          }
+        }
+      }
+    },
+    "settings.general.soundFeedbackToggle" : {
+      "comment" : "Toggle for sound feedback",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Play sounds when recording"
+          }
+        }
+      }
+    },
+    "settings.general.startSound" : {
+      "comment" : "Label for start sound picker",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Start sound"
+          }
+        }
+      }
+    },
+    "settings.general.stopSound" : {
+      "comment" : "Label for stop sound picker",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stop sound"
+          }
+        }
+      }
+    },
+    "settings.general.storageHeader" : {
+      "comment" : "Section header for storage settings",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Storage"
+          }
+        }
+      }
+    },
+    "settings.general.storageLimitDescription" : {
+      "comment" : "Description for storage limit",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Oldest recordings are deleted automatically when you exceed this limit."
+          }
+        }
+      }
+    },
+    "settings.general.toggleRecording" : {
+      "comment" : "Label for toggle recording shortcut",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Toggle Recording:"
+          }
+        }
+      }
+    },
+    "settings.permissions.accessibilityAccess" : {
+      "comment" : "Label for accessibility permission",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Accessibility Access"
+          }
+        }
+      }
+    },
+    "settings.permissions.accessibilityDescription" : {
+      "comment" : "Description for accessibility permission",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Accessibility access is required for auto-paste functionality."
+          }
+        }
+      }
+    },
+    "settings.permissions.header" : {
+      "comment" : "Section header for permissions",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Permissions"
+          }
+        }
+      }
+    },
+    "settings.permissions.microphoneAccess" : {
+      "comment" : "Label for microphone permission",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Microphone Access"
+          }
+        }
+      }
+    },
+    "settings.permissions.openSystemPreferences" : {
+      "comment" : "Button to open system preferences",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Open System Preferences"
+          }
+        }
+      }
+    },
+    "settings.tabs.general" : {
+      "comment" : "Settings tab: General",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "General"
+          }
+        }
+      }
+    },
+    "settings.tabs.models" : {
+      "comment" : "Settings tab: Models",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Models"
+          }
+        }
+      }
+    },
+    "settings.tabs.permissions" : {
+      "comment" : "Settings tab: Permissions",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Permissions"
+          }
+        }
+      }
+    },
+    "settings.tabs.profiles" : {
+      "comment" : "Settings tab: Profiles",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Profiles"
+          }
+        }
+      }
+    },
+    "Shortcut: %@" : {
+      "comment" : "Label showing keyboard shortcut",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Shortcut: %@"
+          }
+        }
+      }
+    },
+    "Start Recording (%@)" : {
+      "comment" : "Tooltip for record button",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Start Recording (%@)"
+          }
+        }
+      }
+    },
+    "Stop Recording (%@)" : {
+      "comment" : "Tooltip for stop button",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Stop Recording (%@)"
+          }
+        }
+      }
+    },
+    "Storage used: %@" : {
+      "comment" : "Display of storage used by models",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Storage used: %@"
+          }
+        }
+      }
+    },
+    "The %@ model is English-only. Language forcing may not work. Use Large V3, Medium, Small, or Base for multilingual support." : {
+      "comment" : "Warning about English-only model",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "The %@ model is English-only. Language forcing may not work. Use Large V3, Medium, Small, or Base for multilingual support."
+          }
+        }
+      }
+    }
+  },
+  "version" : "1.0"
+}

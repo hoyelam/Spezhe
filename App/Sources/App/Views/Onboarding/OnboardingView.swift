@@ -55,7 +55,7 @@ public struct OnboardingView: View {
     private var navigationButtons: some View {
         HStack {
             if !viewModel.isLastStep {
-                Button("Skip") {
+                Button(L10n.Onboarding.skip) {
                     Task {
                         await viewModel.requestMicrophonePermission()
                     }
@@ -69,13 +69,13 @@ public struct OnboardingView: View {
             Spacer()
 
             if !viewModel.isFirstStep {
-                Button("Back") {
+                Button(L10n.Onboarding.back) {
                     viewModel.previousStep()
                 }
                 .buttonStyle(.bordered)
             }
 
-            Button(viewModel.isLastStep ? "Get Started" : "Continue") {
+            Button(viewModel.isLastStep ? L10n.Onboarding.getStarted : L10n.Onboarding.continue) {
                 if viewModel.isLastStep {
                     viewModel.completeOnboarding()
                     isPresented = false

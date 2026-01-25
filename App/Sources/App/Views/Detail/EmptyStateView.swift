@@ -9,11 +9,11 @@ public struct EmptyStateView: View {
                 .font(.system(size: 64))
                 .foregroundStyle(.tertiary)
 
-            Text("No Recording Selected")
+            Text(L10n.Recording.Empty.title)
                 .font(.title2)
                 .foregroundColor(.secondary)
 
-            Text("Select a recording from the sidebar or create a new one")
+            Text(L10n.Recording.Empty.subtitle)
                 .font(.subheadline)
                 .foregroundStyle(.tertiary)
                 .multilineTextAlignment(.center)

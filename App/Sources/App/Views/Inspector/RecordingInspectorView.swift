@@ -9,46 +9,46 @@ public struct RecordingInspectorView: View {
 
     public var body: some View {
         Form {
-            Section("Details") {
-                LabeledContent("Duration") {
+            Section(L10n.Inspector.detailsHeader) {
+                LabeledContent(L10n.Inspector.duration) {
                     Text(formatDuration(recording.duration))
                         .monospacedDigit()
                 }
 
-                LabeledContent("Created") {
+                LabeledContent(L10n.Inspector.created) {
                     Text(recording.createdAt.formatted(date: .abbreviated, time: .shortened))
                 }
 
-                LabeledContent("File Size") {
+                LabeledContent(L10n.Inspector.fileSize) {
                     Text(formatFileSize(recording.fileSize))
                 }
             }
 
-            Section("Transcription") {
-                LabeledContent("Word Count") {
+            Section(L10n.Inspector.transcriptionHeader) {
+                LabeledContent(L10n.Inspector.wordCount) {
                     Text("\(recording.wordCount)")
                         .monospacedDigit()
                 }
 
-                LabeledContent("Language") {
+                LabeledContent(L10n.Inspector.language) {
                     Text(formatLanguage(recording.detectedLanguage))
                 }
             }
 
-            Section("Processing") {
-                LabeledContent("Model Used") {
+            Section(L10n.Inspector.processingHeader) {
+                LabeledContent(L10n.Inspector.modelUsed) {
                     Text(formatModelName(recording.modelUsed))
                 }
 
                 if let profileId = recording.profileId,
                    let profile = ProfileRepository.shared.fetch(byId: profileId) {
-                    LabeledContent("Profile") {
+                    LabeledContent(L10n.Inspector.profile) {
                         Text(profile.name)
                     }
                 }
 
                 if recording.processedText != nil {
-                    LabeledContent("AI Processed") {
+                    LabeledContent(L10n.Recording.Detail.aiProcessed) {
                         Image(systemName: "checkmark.circle.fill")
                             .foregroundColor(.green)
                     }
@@ -79,7 +79,7 @@ public struct RecordingInspectorView: View {
     }
 
     private func formatLanguage(_ language: String?) -> String {
-        guard let lang = language else { return "Unknown" }
+        guard let lang = language else { return L10n.Common.unknown }
 
         let locale = Locale(identifier: "en")
         if let displayName = locale.localizedString(forLanguageCode: lang) {

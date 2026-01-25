@@ -54,19 +54,19 @@ struct ProfileEditorView: View {
         VStack(spacing: 0) {
             Form {
                 Section {
-                    TextField("Profile Name", text: $name)
+                    TextField(L10n.ProfileEditor.profileNamePlaceholder, text: $name)
                         .textFieldStyle(.roundedBorder)
                 } header: {
-                    Text("Name")
+                    Text(L10n.ProfileEditor.nameHeader)
                 }
 
                 Section {
-                    Toggle("Override app default model", isOn: $useCustomModel)
+                    Toggle(L10n.ProfileEditor.overrideModelToggle, isOn: $useCustomModel)
                         .disabled(!canSelectCustomModel && !useCustomModel)
 
                     if useCustomModel {
                         if canSelectCustomModel {
-                            Picker("Model", selection: $modelName) {
+                            Picker(L10n.ProfileEditor.modelLabel, selection: $modelName) {
                                 ForEach(availableModels, id: \.name) { model in
                                     HStack {
                                         Text(model.displayName)
@@ -78,26 +78,26 @@ struct ProfileEditorView: View {
                             }
                             .pickerStyle(.menu)
                         } else {
-                            Text("Download a model in Settings > Models to enable overrides.")
+                            Text(L10n.ProfileEditor.downloadModelHint)
                                 .font(.caption)
                                 .foregroundColor(.secondary)
                         }
                     }
                 } header: {
-                    Text("Whisper Model")
+                    Text(L10n.ProfileEditor.whisperModelHeader)
                 } footer: {
                     if useCustomModel {
-                        Text("The selected model will be used instead of the app's default model.")
+                        Text(L10n.ProfileEditor.modelOverrideDescription)
                             .font(.caption)
                             .foregroundColor(.secondary)
                     }
                 }
 
                 Section {
-                    Toggle("Force specific language", isOn: $useCustomLanguage)
+                    Toggle(L10n.ProfileEditor.forceLanguageToggle, isOn: $useCustomLanguage)
 
                     if useCustomLanguage {
-                        Picker("Language", selection: $language) {
+                        Picker(L10n.ProfileEditor.languageLabel, selection: $language) {
                             ForEach(SupportedLanguage.all.filter { $0.id != "auto" }, id: \.id) { lang in
                                 Text(lang.displayName).tag(lang.id)
                             }
@@ -105,15 +105,15 @@ struct ProfileEditorView: View {
                         .pickerStyle(.menu)
                     }
                 } header: {
-                    Text("Transcription Language")
+                    Text(L10n.ProfileEditor.languageHeader)
                 } footer: {
                     VStack(alignment: .leading, spacing: 4) {
                         if useCustomLanguage {
-                            Text("Forces Whisper to transcribe in the selected language instead of auto-detecting.")
+                            Text(L10n.ProfileEditor.languageForceDescription)
                                 .font(.caption)
                                 .foregroundColor(.secondary)
                         } else {
-                            Text("Language will be automatically detected from the audio.")
+                            Text(L10n.ProfileEditor.languageAutoDescription)
                                 .font(.caption)
                                 .foregroundColor(.secondary)
                         }
@@ -122,7 +122,7 @@ struct ProfileEditorView: View {
                             HStack(alignment: .top, spacing: 4) {
                                 Image(systemName: "exclamationmark.triangle.fill")
                                     .foregroundColor(.orange)
-                                Text("The \(effectiveModel?.displayName ?? "selected model") model is English-only. Language forcing may not work. Use Large V3, Medium, Small, or Base for multilingual support.")
+                                Text(L10n.ProfileEditor.multilingualWarning(effectiveModel?.displayName ?? L10n.Common.unknown))
                             }
                             .font(.caption)
                             .foregroundColor(.orange)
@@ -131,7 +131,7 @@ struct ProfileEditorView: View {
                 }
 
                 Section {
-                    Toggle("Apply custom AI prompt", isOn: $useCustomPrompt)
+                    Toggle(L10n.ProfileEditor.customPromptToggle, isOn: $useCustomPrompt)
 
                     if useCustomPrompt {
                         TextEditor(text: $customPrompt)
@@ -147,10 +147,10 @@ struct ProfileEditorView: View {
                             )
                     }
                 } header: {
-                    Text("AI Post-Processing")
+                    Text(L10n.ProfileEditor.aiPostProcessingHeader)
                 } footer: {
                     if useCustomPrompt {
-                        Text("The transcription will be processed with this prompt. Examples: \"Make it professional and fix grammar\" or \"Format as bullet points\"")
+                        Text(L10n.ProfileEditor.customPromptDescription)
                             .font(.caption)
                             .foregroundColor(.secondary)
                     }
@@ -162,14 +162,14 @@ struct ProfileEditorView: View {
             Divider()
 
             HStack {
-                Button("Cancel") {
+                Button(L10n.Common.cancel) {
                     dismiss()
                 }
                 .keyboardShortcut(.escape, modifiers: [])
 
                 Spacer()
 
-                Button(isNewProfile ? "Create Profile" : "Save Changes") {
+                Button(isNewProfile ? L10n.ProfileEditor.createProfile : L10n.ProfileEditor.saveChanges) {
                     saveProfile()
                 }
                 .keyboardShortcut(.return, modifiers: [.command])

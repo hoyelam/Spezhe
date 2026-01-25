@@ -8,11 +8,11 @@ struct ReadyStepView: View {
                 .foregroundColor(.green)
 
             VStack(spacing: 8) {
-                Text("You're All Set!")
+                Text(L10n.Onboarding.Ready.title)
                     .font(.largeTitle)
                     .fontWeight(.bold)
 
-                Text("Spezhe is ready to transcribe your voice.")
+                Text(L10n.Onboarding.Ready.subtitle)
                     .font(.title3)
                     .foregroundColor(.secondary)
             }
@@ -20,17 +20,17 @@ struct ReadyStepView: View {
             VStack(alignment: .leading, spacing: 16) {
                 QuickTip(
                     icon: "menubar.rectangle",
-                    text: "Look for the waveform icon in your menu bar"
+                    text: L10n.Onboarding.Ready.menuBarTip
                 )
 
                 QuickTip(
                     icon: "keyboard",
-                    text: "Press Option + Space to start recording anytime"
+                    text: L10n.Onboarding.Ready.shortcutTip
                 )
 
                 QuickTip(
                     icon: "gear",
-                    text: "Access settings from the menu bar or press Command + ,"
+                    text: L10n.Onboarding.Ready.settingsTip
                 )
             }
             .padding(.horizontal, 48)
