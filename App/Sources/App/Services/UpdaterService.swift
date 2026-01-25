@@ -1,9 +1,10 @@
 import Foundation
+import SwiftUI
 import Sparkle
 
 /// Service that manages app updates via Sparkle
 @MainActor
-public final class UpdaterService {
+public final class UpdaterService: ObservableObject {
     public static let shared = UpdaterService()
 
     private let updaterController: SPUStandardUpdaterController
@@ -11,6 +12,8 @@ public final class UpdaterService {
     public var updater: SPUUpdater {
         updaterController.updater
     }
+
+    @Published public private(set) var canCheckForUpdates = false
 
     private init() {
         // Initialize updater controller
@@ -20,15 +23,28 @@ public final class UpdaterService {
             updaterDelegate: nil,
             userDriverDelegate: nil
         )
+
+        // Observe canCheckForUpdates changes
+        updater.publisher(for: \.canCheckForUpdates)
+            .assign(to: &$canCheckForUpdates)
     }
 
     /// Manually trigger an update check
     public func checkForUpdates() {
         updater.checkForUpdates()
     }
+}
 
-    /// Whether an update check can be performed right now
-    public var canCheckForUpdates: Bool {
-        updater.canCheckForUpdates
+/// SwiftUI view for the "Check for Updates..." menu item
+public struct CheckForUpdatesView: View {
+    @ObservedObject private var updaterService = UpdaterService.shared
+
+    public init() {}
+
+    public var body: some View {
+        Button("Check for Updates...") {
+            updaterService.checkForUpdates()
+        }
+        .disabled(!updaterService.canCheckForUpdates)
     }
 }

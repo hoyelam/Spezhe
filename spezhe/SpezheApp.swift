@@ -25,6 +25,9 @@ struct SpezheApp: App {
         .defaultSize(width: 1200, height: 700)
         .defaultPosition(.center)
         .commands {
+            CommandGroup(after: .appInfo) {
+                CheckForUpdatesView()
+            }
             CommandGroup(after: .newItem) {
                 Button("New Recording") {
                     Task {
