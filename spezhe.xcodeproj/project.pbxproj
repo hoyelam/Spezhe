@@ -288,7 +288,8 @@
 				ENABLE_USER_SELECTED_FILES = readonly;
 				GENERATE_INFOPLIST_FILE = YES;
 				INFOPLIST_FILE = spezhe/Info.plist;
-				INFOPLIST_KEY_CFBundleDisplayName = Spezhe;
+				INFOPLIST_KEY_CFBundleDisplayName = "Spezhe-Dev";
+				INFOPLIST_KEY_CFBundleName = "Spezhe-Dev";
 				INFOPLIST_KEY_LSApplicationCategoryType = "public.app-category.productivity";
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphoneos*]" = YES;
 				"INFOPLIST_KEY_UIApplicationSceneManifest_Generation[sdk=iphonesimulator*]" = YES;
@@ -305,8 +306,8 @@
 				"LD_RUNPATH_SEARCH_PATHS[sdk=macosx*]" = "@executable_path/../Frameworks";
 				MACOSX_DEPLOYMENT_TARGET = 26.0;
 				MARKETING_VERSION = 2026.1;
-				PRODUCT_BUNDLE_IDENTIFIER = "com.kin-yee.spezhe";
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_BUNDLE_IDENTIFIER = "com.kin-yee.spezhe-dev";
+				PRODUCT_NAME = "Spezhe-Dev";
 				REGISTER_APP_GROUPS = YES;
 				SDKROOT = auto;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
@@ -354,7 +355,7 @@
 				MACOSX_DEPLOYMENT_TARGET = 26.0;
 				MARKETING_VERSION = 2026.1;
 				PRODUCT_BUNDLE_IDENTIFIER = "com.kin-yee.spezhe";
-				PRODUCT_NAME = "$(TARGET_NAME)";
+				PRODUCT_NAME = Spezhe;
 				REGISTER_APP_GROUPS = YES;
 				SDKROOT = auto;
 				STRING_CATALOG_GENERATE_SYMBOLS = YES;
