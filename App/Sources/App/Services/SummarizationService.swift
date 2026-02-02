@@ -41,6 +41,9 @@ public class SummarizationService: ObservableObject {
 
     /// Minimum character count for transcription to warrant a summary (below this, only one-liner is generated)
     private let minCharsForSummary = 200
+    private let anthropicAPIURL = URL(string: "https://api.anthropic.com/v1/messages")!
+    private let customPromptModel = "claude-haiku-4-5-20251001"
+    private let customPromptMaxTokens = 2048
 
     private init() {
         logDebug("SummarizationService initialized", category: .app)
@@ -69,6 +72,7 @@ public class SummarizationService: ObservableObject {
     /// - Parameter transcription: The full transcription text
     /// - Returns: A tuple containing (oneLiner, summary), both optional
     public func generateSummaries(from transcription: String, languageCode: String? = nil) async -> (oneLiner: String?, summary: String?) {
+        checkAvailability()
         guard isAvailable else {
             logWarning("Summarization skipped: Foundation Models not available", category: .app)
             return (nil, nil)
@@ -375,11 +379,6 @@ public class SummarizationService: ObservableObject {
     ///   - customPrompt: The user's custom prompt/instructions for processing
     /// - Returns: The processed text, or nil if processing failed or is unavailable
     public func processWithCustomPrompt(transcription: String, customPrompt: String) async -> String? {
-        guard isAvailable else {
-            logWarning("Custom prompt processing skipped: Foundation Models not available", category: .app)
-            return nil
-        }
-
         let trimmedText = transcription.trimmingCharacters(in: .whitespacesAndNewlines)
         let trimmedPrompt = customPrompt.trimmingCharacters(in: .whitespacesAndNewlines)
 
@@ -402,16 +401,42 @@ public class SummarizationService: ObservableObject {
         )
         let startTime = Date()
 
-        guard #available(macOS 26.0, *) else {
-            logWarning("Custom prompt processing skipped: macOS 26.0 required", category: .app)
+        guard let apiKey = anthropicAPIKey() else {
+            logWarning("Custom prompt processing skipped: Missing Anthropic API key", category: .app)
             return nil
         }
 
-        #if canImport(FoundationModels)
         do {
-            let session = LanguageModelSession(instructions: trimmedPrompt)
-            let response = try await session.respond(to: trimmedText)
-            let processedText = response.content.trimmingCharacters(in: .whitespacesAndNewlines)
+            var request = URLRequest(url: anthropicAPIURL)
+            request.httpMethod = "POST"
+            request.setValue("application/json", forHTTPHeaderField: "Content-Type")
+            request.setValue("application/json", forHTTPHeaderField: "Accept")
+            request.setValue(apiKey, forHTTPHeaderField: "x-api-key")
+            request.setValue("2023-06-01", forHTTPHeaderField: "anthropic-version")
+
+            let body = AnthropicMessageRequest(
+                model: customPromptModel,
+                maxTokens: customPromptMaxTokens,
+                messages: [
+                    AnthropicMessageRequest.Message(role: "user", content: trimmedText)
+                ],
+                system: trimmedPrompt
+            )
+            request.httpBody = try JSONEncoder().encode(body)
+
+            let (data, response) = try await URLSession.shared.data(for: request)
+            guard let httpResponse = response as? HTTPURLResponse else {
+                logError("Custom prompt request failed: Invalid response", category: .app)
+                return nil
+            }
+            guard (200...299).contains(httpResponse.statusCode) else {
+                let responseBody = String(data: data, encoding: .utf8) ?? "<empty>"
+                logError("Custom prompt request failed (\(httpResponse.statusCode)): \(responseBody)", category: .app)
+                return nil
+            }
+
+            let decoded = try JSONDecoder().decode(AnthropicMessageResponse.self, from: data)
+            let processedText = decoded.content.compactMap { $0.text }.joined().trimmingCharacters(in: .whitespacesAndNewlines)
             if !processedText.isEmpty {
                 let changed = processedText != trimmedText
                 logInfo("Custom prompt processing changed text: \(changed)", category: .app)
@@ -425,9 +450,44 @@ public class SummarizationService: ObservableObject {
             logError("Failed to process with custom prompt: \(error.localizedDescription)", category: .app)
             return nil
         }
-        #else
+    }
+}
+
+private extension SummarizationService {
+    struct AnthropicMessageRequest: Encodable {
+        struct Message: Encodable {
+            let role: String
+            let content: String
+        }
+
+        let model: String
+        let maxTokens: Int
+        let messages: [Message]
+        let system: String?
+
+        enum CodingKeys: String, CodingKey {
+            case model
+            case maxTokens = "max_tokens"
+            case messages
+            case system
+        }
+    }
+
+    struct AnthropicMessageResponse: Decodable {
+        struct ContentBlock: Decodable {
+            let type: String
+            let text: String?
+        }
+
+        let content: [ContentBlock]
+    }
+
+    func anthropicAPIKey() -> String? {
+        if let key = Bundle.main.object(forInfoDictionaryKey: "AnthropicAPIKey") as? String,
+           !key.trimmingCharacters(in: .whitespacesAndNewlines).isEmpty {
+            return key
+        }
         return nil
-        #endif
     }
 }
 

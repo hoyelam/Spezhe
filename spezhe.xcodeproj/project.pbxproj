@@ -11,7 +11,7 @@
 /* End PBXBuildFile section */
 
 /* Begin PBXFileReference section */
-		171694AE2F0A897B00D3F670 /* spezhe.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = spezhe.app; sourceTree = BUILT_PRODUCTS_DIR; };
+		171694AE2F0A897B00D3F670 /* Spezhe-Dev.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = "Spezhe-Dev.app"; sourceTree = BUILT_PRODUCTS_DIR; };
 		171694C12F0A8A0000D3F670 /* App */ = {isa = PBXFileReference; lastKnownFileType = folder; path = App; sourceTree = "<group>"; };
 /* End PBXFileReference section */
 
@@ -60,7 +60,7 @@
 		171694AF2F0A897B00D3F670 /* Products */ = {
 			isa = PBXGroup;
 			children = (
-				171694AE2F0A897B00D3F670 /* spezhe.app */,
+				171694AE2F0A897B00D3F670 /* Spezhe-Dev.app */,
 			);
 			name = Products;
 			sourceTree = "<group>";
@@ -96,7 +96,7 @@
 				171694BF2F0A8A0000D3F670 /* App */,
 			);
 			productName = spezhe;
-			productReference = 171694AE2F0A897B00D3F670 /* spezhe.app */;
+			productReference = 171694AE2F0A897B00D3F670 /* Spezhe-Dev.app */;
 			productType = "com.apple.product-type.application";
 		};
 /* End PBXNativeTarget section */

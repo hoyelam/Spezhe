@@ -1144,6 +1144,54 @@
         }
       }
     },
+    "recording.detail.customPromptFailedTitle" : {
+      "comment" : "Title shown when custom prompt processing did not complete",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Custom prompt not applied"
+          }
+        }
+      }
+    },
+    "recording.detail.customPromptFailedSubtitle" : {
+      "comment" : "Subtitle shown when custom prompt processing did not complete",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Retry to process this transcription with your custom prompt."
+          }
+        }
+      }
+    },
+    "recording.detail.customPromptRetryFailedHint" : {
+      "comment" : "Hint shown when custom prompt retry fails",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Retry failed. Check your API key and try again."
+          }
+        }
+      }
+    },
+    "recording.detail.retryCustomPrompt" : {
+      "comment" : "Button to retry custom prompt processing",
+      "extractionState" : "manual",
+      "localizations" : {
+        "en" : {
+          "stringUnit" : {
+            "state" : "translated",
+            "value" : "Retry"
+          }
+        }
+      }
+    },
     "recording.detail.audioUnavailable" : {
       "comment" : "Message when audio file is unavailable",
       "extractionState" : "manual",

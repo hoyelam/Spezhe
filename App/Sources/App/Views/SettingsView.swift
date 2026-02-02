@@ -6,34 +6,42 @@ public struct SettingsView: View {
     @StateObject private var modelViewModel = ModelDownloadViewModel()
     @EnvironmentObject private var recordingViewModel: RecordingViewModel
     private let featureFlags = FeatureFlagService.shared
+    @State private var selectedTab: SettingsTab = .general
 
     public init() {}
 
     public var body: some View {
-        TabView {
+        TabView(selection: $selectedTab) {
             GeneralSettingsTab(viewModel: settingsViewModel)
                 .tabItem {
                     Label(L10n.Settings.Tabs.general, systemImage: "gear")
                 }
+                .tag(SettingsTab.general)
 
             ModelSelectionView(viewModel: modelViewModel, selectedModelName: $settingsViewModel.selectedModelName)
                 .tabItem {
                     Label(L10n.Settings.Tabs.models, systemImage: "cpu")
                 }
+                .tag(SettingsTab.models)
 
             if featureFlags.profilesEnabled {
                 ProfilesSettingsTab()
                     .tabItem {
                         Label(L10n.Settings.Tabs.profiles, systemImage: "person.crop.rectangle.stack")
                     }
+                    .tag(SettingsTab.profiles)
             }
 
             PermissionsTab(viewModel: settingsViewModel)
                 .tabItem {
                     Label(L10n.Settings.Tabs.permissions, systemImage: "lock.shield")
                 }
+                .tag(SettingsTab.permissions)
         }
         .frame(width: 500, height: 450)
+        .onReceive(NotificationCenter.default.publisher(for: .openProfilesSettings)) { _ in
+            selectedTab = .profiles
+        }
         .onChange(of: settingsViewModel.selectedModelName) { oldValue, newValue in
             guard oldValue != newValue else { return }
             settingsViewModel.saveSettings()
@@ -226,6 +234,13 @@ struct PermissionsTab: View {
             viewModel.refreshAccessibilityStatus()
         }
     }
+}
+
+enum SettingsTab: Hashable {
+    case general
+    case models
+    case profiles
+    case permissions
 }
 
 #Preview {

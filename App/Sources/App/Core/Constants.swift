@@ -7,6 +7,7 @@ extension KeyboardShortcuts.Name {
 
 extension Notification.Name {
     static let cycleProfileShortcut = Notification.Name("Spezhe.cycleProfileShortcut")
+    static let openProfilesSettings = Notification.Name("Spezhe.openProfilesSettings")
 }
 
 enum Constants {

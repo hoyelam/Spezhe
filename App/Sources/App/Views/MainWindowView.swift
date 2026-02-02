@@ -220,5 +220,6 @@ private struct SplitViewSelectionPreview: View {
             }
         }
         .frame(width: 900, height: 500)
+        .environmentObject(RecordingViewModel())
     }
 }

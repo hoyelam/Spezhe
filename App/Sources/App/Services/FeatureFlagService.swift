@@ -6,7 +6,7 @@ public final class FeatureFlagService: ObservableObject {
     public let profilesEnabled: Bool
 
     private init(
-        profilesEnabled: Bool = false
+        profilesEnabled: Bool = true
     ) {
         self.profilesEnabled = profilesEnabled
     }

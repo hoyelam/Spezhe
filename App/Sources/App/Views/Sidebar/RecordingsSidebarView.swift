@@ -5,6 +5,8 @@ public struct RecordingsSidebarView: View {
     let recordings: [Recording]
     @Binding var selectedID: Int64?
     @EnvironmentObject private var viewModel: RecordingViewModel
+    @StateObject private var profilesViewModel = ProfilesViewModel()
+    private let featureFlags = FeatureFlagService.shared
     let onDelete: (Recording) -> Void
 
     public init(
@@ -36,9 +38,15 @@ public struct RecordingsSidebarView: View {
         .safeAreaInset(edge: .bottom) {
             VStack(spacing: 0) {
                 Divider()
-                VStack(spacing: 8) {
-                    RecordButtonCircular()
-                    ToggleRecordingShortcutBadge()
+                VStack(spacing: 12) {
+                    if featureFlags.profilesEnabled {
+                        SidebarProfileSelector(viewModel: profilesViewModel)
+                    }
+
+                    VStack(spacing: 8) {
+                        RecordButtonCircular()
+                        ToggleRecordingShortcutBadge()
+                    }
                 }
                 .padding()
                 .frame(maxWidth: .infinity)

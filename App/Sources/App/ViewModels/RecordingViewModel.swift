@@ -39,6 +39,33 @@ public class RecordingViewModel: ObservableObject {
             .assign(to: &$audioLevel)
     }
 
+    public func retryCustomPrompt(for recording: Recording, customPrompt: String) async -> Bool {
+        let trimmedPrompt = customPrompt.trimmingCharacters(in: .whitespacesAndNewlines)
+        guard !trimmedPrompt.isEmpty else {
+            logWarning("Retry custom prompt skipped: Empty prompt", category: .app)
+            return false
+        }
+
+        let processedText = await summarizationService.processWithCustomPrompt(
+            transcription: recording.transcriptionText,
+            customPrompt: trimmedPrompt
+        )
+        guard let processedText else {
+            logWarning("Retry custom prompt failed: No processed text returned", category: .app)
+            return false
+        }
+
+        var updatedRecording = recording
+        updatedRecording.processedText = processedText
+        do {
+            try RecordingRepository.shared.update(updatedRecording)
+            return true
+        } catch {
+            logError("Failed to update recording after custom prompt retry: \(error)", category: .app)
+            return false
+        }
+    }
+
     private func loadModelIfNeeded() {
         startModelLoadIfNeeded()
     }

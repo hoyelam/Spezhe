@@ -411,6 +411,18 @@ public enum L10n {
             public static let aiProcessed = String(localized: "recording.detail.aiProcessed",
                                                    defaultValue: "AI Processed",
                                                    comment: "Label for AI processed transcription")
+            public static let customPromptFailedTitle = String(localized: "recording.detail.customPromptFailedTitle",
+                                                               defaultValue: "Custom prompt not applied",
+                                                               comment: "Title shown when custom prompt processing did not complete")
+            public static let customPromptFailedSubtitle = String(localized: "recording.detail.customPromptFailedSubtitle",
+                                                                  defaultValue: "Retry to process this transcription with your custom prompt.",
+                                                                  comment: "Subtitle shown when custom prompt processing did not complete")
+            public static let customPromptRetryFailedHint = String(localized: "recording.detail.customPromptRetryFailedHint",
+                                                                   defaultValue: "Retry failed. Check your API key and try again.",
+                                                                   comment: "Hint shown when custom prompt retry fails")
+            public static let retryCustomPrompt = String(localized: "recording.detail.retryCustomPrompt",
+                                                         defaultValue: "Retry",
+                                                         comment: "Button to retry custom prompt processing")
             public static let showProcessed = String(localized: "recording.detail.showProcessed",
                                                      defaultValue: "Show Processed",
                                                      comment: "Button to show processed text")

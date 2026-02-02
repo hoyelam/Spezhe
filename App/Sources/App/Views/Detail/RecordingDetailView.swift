@@ -5,7 +5,9 @@ public struct RecordingDetailView: View {
     let onTitleChange: (String) -> Void
     private let forceUnavailable: Bool
     @StateObject private var playbackViewModel: AudioPlaybackViewModel
-    @State private var showOriginal = false
+    @EnvironmentObject private var recordingViewModel: RecordingViewModel
+    @State private var isRetryingCustomPrompt = false
+    @State private var didFailRetry = false
 
     public init(
         recording: Recording,
@@ -24,11 +26,17 @@ public struct RecordingDetailView: View {
         recording.processedText != nil && !recording.processedText!.isEmpty
     }
 
-    private var displayText: String {
-        if showOriginal || !hasProcessedText {
-            return recording.transcriptionText
+    private var customPrompt: String? {
+        guard let profileId = recording.profileId,
+              let profile = ProfileRepository.shared.fetch(byId: profileId) else {
+            return nil
         }
-        return recording.processedText!
+        let prompt = profile.customPrompt?.trimmingCharacters(in: .whitespacesAndNewlines)
+        return (prompt?.isEmpty ?? true) ? nil : prompt
+    }
+
+    private var shouldShowRetry: Bool {
+        !hasProcessedText && customPrompt != nil
     }
 
     public var body: some View {
@@ -52,36 +60,74 @@ public struct RecordingDetailView: View {
                 Divider()
             }
 
-            // Toggle between processed and original text if processed text exists
-            if hasProcessedText {
-                HStack {
-                    Label(showOriginal ? "Original Transcription" : "AI Processed", systemImage: showOriginal ? "doc.text" : "sparkles")
-                        .font(.caption)
-                        .foregroundColor(.secondary)
-
-                    Spacer()
-
-                    Button {
-                        showOriginal.toggle()
-                    } label: {
-                        Text(showOriginal ? "Show Processed" : "Show Original")
-                            .font(.caption)
-                    }
-                    .buttonStyle(.borderless)
-                }
-                .padding(.horizontal)
-                .padding(.vertical, 8)
-                .background(Color(nsColor: .controlBackgroundColor).opacity(0.5))
-
-                Divider()
-            }
-
             ScrollView {
-                Text(displayText)
-                    .font(.body)
-                    .textSelection(.enabled)
-                    .frame(maxWidth: .infinity, alignment: .leading)
-                    .padding()
+                VStack(alignment: .leading, spacing: 16) {
+                    TranscriptionSection(
+                        title: "Original Transcription",
+                        systemImage: "doc.text",
+                        text: recording.transcriptionText
+                    )
+
+                    if shouldShowRetry {
+                        Divider()
+
+                        HStack(alignment: .top, spacing: 12) {
+                            Image(systemName: "sparkles")
+                                .foregroundColor(.accentColor)
+
+                            VStack(alignment: .leading, spacing: 4) {
+                                Text(L10n.Recording.Detail.customPromptFailedTitle)
+                                    .font(.subheadline)
+                                    .fontWeight(.semibold)
+                                Text(L10n.Recording.Detail.customPromptFailedSubtitle)
+                                    .font(.caption)
+                                    .foregroundColor(.secondary)
+                                if didFailRetry {
+                                    Text(L10n.Recording.Detail.customPromptRetryFailedHint)
+                                        .font(.caption)
+                                        .foregroundColor(.secondary)
+                                }
+                            }
+
+                            Spacer()
+
+                            Button {
+                                guard let customPrompt else { return }
+                                didFailRetry = false
+                                isRetryingCustomPrompt = true
+                                Task {
+                                    let success = await recordingViewModel.retryCustomPrompt(
+                                        for: recording,
+                                        customPrompt: customPrompt
+                                    )
+                                    isRetryingCustomPrompt = false
+                                    didFailRetry = !success
+                                }
+                            } label: {
+                                if isRetryingCustomPrompt {
+                                    ProgressView()
+                                } else {
+                                    Text(L10n.Recording.Detail.retryCustomPrompt)
+                                }
+                            }
+                            .disabled(isRetryingCustomPrompt)
+                        }
+                        .padding(12)
+                        .background(Color.accentColor.opacity(0.08))
+                        .clipShape(RoundedRectangle(cornerRadius: 10, style: .continuous))
+                    }
+
+                    if hasProcessedText, let processedText = recording.processedText {
+                        Divider()
+
+                        TranscriptionSection(
+                            title: "AI Processed",
+                            systemImage: "sparkles",
+                            text: processedText
+                        )
+                    }
+                }
+                .padding()
             }
 
             Divider()
@@ -94,6 +140,25 @@ public struct RecordingDetailView: View {
             }
 
             AudioPlayerView(viewModel: playbackViewModel, isEnabled: playbackViewModel.isAudioAvailable)
+        }
+    }
+}
+
+private struct TranscriptionSection: View {
+    let title: String
+    let systemImage: String
+    let text: String
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Label(title, systemImage: systemImage)
+                .font(.caption)
+                .foregroundColor(.secondary)
+
+            Text(text)
+                .font(.body)
+                .textSelection(.enabled)
+                .frame(maxWidth: .infinity, alignment: .leading)
         }
     }
 }
