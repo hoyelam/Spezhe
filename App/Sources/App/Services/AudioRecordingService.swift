@@ -20,6 +20,7 @@ public class AudioRecordingService: ObservableObject {
     private var levelUpdateTimer: Timer?
     private var sampleCount: Int = 0
     private var recordingStartTime: Date?
+    private var hasInstalledTap = false
     private let targetSampleRate: Double = 16000
 
     @Published public var audioLevel: Float = 0
@@ -39,6 +40,7 @@ public class AudioRecordingService: ObservableObject {
         }
         logDebug("Microphone permission granted", category: .audio)
 
+        hasInstalledTap = false
         audioBuffer = []
         sampleCount = 0
         recordingStartTime = Date()
@@ -52,6 +54,11 @@ public class AudioRecordingService: ObservableObject {
         let inputNode = audioEngine.inputNode
         let recordingFormat = inputNode.outputFormat(forBus: 0)
         logDebug("Input format: \(recordingFormat.sampleRate)Hz, \(recordingFormat.channelCount) channels", category: .audio)
+
+        guard recordingFormat.channelCount > 0, recordingFormat.sampleRate > 0 else {
+            logError("No valid audio input device detected", category: .audio)
+            throw AudioRecordingError.noInputDevice
+        }
 
         guard let targetFormat = AVAudioFormat(commonFormat: .pcmFormatFloat32, sampleRate: targetSampleRate, channels: 1, interleaved: false) else {
             logError("Failed to create target audio format", category: .audio)
@@ -101,6 +108,7 @@ public class AudioRecordingService: ObservableObject {
                 }
             }
         }
+        hasInstalledTap = true
         logDebug("Audio tap installed", category: .audio)
 
         do {
@@ -116,9 +124,14 @@ public class AudioRecordingService: ObservableObject {
     public func stopRecording() async throws -> AudioRecordingResult {
         logInfo("Stopping recording...", category: .audio)
 
-        audioEngine?.inputNode.removeTap(onBus: 0)
-        audioEngine?.stop()
-        audioEngine = nil
+        if let audioEngine {
+            if hasInstalledTap {
+                audioEngine.inputNode.removeTap(onBus: 0)
+                hasInstalledTap = false
+            }
+            audioEngine.stop()
+            self.audioEngine = nil
+        }
         isRecording = false
         audioLevel = 0
 
@@ -163,6 +176,7 @@ public class AudioRecordingService: ObservableObject {
 
 public enum AudioRecordingError: LocalizedError {
     case permissionDenied
+    case noInputDevice
     case engineInitFailed
     case converterInitFailed
 
@@ -170,6 +184,8 @@ public enum AudioRecordingError: LocalizedError {
         switch self {
         case .permissionDenied:
             return "Microphone permission denied"
+        case .noInputDevice:
+            return "No audio input device available"
         case .engineInitFailed:
             return "Failed to initialize audio engine"
         case .converterInitFailed:

@@ -15,6 +15,8 @@ public struct RecordingPopupView: View {
                 if viewModel.state.isLoading {
                     // Loading state - show loading indicator with appropriate message
                     LoadingIndicatorView(state: viewModel.state)
+                } else if case .error(let message) = viewModel.state {
+                    ErrorHintView(message: message)
                 } else {
                     // Recording state - show waveform
                     WaveformView(level: viewModel.audioLevel, barCount: 40)
@@ -135,6 +137,33 @@ struct LoadingIndicatorView: View {
                     .foregroundColor(.secondary)
             }
         }
+    }
+}
+
+struct ErrorHintView: View {
+    let message: String
+
+    private var hint: String {
+        if message.localizedCaseInsensitiveContains("no audio input device") {
+            return L10n.Recording.Popup.noMicrophoneHint
+        }
+        return L10n.Recording.Popup.errorHint
+    }
+
+    var body: some View {
+        VStack(spacing: 6) {
+            Image(systemName: "exclamationmark.triangle")
+                .font(.system(size: 18))
+                .foregroundColor(.orange)
+            Text(message)
+                .font(.system(size: 13, weight: .medium))
+                .foregroundColor(.primary)
+            Text(hint)
+                .font(.system(size: 11))
+                .foregroundColor(.secondary)
+                .multilineTextAlignment(.center)
+        }
+        .padding(.horizontal, 8)
     }
 }
 

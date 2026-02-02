@@ -393,6 +393,12 @@ public enum L10n {
             public static let stop = String(localized: "recording.popup.stop",
                                             defaultValue: "Stop",
                                             comment: "Stop recording button")
+            public static let noMicrophoneHint = String(localized: "recording.popup.noMicrophoneHint",
+                                                        defaultValue: "No microphone detected. Connect a mic and try again.",
+                                                        comment: "Hint shown when no audio input device is available")
+            public static let errorHint = String(localized: "recording.popup.errorHint",
+                                                 defaultValue: "Please try again.",
+                                                 comment: "Generic hint shown under an error message")
             public static let noProfile = String(localized: "recording.popup.noProfile",
                                                  defaultValue: "No Profile",
                                                  comment: "Label when no profile is selected")
