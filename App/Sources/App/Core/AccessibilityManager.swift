@@ -16,13 +16,17 @@ public class AccessibilityManager: ObservableObject {
         return isAccessibilityEnabled
     }
 
-    public func requestAccessibility() {
+    public func requestAccessibility(openPreferencesIfNeeded: Bool = true) {
         let promptKey = kAXTrustedCheckOptionPrompt.takeUnretainedValue() as String
         let options = [promptKey: true] as CFDictionary
         AXIsProcessTrustedWithOptions(options)
 
-        DispatchQueue.main.asyncAfter(deadline: .now() + 1) { [weak self] in
-            self?.isAccessibilityEnabled = AXIsProcessTrusted()
+        DispatchQueue.main.asyncAfter(deadline: .now() + 0.5) { [weak self] in
+            let isTrusted = AXIsProcessTrusted()
+            self?.isAccessibilityEnabled = isTrusted
+            if openPreferencesIfNeeded && !isTrusted {
+                self?.openAccessibilityPreferences()
+            }
         }
     }
 

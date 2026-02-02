@@ -52,7 +52,7 @@ public class OnboardingViewModel: ObservableObject {
     }
 
     public func requestAccessibilityPermission() {
-        accessibilityManager.requestAccessibility()
+        accessibilityManager.requestAccessibility(openPreferencesIfNeeded: true)
         // Refresh status after a delay since accessibility permission requires user action in System Preferences
         DispatchQueue.main.asyncAfter(deadline: .now() + 1) { [weak self] in
             self?.accessibilityPermissionGranted = self?.accessibilityManager.checkAccessibility() ?? false
