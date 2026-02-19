@@ -189,10 +189,61 @@ struct PermissionsTab: View {
                 HStack {
                     Text(L10n.Settings.Permissions.microphoneAccess)
                     Spacer()
-                    Image(systemName: "checkmark.circle.fill")
-                        .foregroundColor(.green)
-                    Text(L10n.Common.granted)
-                        .foregroundColor(.secondary)
+                    if viewModel.isMicrophonePermissionGranted {
+                        Image(systemName: "checkmark.circle.fill")
+                            .foregroundColor(.green)
+                        Text(L10n.Common.granted)
+                            .foregroundColor(.secondary)
+                    } else {
+                        Image(systemName: "xmark.circle.fill")
+                            .foregroundColor(.red)
+                        Text(L10n.Common.notGranted)
+                            .foregroundColor(.secondary)
+                    }
+                }
+
+                if !viewModel.isMicrophonePermissionGranted {
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text(L10n.Settings.Permissions.microphoneDescription)
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+
+                        Button(L10n.Settings.Permissions.openMicrophonePreferences) {
+                            viewModel.openMicrophonePreferences()
+                        }
+                        .buttonStyle(.bordered)
+                    }
+                    .padding(.vertical, 4)
+                }
+
+                HStack {
+                    Text(L10n.Settings.Permissions.microphoneDevice)
+                    Spacer()
+                    if viewModel.hasAudioInputDevice {
+                        Image(systemName: "checkmark.circle.fill")
+                            .foregroundColor(.green)
+                        Text(L10n.Common.available)
+                            .foregroundColor(.secondary)
+                    } else {
+                        Image(systemName: "xmark.circle.fill")
+                            .foregroundColor(.red)
+                        Text(L10n.Common.notAvailable)
+                            .foregroundColor(.secondary)
+                    }
+                }
+
+                if !viewModel.hasAudioInputDevice {
+                    VStack(alignment: .leading, spacing: 8) {
+                        Text(L10n.Settings.Permissions.noMicrophoneDescription)
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+
+                        Button(L10n.Settings.Permissions.openSoundInputPreferences) {
+                            viewModel.openSoundInputPreferences()
+                        }
+                        .buttonStyle(.bordered)
+                    }
+                    .padding(.vertical, 4)
                 }
 
                 HStack {
@@ -231,7 +282,7 @@ struct PermissionsTab: View {
         .formStyle(.grouped)
         .padding()
         .onAppear {
-            viewModel.refreshAccessibilityStatus()
+            viewModel.refreshPermissionStatus()
         }
     }
 }

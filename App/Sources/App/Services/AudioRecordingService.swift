@@ -40,6 +40,11 @@ public class AudioRecordingService: ObservableObject {
         }
         logDebug("Microphone permission granted", category: .audio)
 
+        guard hasInputDevice() else {
+            logError("No audio input device detected before engine start", category: .audio)
+            throw AudioRecordingError.noInputDevice
+        }
+
         hasInstalledTap = false
         audioBuffer = []
         sampleCount = 0
@@ -172,9 +177,13 @@ public class AudioRecordingService: ObservableObject {
             }
         }
     }
+
+    private func hasInputDevice() -> Bool {
+        AVCaptureDevice.default(for: .audio) != nil
+    }
 }
 
-public enum AudioRecordingError: LocalizedError {
+public enum AudioRecordingError: LocalizedError, Equatable {
     case permissionDenied
     case noInputDevice
     case engineInitFailed

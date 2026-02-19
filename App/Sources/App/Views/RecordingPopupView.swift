@@ -16,7 +16,13 @@ public struct RecordingPopupView: View {
                     // Loading state - show loading indicator with appropriate message
                     LoadingIndicatorView(state: viewModel.state)
                 } else if case .error(let message) = viewModel.state {
-                    ErrorHintView(message: message)
+                    ErrorHintView(
+                        message: message,
+                        error: viewModel.startRecordingError,
+                        onOpenMicrophoneSettings: viewModel.openMicrophonePrivacySettings,
+                        onOpenInputSettings: viewModel.openSoundInputSettings,
+                        onDismiss: viewModel.dismissStartError
+                    )
                 } else {
                     // Recording state - show waveform
                     WaveformView(level: viewModel.audioLevel, barCount: 40)
@@ -58,8 +64,8 @@ public struct RecordingPopupView: View {
 
                 Spacer()
 
-                // Right side - Action buttons (only show during recording)
-                if !viewModel.state.isLoading {
+                // Right side - Action buttons (only show while recording)
+                if viewModel.state.isRecording {
                     HStack(spacing: 16) {
                         // Stop button
                         Button {
@@ -142,10 +148,17 @@ struct LoadingIndicatorView: View {
 
 struct ErrorHintView: View {
     let message: String
+    let error: AudioRecordingError?
+    let onOpenMicrophoneSettings: () -> Void
+    let onOpenInputSettings: () -> Void
+    let onDismiss: () -> Void
 
     private var hint: String {
-        if message.localizedCaseInsensitiveContains("no audio input device") {
+        if error == .noInputDevice || message.localizedCaseInsensitiveContains("no audio input device") {
             return L10n.Recording.Popup.noMicrophoneHint
+        }
+        if error == .permissionDenied || message.localizedCaseInsensitiveContains("permission denied") {
+            return L10n.Recording.Popup.microphonePermissionHint
         }
         return L10n.Recording.Popup.errorHint
     }
@@ -162,6 +175,29 @@ struct ErrorHintView: View {
                 .font(.system(size: 11))
                 .foregroundColor(.secondary)
                 .multilineTextAlignment(.center)
+
+            HStack(spacing: 8) {
+                if error == .permissionDenied {
+                    Button(L10n.Recording.Popup.openMicrophoneSettings) {
+                        onOpenMicrophoneSettings()
+                    }
+                    .buttonStyle(.bordered)
+                    .controlSize(.small)
+                } else if error == .noInputDevice {
+                    Button(L10n.Recording.Popup.openInputSettings) {
+                        onOpenInputSettings()
+                    }
+                    .buttonStyle(.bordered)
+                    .controlSize(.small)
+                }
+
+                Button(L10n.Common.dismiss) {
+                    onDismiss()
+                }
+                .buttonStyle(.plain)
+                .controlSize(.small)
+            }
+            .padding(.top, 4)
         }
         .padding(.horizontal, 8)
     }

@@ -61,7 +61,7 @@ Upload Metadata Skip Screenshots
 [bundle exec] fastlane mac dmg
 ```
 
-Build, notarize, and create DMG for direct distribution
+Build, notarize, and create DMG for direct distribution. Options: bump_marketing:true to bump marketing version
 
 ----
 

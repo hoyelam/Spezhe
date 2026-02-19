@@ -1,5 +1,6 @@
 import Foundation
 import Combine
+import AppKit
 
 @MainActor
 public class RecordingViewModel: ObservableObject {
@@ -8,6 +9,7 @@ public class RecordingViewModel: ObservableObject {
     @Published public var lastTranscription: String?
     @Published public var isPopupVisible = false
     @Published public var newRecordingID: Int64?
+    @Published public var startRecordingError: AudioRecordingError?
 
     // Download confirmation properties
     @Published public var pendingDownloadModel: WhisperModel?
@@ -209,6 +211,7 @@ public class RecordingViewModel: ObservableObject {
         logInfo("Starting recording flow...", category: .app)
 
         do {
+            startRecordingError = nil
             state = .recording
             showPopup(true)
             logDebug("State set to .recording, popup shown", category: .app)
@@ -223,10 +226,18 @@ public class RecordingViewModel: ObservableObject {
             startModelLoadIfNeeded()
         } catch {
             logError("Failed to start recording: \(error.localizedDescription)", category: .app)
+            if let audioError = error as? AudioRecordingError {
+                startRecordingError = audioError
+            } else {
+                startRecordingError = nil
+            }
             state = .error(error.localizedDescription)
-            DispatchQueue.main.asyncAfter(deadline: .now() + 2) { [weak self] in
-                self?.state = .idle
-                self?.showPopup(false)
+            if !isPersistentStartError {
+                DispatchQueue.main.asyncAfter(deadline: .now() + 2) { [weak self] in
+                    self?.state = .idle
+                    self?.showPopup(false)
+                    self?.startRecordingError = nil
+                }
             }
         }
     }
@@ -424,8 +435,34 @@ public class RecordingViewModel: ObservableObject {
         let modelName = settings.resolvedModelName(for: activeProfile)
         analytics.track(.recordingCancelled, properties: analyticsContextProperties(source: source, profile: activeProfile, modelName: modelName))
         state = .idle
+        startRecordingError = nil
         showPopup(false)
         logDebug("Recording cancelled", category: .app)
+    }
+
+    private var isPersistentStartError: Bool {
+        switch startRecordingError {
+        case .permissionDenied, .noInputDevice:
+            return true
+        case .engineInitFailed, .converterInitFailed, .none:
+            return false
+        }
+    }
+
+    public func dismissStartError() {
+        state = .idle
+        startRecordingError = nil
+        showPopup(false)
+    }
+
+    public func openMicrophonePrivacySettings() {
+        guard let url = URL(string: "x-apple.systempreferences:com.apple.preference.security?Privacy_Microphone") else { return }
+        NSWorkspace.shared.open(url)
+    }
+
+    public func openSoundInputSettings() {
+        guard let url = URL(string: "x-apple.systempreferences:com.apple.preference.sound?input") else { return }
+        NSWorkspace.shared.open(url)
     }
 
     /// Generates AI summaries asynchronously and updates the recording in the database

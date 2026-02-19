@@ -36,9 +36,18 @@ public enum L10n {
         public static let notGranted = String(localized: "common.notGranted",
                                               defaultValue: "Not Granted",
                                               comment: "Permission not granted status")
+        public static let available = String(localized: "common.available",
+                                             defaultValue: "Available",
+                                             comment: "Resource available status")
+        public static let notAvailable = String(localized: "common.notAvailable",
+                                                defaultValue: "Not Available",
+                                                comment: "Resource not available status")
         public static let required = String(localized: "common.required",
                                             defaultValue: "Required",
                                             comment: "Required badge text")
+        public static let dismiss = String(localized: "common.dismiss",
+                                           defaultValue: "Dismiss",
+                                           comment: "Generic dismiss button")
         public static let unknown = String(localized: "common.unknown",
                                            defaultValue: "Unknown",
                                            comment: "Unknown value placeholder")
@@ -123,6 +132,15 @@ public enum L10n {
             public static let microphoneAccess = String(localized: "settings.permissions.microphoneAccess",
                                                         defaultValue: "Microphone Access",
                                                         comment: "Label for microphone permission")
+            public static let microphoneDescription = String(localized: "settings.permissions.microphoneDescription",
+                                                             defaultValue: "Spezhe needs microphone permission to start recording.",
+                                                             comment: "Description for microphone permission status")
+            public static let microphoneDevice = String(localized: "settings.permissions.microphoneDevice",
+                                                        defaultValue: "Input Device",
+                                                        comment: "Label for microphone hardware availability")
+            public static let noMicrophoneDescription = String(localized: "settings.permissions.noMicrophoneDescription",
+                                                               defaultValue: "No input device is currently available. Connect a microphone to record.",
+                                                               comment: "Description shown when there is no audio input device")
             public static let accessibilityAccess = String(localized: "settings.permissions.accessibilityAccess",
                                                            defaultValue: "Accessibility Access",
                                                            comment: "Label for accessibility permission")
@@ -132,6 +150,12 @@ public enum L10n {
             public static let openSystemPreferences = String(localized: "settings.permissions.openSystemPreferences",
                                                              defaultValue: "Open System Preferences",
                                                              comment: "Button to open system preferences")
+            public static let openMicrophonePreferences = String(localized: "settings.permissions.openMicrophonePreferences",
+                                                                 defaultValue: "Open Microphone Settings",
+                                                                 comment: "Button to open microphone privacy settings")
+            public static let openSoundInputPreferences = String(localized: "settings.permissions.openSoundInputPreferences",
+                                                                 defaultValue: "Open Input Settings",
+                                                                 comment: "Button to open sound input settings")
         }
     }
 
@@ -396,6 +420,15 @@ public enum L10n {
             public static let noMicrophoneHint = String(localized: "recording.popup.noMicrophoneHint",
                                                         defaultValue: "No microphone detected. Connect a mic and try again.",
                                                         comment: "Hint shown when no audio input device is available")
+            public static let microphonePermissionHint = String(localized: "recording.popup.microphonePermissionHint",
+                                                                defaultValue: "Microphone access is blocked. Allow access in System Settings and try again.",
+                                                                comment: "Hint shown when microphone permission is denied")
+            public static let openMicrophoneSettings = String(localized: "recording.popup.openMicrophoneSettings",
+                                                              defaultValue: "Open Microphone Settings",
+                                                              comment: "Button to open microphone privacy settings")
+            public static let openInputSettings = String(localized: "recording.popup.openInputSettings",
+                                                         defaultValue: "Open Input Settings",
+                                                         comment: "Button to open sound input settings")
             public static let errorHint = String(localized: "recording.popup.errorHint",
                                                  defaultValue: "Please try again.",
                                                  comment: "Generic hint shown under an error message")
