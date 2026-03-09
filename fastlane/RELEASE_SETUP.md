@@ -14,7 +14,7 @@ Optional environment variables:
 - `SPEZHE_NOTARY_PROFILE`
   Default: `AC_PASSWORD`
 - `SPEZHE_GITHUB_REPO`
-  Default: `hoyelam/spezhe-site`
+  Default: `hoyelam/Spezhe`
 
 Required external setup:
 

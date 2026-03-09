@@ -121,7 +121,7 @@ platform :mac do
     sparkle_sign_tool = "App/.build/artifacts/sparkle/Sparkle/bin/sign_update"
     developer_id_identity = ENV["SPEZHE_DEVELOPER_IDENTITY"]
     notary_profile = ENV.fetch("SPEZHE_NOTARY_PROFILE", "AC_PASSWORD")
-    github_repo = ENV.fetch("SPEZHE_GITHUB_REPO", "hoyelam/spezhe-site")
+    github_repo = ENV.fetch("SPEZHE_GITHUB_REPO", "hoyelam/Spezhe")
 
     UI.user_error!("Set SPEZHE_DEVELOPER_IDENTITY to your Developer ID signing identity before running the dmg lane.") if developer_id_identity.to_s.empty?
 
