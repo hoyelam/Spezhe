@@ -796,18 +796,6 @@
         }
       }
     },
-    "profileEditor.aiPostProcessingHeader" : {
-      "comment" : "Section header for AI processing",
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "AI Post-Processing"
-          }
-        }
-      }
-    },
     "profileEditor.createProfile" : {
       "comment" : "Button to create new profile",
       "extractionState" : "manual",
@@ -816,30 +804,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Create Profile"
-          }
-        }
-      }
-    },
-    "profileEditor.customPromptDescription" : {
-      "comment" : "Description for custom prompt feature",
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "The transcription will be processed with this prompt. Examples: \"Make it professional and fix grammar\" or \"Format as bullet points\""
-          }
-        }
-      }
-    },
-    "profileEditor.customPromptToggle" : {
-      "comment" : "Toggle for custom AI prompt",
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Apply custom AI prompt"
           }
         }
       }
@@ -1132,66 +1096,6 @@
         }
       }
     },
-    "recording.detail.aiProcessed" : {
-      "comment" : "Label for AI processed transcription",
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "AI Processed"
-          }
-        }
-      }
-    },
-    "recording.detail.customPromptFailedTitle" : {
-      "comment" : "Title shown when custom prompt processing did not complete",
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Custom prompt not applied"
-          }
-        }
-      }
-    },
-    "recording.detail.customPromptFailedSubtitle" : {
-      "comment" : "Subtitle shown when custom prompt processing did not complete",
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Retry to process this transcription with your custom prompt."
-          }
-        }
-      }
-    },
-    "recording.detail.customPromptRetryFailedHint" : {
-      "comment" : "Hint shown when custom prompt retry fails",
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Retry failed. Check your API key and try again."
-          }
-        }
-      }
-    },
-    "recording.detail.retryCustomPrompt" : {
-      "comment" : "Button to retry custom prompt processing",
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Retry"
-          }
-        }
-      }
-    },
     "recording.detail.audioUnavailable" : {
       "comment" : "Message when audio file is unavailable",
       "extractionState" : "manual",
@@ -1416,18 +1320,6 @@
           "stringUnit" : {
             "state" : "translated",
             "value" : "Transcribing..."
-          }
-        }
-      }
-    },
-    "settings.general.analyticsToggle" : {
-      "comment" : "Toggle for analytics sharing",
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Share anonymous usage analytics"
           }
         }
       }

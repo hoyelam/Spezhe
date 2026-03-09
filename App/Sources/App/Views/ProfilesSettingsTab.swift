@@ -2,18 +2,11 @@ import SwiftUI
 
 struct ProfilesSettingsTab: View {
     @StateObject private var viewModel = ProfilesViewModel()
-    private let featureFlags = FeatureFlagService.shared
     @State private var profileToDelete: TranscriptionProfile?
     @State private var showDeleteConfirmation = false
 
     var body: some View {
-        Group {
-            if featureFlags.profilesEnabled {
-                profilesForm
-            } else {
-                EmptyView()
-            }
-        }
+        profilesForm
         .formStyle(.grouped)
         .padding()
     }
@@ -139,12 +132,6 @@ struct ProfileRow: View {
 
                     if let modelName = profile.modelName {
                         Label(WhisperModel.model(named: modelName)?.displayName ?? modelName, systemImage: "cpu")
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-                    }
-
-                    if profile.customPrompt != nil {
-                        Label(L10n.Profiles.aiPromptLabel, systemImage: "sparkles")
                             .font(.caption)
                             .foregroundColor(.secondary)
                     }

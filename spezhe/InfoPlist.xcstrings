@@ -36,18 +36,6 @@
           }
         }
       }
-    },
-    "NSUserTrackingUsageDescription" : {
-      "comment" : "Permission description for user tracking",
-      "extractionState" : "manual",
-      "localizations" : {
-        "en" : {
-          "stringUnit" : {
-            "state" : "translated",
-            "value" : "Spezhe uses tracking to understand product usage and improve transcription quality."
-          }
-        }
-      }
     }
   },
   "version" : "1.0"

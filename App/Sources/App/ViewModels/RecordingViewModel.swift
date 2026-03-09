@@ -23,7 +23,6 @@ public class RecordingViewModel: ObservableObject {
     private let clipboardService = ClipboardService.shared
     private let soundFeedbackService = SoundFeedbackService.shared
     private let settings = AppSettings.shared
-    private let analytics = AnalyticsService.shared
 
     private var cancellables = Set<AnyCancellable>()
     private var modelLoadTask: Task<Void, Error>?
@@ -39,33 +38,6 @@ public class RecordingViewModel: ObservableObject {
         audioService.$audioLevel
             .receive(on: DispatchQueue.main)
             .assign(to: &$audioLevel)
-    }
-
-    public func retryCustomPrompt(for recording: Recording, customPrompt: String) async -> Bool {
-        let trimmedPrompt = customPrompt.trimmingCharacters(in: .whitespacesAndNewlines)
-        guard !trimmedPrompt.isEmpty else {
-            logWarning("Retry custom prompt skipped: Empty prompt", category: .app)
-            return false
-        }
-
-        let processedText = await summarizationService.processWithCustomPrompt(
-            transcription: recording.transcriptionText,
-            customPrompt: trimmedPrompt
-        )
-        guard let processedText else {
-            logWarning("Retry custom prompt failed: No processed text returned", category: .app)
-            return false
-        }
-
-        var updatedRecording = recording
-        updatedRecording.processedText = processedText
-        do {
-            try RecordingRepository.shared.update(updatedRecording)
-            return true
-        } catch {
-            logError("Failed to update recording after custom prompt retry: \(error)", category: .app)
-            return false
-        }
     }
 
     private func loadModelIfNeeded() {
@@ -219,9 +191,6 @@ public class RecordingViewModel: ObservableObject {
             try await audioService.startRecording()
             soundFeedbackService.playRecordingStartSound()
             logInfo("Recording started", category: .app)
-            let activeProfile = settings.activeProfile
-            let modelName = settings.resolvedModelName(for: activeProfile)
-            analytics.track(.recordingStarted, properties: analyticsContextProperties(source: source, profile: activeProfile, modelName: modelName))
 
             startModelLoadIfNeeded()
         } catch {
@@ -248,22 +217,11 @@ public class RecordingViewModel: ObservableObject {
 
         let activeProfile = settings.activeProfile
         let modelName = settings.resolvedModelName(for: activeProfile)
-        let baseProperties = analyticsContextProperties(source: source, profile: activeProfile, modelName: modelName)
-        var failureStage = "stop_recording"
-        var audioDuration: Double?
-        var samplesCount: Int?
 
         do {
             logDebug("Stopping audio service...", category: .app)
             let audioResult = try await audioService.stopRecording()
             logInfo("Audio captured: \(audioResult.samples.count) samples, duration: \(audioResult.duration)s", category: .app)
-
-            audioDuration = audioResult.duration
-            samplesCount = audioResult.samples.count
-            var recordingStoppedProperties = baseProperties
-            recordingStoppedProperties["duration_sec"] = audioResult.duration
-            recordingStoppedProperties["samples_count"] = audioResult.samples.count
-            analytics.track(.recordingStopped, properties: recordingStoppedProperties)
 
             if transcriptionService.isModelLoaded && transcriptionService.loadedModelName == modelName {
                 state = .processing
@@ -273,7 +231,6 @@ public class RecordingViewModel: ObservableObject {
                 logDebug("State set to .loadingModel", category: .app)
             }
 
-            failureStage = "model_load"
             try await ensureModelReadyForTranscription(modelName: modelName)
             let effectiveModelName = transcriptionService.loadedModelName ?? modelName
             state = .processing
@@ -295,43 +252,12 @@ public class RecordingViewModel: ObservableObject {
                     logWarning("Model '\(model.displayName)' is English-only. Language forcing to '\(lang)' may not work correctly.", category: .app)
                 }
             }
-            failureStage = "transcription"
-            var transcriptionStartedProperties = baseProperties
-            transcriptionStartedProperties["audio_duration_sec"] = audioResult.duration
-            transcriptionStartedProperties["model_name"] = effectiveModelName
-            analytics.track(.transcriptionStarted, properties: transcriptionStartedProperties)
 
-            let transcriptionStart = Date()
             let transcriptionResult = try await transcriptionService.transcribe(audioArray: audioResult.samples, language: language)
-            let transcriptionDuration = Date().timeIntervalSince(transcriptionStart)
             logInfo("Transcription successful: '\(transcriptionResult.text)'", category: .app)
             let wordCount = transcriptionResult.text.split(separator: " ").count
 
-            // Apply custom prompt if profile has one
-            var processedText: String?
-            if let customPrompt = activeProfile?.customPrompt, !customPrompt.isEmpty {
-                logInfo("Applying custom prompt from profile...", category: .app)
-                processedText = await summarizationService.processWithCustomPrompt(
-                    transcription: transcriptionResult.text,
-                    customPrompt: customPrompt
-                )
-                if let processed = processedText {
-                    logInfo("Custom prompt applied, processed text: '\(processed)'", category: .app)
-                }
-            }
-            logInfo("Custom prompt active: \(processedText != nil)", category: .app)
-
-            var transcriptionCompletedProperties = baseProperties
-            transcriptionCompletedProperties["audio_duration_sec"] = audioResult.duration
-            transcriptionCompletedProperties["transcription_duration_sec"] = transcriptionDuration
-            transcriptionCompletedProperties["word_count"] = wordCount
-            transcriptionCompletedProperties["detected_language"] = transcriptionResult.detectedLanguage
-            transcriptionCompletedProperties["used_custom_prompt"] = processedText != nil
-            transcriptionCompletedProperties["model_name"] = effectiveModelName
-            analytics.track(.transcriptionCompleted, properties: transcriptionCompletedProperties)
-
             // Save audio file
-            failureStage = "audio_save"
             let (audioFileName, fileSize) = try AudioFileManager.shared.saveAudio(
                 audioResult.samples,
                 sampleRate: audioResult.sampleRate
@@ -339,7 +265,6 @@ public class RecordingViewModel: ObservableObject {
             logInfo("Audio saved: \(audioFileName), size: \(fileSize) bytes", category: .app)
 
             // Create and save recording to database immediately (without summaries)
-            failureStage = "database_insert"
             var recording = Recording(
                 title: "",
                 transcriptionText: transcriptionResult.text,
@@ -352,8 +277,7 @@ public class RecordingViewModel: ObservableObject {
                 wordCount: wordCount,
                 modelUsed: effectiveModelName,
                 fileSize: fileSize,
-                profileId: activeProfile?.id,
-                processedText: processedText
+                profileId: activeProfile?.id
             )
             recording.generateDefaultTitle()
 
@@ -375,10 +299,8 @@ public class RecordingViewModel: ObservableObject {
             // Notify UI of new recording
             newRecordingID = recording.id
 
-            // Use processed text for display and paste if available, otherwise original
-            let displayText = processedText ?? transcriptionResult.text
-            lastTranscription = displayText
-            state = .completed(displayText)
+            lastTranscription = transcriptionResult.text
+            state = .completed(transcriptionResult.text)
             logDebug("State set to .completed", category: .app)
 
             if settings.autoPasteEnabled {
@@ -388,12 +310,12 @@ public class RecordingViewModel: ObservableObject {
                 try await Task.sleep(nanoseconds: 100_000_000)
 
                 logDebug("Attempting to copy and paste...", category: .clipboard)
-                let success = clipboardService.copyAndPaste(displayText)
+                let success = clipboardService.copyAndPaste(transcriptionResult.text)
                 if success {
                     logInfo("Text pasted successfully", category: .clipboard)
                 } else {
                     logWarning("Paste failed (accessibility?), text copied to clipboard only", category: .clipboard)
-                    clipboardService.copyToClipboard(displayText)
+                    clipboardService.copyToClipboard(transcriptionResult.text)
                 }
             } else {
                 logDebug("Auto-paste disabled, text available in popup", category: .app)
@@ -408,18 +330,6 @@ public class RecordingViewModel: ObservableObject {
             }
         } catch {
             logError("Recording flow failed: \(error.localizedDescription)", category: .app)
-            var failureProperties = baseProperties
-            failureProperties["stage"] = failureStage
-            let nsError = error as NSError
-            failureProperties["error_domain"] = nsError.domain
-            failureProperties["error_code"] = nsError.code
-            if let audioDuration {
-                failureProperties["audio_duration_sec"] = audioDuration
-            }
-            if let samplesCount {
-                failureProperties["samples_count"] = samplesCount
-            }
-            analytics.track(.transcriptionFailed, properties: failureProperties)
             state = .error(error.localizedDescription)
             DispatchQueue.main.asyncAfter(deadline: .now() + 2) { [weak self] in
                 self?.state = .idle
@@ -431,9 +341,6 @@ public class RecordingViewModel: ObservableObject {
     public func cancelRecording(source: RecordingTriggerSource = .unknown) async {
         logInfo("Cancelling recording...", category: .app)
         _ = try? await audioService.stopRecording()
-        let activeProfile = settings.activeProfile
-        let modelName = settings.resolvedModelName(for: activeProfile)
-        analytics.track(.recordingCancelled, properties: analyticsContextProperties(source: source, profile: activeProfile, modelName: modelName))
         state = .idle
         startRecordingError = nil
         showPopup(false)
@@ -481,12 +388,6 @@ public class RecordingViewModel: ObservableObject {
             logInfo("AI summary generated: '\(s)'", category: .app)
         }
 
-        analytics.track(.summaryGenerated, properties: [
-            "one_liner_generated": oneLiner != nil,
-            "summary_generated": summary != nil,
-            "word_count": text.split(separator: " ").count
-        ])
-
         // Update the recording in the database with the generated summaries
         guard var recording = RecordingRepository.shared.fetch(byId: recordingId) else {
             logWarning("Recording \(recordingId) not found for summary update", category: .app)
@@ -502,25 +403,6 @@ public class RecordingViewModel: ObservableObject {
         } catch {
             logError("Failed to update recording with summaries: \(error.localizedDescription)", category: .app)
         }
-    }
-
-    private func analyticsContextProperties(
-        source: RecordingTriggerSource,
-        profile: TranscriptionProfile?,
-        modelName: String
-    ) -> [String: Any] {
-        var properties: [String: Any] = [
-            "source": source.rawValue,
-            "model_name": modelName,
-            "auto_paste_enabled": settings.autoPasteEnabled,
-            "language_setting": profile?.language ?? "auto"
-        ]
-
-        if let profileId = profile?.id, let profileIdInt = Int(exactly: profileId) {
-            properties["profile_id"] = profileIdInt
-        }
-
-        return properties
     }
 
     private func showPopup(_ show: Bool) {

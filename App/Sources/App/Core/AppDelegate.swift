@@ -21,9 +21,6 @@ public class AppDelegate: NSObject, NSApplicationDelegate {
         logInfo("Database and file manager initialized", category: .app)
         RecordingRetentionService.shared.enforceLimit()
 
-        AnalyticsService.shared.configure()
-        AnalyticsService.shared.track(.appLaunched)
-
         setupStatusItem()
         setupKeyboardShortcut()
         setupFloatingPanel()

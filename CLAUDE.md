@@ -27,7 +27,7 @@ spezhe/
 - **WhisperKit** (0.9.0+) - On-device speech recognition using Whisper models
 - **KeyboardShortcuts** - Global hotkey registration
 - **GRDB** - SQLite database for recordings and profiles
-- **Mixpanel** - Analytics (anonymous usage tracking)
+- **Sparkle** - In-app update framework for direct distribution
 
 ## Architecture
 
@@ -38,13 +38,13 @@ spezhe/
 - `ModelManagerService` - Downloads and manages Whisper models
 - `ClipboardService` - Copies transcribed text to clipboard
 - `SoundFeedbackService` - Audio feedback for recording start/stop
-- `AnalyticsService` - Mixpanel event tracking
+- `SummarizationService` - On-device title and summary generation via Foundation Models
 
 ### Database
 
 Uses GRDB with the following tables:
 - `recordings` - Stored recordings with transcriptions
-- `transcription_profiles` - User-defined profiles (model, language, prompts)
+- `transcription_profiles` - User-defined profiles (model, language)
 
 ### Key Features
 

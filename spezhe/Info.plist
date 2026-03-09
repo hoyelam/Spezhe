@@ -1,0 +1,14 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+	<key>SUFeedURL</key>
+	<string>https://spezhe.com/appcast.xml</string>
+	<key>SUPublicEDKey</key>
+	<string>Lxyy5EUSwR2j57dZNFqFHN5fHxuxM3PBXk6cGli4n2E=</string>
+	<key>NSMicrophoneUsageDescription</key>
+	<string>Spezhe needs microphone access to record your voice for transcription.</string>
+	<key>ITSAppUsesNonExemptEncryption</key>
+	<false/>
+</dict>
+</plist>

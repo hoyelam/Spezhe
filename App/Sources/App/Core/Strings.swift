@@ -117,12 +117,6 @@ public enum L10n {
             public static let selectedModel = String(localized: "settings.general.selectedModel",
                                                      defaultValue: "Selected Model",
                                                      comment: "Label for selected model")
-            public static let privacyHeader = String(localized: "settings.general.privacyHeader",
-                                                     defaultValue: "Privacy",
-                                                     comment: "Section header for privacy settings")
-            public static let analyticsToggle = String(localized: "settings.general.analyticsToggle",
-                                                       defaultValue: "Share anonymous usage analytics",
-                                                       comment: "Toggle for analytics sharing")
         }
 
         public enum Permissions {
@@ -257,15 +251,6 @@ public enum L10n {
             String(localized: "The \(modelName) model is English-only. Language forcing may not work. Use Large V3, Medium, Small, or Base for multilingual support.",
                    comment: "Warning about English-only model")
         }
-        public static let aiPostProcessingHeader = String(localized: "profileEditor.aiPostProcessingHeader",
-                                                          defaultValue: "AI Post-Processing",
-                                                          comment: "Section header for AI processing")
-        public static let customPromptToggle = String(localized: "profileEditor.customPromptToggle",
-                                                      defaultValue: "Apply custom AI prompt",
-                                                      comment: "Toggle for custom AI prompt")
-        public static let customPromptDescription = String(localized: "profileEditor.customPromptDescription",
-                                                           defaultValue: "The transcription will be processed with this prompt. Examples: \"Make it professional and fix grammar\" or \"Format as bullet points\"",
-                                                           comment: "Description for custom prompt feature")
         public static let createProfile = String(localized: "profileEditor.createProfile",
                                                  defaultValue: "Create Profile",
                                                  comment: "Button to create new profile")
@@ -441,27 +426,6 @@ public enum L10n {
             public static let originalTranscription = String(localized: "recording.detail.originalTranscription",
                                                              defaultValue: "Original Transcription",
                                                              comment: "Label for original transcription")
-            public static let aiProcessed = String(localized: "recording.detail.aiProcessed",
-                                                   defaultValue: "AI Processed",
-                                                   comment: "Label for AI processed transcription")
-            public static let customPromptFailedTitle = String(localized: "recording.detail.customPromptFailedTitle",
-                                                               defaultValue: "Custom prompt not applied",
-                                                               comment: "Title shown when custom prompt processing did not complete")
-            public static let customPromptFailedSubtitle = String(localized: "recording.detail.customPromptFailedSubtitle",
-                                                                  defaultValue: "Retry to process this transcription with your custom prompt.",
-                                                                  comment: "Subtitle shown when custom prompt processing did not complete")
-            public static let customPromptRetryFailedHint = String(localized: "recording.detail.customPromptRetryFailedHint",
-                                                                   defaultValue: "Retry failed. Check your API key and try again.",
-                                                                   comment: "Hint shown when custom prompt retry fails")
-            public static let retryCustomPrompt = String(localized: "recording.detail.retryCustomPrompt",
-                                                         defaultValue: "Retry",
-                                                         comment: "Button to retry custom prompt processing")
-            public static let showProcessed = String(localized: "recording.detail.showProcessed",
-                                                     defaultValue: "Show Processed",
-                                                     comment: "Button to show processed text")
-            public static let showOriginal = String(localized: "recording.detail.showOriginal",
-                                                    defaultValue: "Show Original",
-                                                    comment: "Button to show original text")
             public static let audioUnavailable = String(localized: "recording.detail.audioUnavailable",
                                                         defaultValue: "Audio unavailable",
                                                         comment: "Message when audio file is unavailable")

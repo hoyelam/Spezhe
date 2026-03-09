@@ -7,7 +7,6 @@ import AppKit
 public class SettingsViewModel: ObservableObject {
     @Published public var selectedModelName: String
     @Published public var autoPasteEnabled: Bool
-    @Published public var analyticsEnabled: Bool
     @Published public var isMicrophonePermissionGranted: Bool
     @Published public var hasAudioInputDevice: Bool
     @Published public var isAccessibilityEnabled: Bool
@@ -22,7 +21,6 @@ public class SettingsViewModel: ObservableObject {
     public init() {
         self.selectedModelName = settings.selectedModelName
         self.autoPasteEnabled = settings.autoPasteEnabled
-        self.analyticsEnabled = settings.analyticsEnabled
         self.isMicrophonePermissionGranted = AVCaptureDevice.authorizationStatus(for: .audio) == .authorized
         self.hasAudioInputDevice = AVCaptureDevice.default(for: .audio) != nil
         self.isAccessibilityEnabled = accessibilityManager.isAccessibilityEnabled
@@ -35,7 +33,6 @@ public class SettingsViewModel: ObservableObject {
     public func saveSettings() {
         settings.selectedModelName = selectedModelName
         settings.autoPasteEnabled = autoPasteEnabled
-        settings.analyticsEnabled = analyticsEnabled
         settings.soundFeedbackEnabled = soundFeedbackEnabled
         settings.recordingStartSound = recordingStartSound
         settings.recordingStopSound = recordingStopSound

@@ -5,7 +5,6 @@ public struct RecordingPopupView: View {
     @EnvironmentObject private var viewModel: RecordingViewModel
     @StateObject private var settings = AppSettings.shared
     @StateObject private var profilesViewModel = ProfilesViewModel()
-    private let featureFlags = FeatureFlagService.shared
     @State private var showProfilePicker = false
 
     public var body: some View {
@@ -34,32 +33,16 @@ public struct RecordingPopupView: View {
 
             // Bottom toolbar
             HStack {
-                if featureFlags.profilesEnabled {
-                    // Left side - Profile/Model selector
-                    ProfileSelectorButton(
-                        activeProfile: profilesViewModel.activeProfile,
-                        modelName: settings.effectiveModel.displayName,
-                        onTap: {
-                            showProfilePicker.toggle()
-                        }
-                    )
-                    .popover(isPresented: $showProfilePicker, arrowEdge: .bottom) {
-                        ProfilePickerPopover(viewModel: profilesViewModel)
+                // Left side - Profile/Model selector
+                ProfileSelectorButton(
+                    activeProfile: profilesViewModel.activeProfile,
+                    modelName: settings.effectiveModel.displayName,
+                    onTap: {
+                        showProfilePicker.toggle()
                     }
-                } else {
-                    HStack(spacing: 8) {
-                        Image(systemName: "cpu")
-                            .font(.system(size: 14))
-                            .foregroundColor(.secondary)
-                        VStack(alignment: .leading, spacing: 1) {
-                            Text(L10n.Recording.Popup.modelLabel)
-                                .font(.system(size: 12, weight: .medium))
-                                .foregroundColor(.secondary)
-                            Text(settings.effectiveModel.displayName)
-                                .font(.system(size: 10))
-                                .foregroundColor(.secondary)
-                        }
-                    }
+                )
+                .popover(isPresented: $showProfilePicker, arrowEdge: .bottom) {
+                    ProfilePickerPopover(viewModel: profilesViewModel)
                 }
 
                 Spacer()
@@ -108,7 +91,6 @@ public struct RecordingPopupView: View {
         .clipShape(RoundedRectangle(cornerRadius: 12))
         .onReceive(NotificationCenter.default.publisher(for: .cycleProfileShortcut)) { _ in
             guard viewModel.state.isRecording else { return }
-            guard featureFlags.profilesEnabled else { return }
             profilesViewModel.cycleToNextProfile()
         }
     }
@@ -424,9 +406,6 @@ struct ProfilePickerPopover: View {
         var parts: [String] = []
         if let lang = profile.language, lang != "auto" {
             parts.append(SupportedLanguage.find(byId: lang)?.name ?? lang)
-        }
-        if profile.customPrompt != nil {
-            parts.append(L10n.Profiles.aiPromptLabel)
         }
         return parts.isEmpty ? nil : parts.joined(separator: " + ")
     }

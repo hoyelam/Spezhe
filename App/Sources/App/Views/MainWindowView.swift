@@ -33,10 +33,6 @@ public struct MainWindowView: View {
                 selectedRecordingID = id
             }
         }
-        .onChange(of: selectedRecordingID) { _, newID in
-            guard newID != nil else { return }
-            TrackingAuthorizationService.shared.requestIfNeeded()
-        }
         .onChange(of: recordingsStore.recordings) { _, updatedRecordings in
             guard let selectedID = selectedRecordingID else { return }
             if updatedRecordings.first(where: { $0.id == selectedID }) == nil {

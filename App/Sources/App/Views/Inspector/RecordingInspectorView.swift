@@ -46,13 +46,6 @@ public struct RecordingInspectorView: View {
                         Text(profile.name)
                     }
                 }
-
-                if recording.processedText != nil {
-                    LabeledContent(L10n.Recording.Detail.aiProcessed) {
-                        Image(systemName: "checkmark.circle.fill")
-                            .foregroundColor(.green)
-                    }
-                }
             }
         }
         .formStyle(.grouped)

@@ -6,7 +6,6 @@ public struct TranscriptionProfile: Codable, Identifiable, Equatable, Hashable {
     public var name: String
     public var modelName: String?
     public var language: String?
-    public var customPrompt: String?
     public var createdAt: Date
     public var updatedAt: Date
 
@@ -15,7 +14,6 @@ public struct TranscriptionProfile: Codable, Identifiable, Equatable, Hashable {
         name: String,
         modelName: String? = nil,
         language: String? = nil,
-        customPrompt: String? = nil,
         createdAt: Date = Date(),
         updatedAt: Date = Date()
     ) {
@@ -23,7 +21,6 @@ public struct TranscriptionProfile: Codable, Identifiable, Equatable, Hashable {
         self.name = name
         self.modelName = modelName
         self.language = language
-        self.customPrompt = customPrompt
         self.createdAt = createdAt
         self.updatedAt = updatedAt
     }

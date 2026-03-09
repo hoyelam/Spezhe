@@ -5,7 +5,6 @@ public struct SettingsView: View {
     @StateObject private var settingsViewModel = SettingsViewModel()
     @StateObject private var modelViewModel = ModelDownloadViewModel()
     @EnvironmentObject private var recordingViewModel: RecordingViewModel
-    private let featureFlags = FeatureFlagService.shared
     @State private var selectedTab: SettingsTab = .general
 
     public init() {}
@@ -24,13 +23,11 @@ public struct SettingsView: View {
                 }
                 .tag(SettingsTab.models)
 
-            if featureFlags.profilesEnabled {
-                ProfilesSettingsTab()
-                    .tabItem {
-                        Label(L10n.Settings.Tabs.profiles, systemImage: "person.crop.rectangle.stack")
-                    }
-                    .tag(SettingsTab.profiles)
-            }
+            ProfilesSettingsTab()
+                .tabItem {
+                    Label(L10n.Settings.Tabs.profiles, systemImage: "person.crop.rectangle.stack")
+                }
+                .tag(SettingsTab.profiles)
 
             PermissionsTab(viewModel: settingsViewModel)
                 .tabItem {
@@ -51,10 +48,6 @@ public struct SettingsView: View {
         }
         .onChange(of: settingsViewModel.autoPasteEnabled) { _, _ in
             settingsViewModel.saveSettings()
-        }
-        .onChange(of: settingsViewModel.analyticsEnabled) { _, _ in
-            settingsViewModel.saveSettings()
-            AnalyticsService.shared.setEnabled(settingsViewModel.analyticsEnabled)
         }
         .onChange(of: settingsViewModel.soundFeedbackEnabled) { _, _ in
             settingsViewModel.saveSettings()
@@ -167,12 +160,6 @@ struct GeneralSettingsTab: View {
                 }
             } header: {
                 Text(L10n.Settings.General.currentSettingsHeader)
-            }
-
-            Section {
-                Toggle(L10n.Settings.General.analyticsToggle, isOn: $viewModel.analyticsEnabled)
-            } header: {
-                Text(L10n.Settings.General.privacyHeader)
             }
         }
         .formStyle(.grouped)

@@ -44,13 +44,6 @@ public struct RecordingRowView: View {
                         .labelStyle(.iconOnly)
                 }
 
-                if recording.processedText != nil {
-                    Label("AI", systemImage: "sparkles")
-                        .font(.caption2)
-                        .foregroundColor(.purple)
-                        .labelStyle(.iconOnly)
-                }
-
                 Spacer()
                 Text(formatDuration(recording.duration))
                     .font(.caption)

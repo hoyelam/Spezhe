@@ -1,0 +1,286 @@
+# This file contains the fastlane.tools configuration
+# You can find the documentation at https://docs.fastlane.tools
+#
+# For a list of all available actions, check out
+#
+#     https://docs.fastlane.tools/actions
+#
+# For a list of all available plugins, check out
+#
+#     https://docs.fastlane.tools/plugins/available-plugins
+#
+
+# Uncomment the line if you want fastlane to automatically update itself
+# update_fastlane
+
+default_platform(:mac)
+
+platform :mac do
+  desc "Bump marketing version (YYYY.N format). Pass version:X.X to set a specific version."
+  lane :bump_version do |options|
+    if options[:version]
+      new_version = options[:version]
+    else
+      current_year = Time.now.year.to_s
+      current_version = get_version_number(xcodeproj: "spezhe.xcodeproj", target: "spezhe")
+
+      if current_version.include?(".") && current_version.start_with?(current_year)
+        # Same year, increment the counter
+        parts = current_version.split(".")
+        new_counter = parts[1].to_i + 1
+        new_version = "#{current_year}.#{new_counter}"
+      else
+        # New year or different format, start fresh
+        new_version = "#{current_year}.1"
+      end
+    end
+
+    increment_version_number(
+      xcodeproj: "spezhe.xcodeproj",
+      version_number: new_version
+    )
+
+    commit_version_bump(
+      xcodeproj: "spezhe.xcodeproj",
+      message: "Bump version to #{new_version}",
+      force: true
+    )
+    push_to_git_remote
+
+    UI.success("Marketing version bumped to #{new_version}")
+  end
+
+  desc "Push a new beta build to TestFlight"
+  lane :beta do
+    app_store_connect_api_key()
+
+    increment_build_number(xcodeproj: "spezhe.xcodeproj")
+    new_build = get_build_number(xcodeproj: "spezhe.xcodeproj")
+
+    commit_version_bump(
+      xcodeproj: "spezhe.xcodeproj",
+      message: "Bump build number to #{new_build}",
+      force: true
+    )
+    push_to_git_remote
+
+    build_app(scheme: "spezhe", xcargs: "-skipPackagePluginValidation")
+    upload_to_testflight(
+      skip_waiting_for_build_processing: true
+    )
+  end
+
+  ####### Screenshots #######
+  desc "Make screenshots"
+  lane :screenshots do
+    snapshot(
+      project: "spezhe.xcodeproj",
+      scheme: "spezhe"
+    )
+  end
+
+  ####### Metadata #######
+  desc "Upload Metadata"
+  lane :upload_metadata_and_screenshots do
+    api_key = app_store_connect_api_key()
+
+    deliver(
+      api_key: api_key,
+      automatic_release: false,
+      overwrite_screenshots: true,
+      skip_metadata: false,
+      skip_screenshots: false,
+      skip_binary_upload: true,
+      skip_app_version_update: true
+    )
+  end
+
+  desc "Upload Metadata Skip Screenshots"
+  lane :upload_metadata do
+    api_key = app_store_connect_api_key()
+
+    deliver(
+      api_key: api_key,
+      automatic_release: false,
+      skip_metadata: false,
+      skip_screenshots: true,
+      skip_binary_upload: true,
+      skip_app_version_update: true,
+      force: true
+    )
+  end
+
+  ####### Direct Distribution (DMG) #######
+  desc "Build, notarize, and create DMG for direct distribution. Options: bump_marketing:true to bump marketing version"
+  lane :dmg do |options|
+    # Configuration
+    app_name = "Spezhe"
+    scheme = "spezhe"
+    project = "spezhe.xcodeproj"
+    output_dir = "build"
+    sparkle_sign_tool = "App/.build/artifacts/sparkle/Sparkle/bin/sign_update"
+    developer_id_identity = ENV["SPEZHE_DEVELOPER_IDENTITY"]
+    notary_profile = ENV.fetch("SPEZHE_NOTARY_PROFILE", "AC_PASSWORD")
+    github_repo = ENV.fetch("SPEZHE_GITHUB_REPO", "hoyelam/spezhe-site")
+
+    UI.user_error!("Set SPEZHE_DEVELOPER_IDENTITY to your Developer ID signing identity before running the dmg lane.") if developer_id_identity.to_s.empty?
+
+    # Bump marketing version if requested (YYYY.N format)
+    if options[:bump_marketing]
+      current_year = Time.now.year.to_s
+      current_version = get_version_number(xcodeproj: project, target: scheme)
+
+      if current_version.include?(".") && current_version.start_with?(current_year)
+        parts = current_version.split(".")
+        new_counter = parts[1].to_i + 1
+        new_version = "#{current_year}.#{new_counter}"
+      else
+        new_version = "#{current_year}.1"
+      end
+
+      increment_version_number(xcodeproj: project, version_number: new_version)
+      UI.success("Marketing version bumped to #{new_version}")
+    end
+
+    # Always bump build number
+    increment_build_number(xcodeproj: project)
+    new_build = get_build_number(xcodeproj: project)
+    UI.success("Build number bumped to #{new_build}")
+
+    # Commit version bump
+    version = get_version_number(xcodeproj: project, target: scheme)
+    commit_version_bump(
+      xcodeproj: project,
+      message: "Bump to v#{version} (#{new_build}) for DMG release",
+      force: true
+    )
+    push_to_git_remote
+
+    # Get final version info
+    build = get_build_number(xcodeproj: project)
+    dmg_name = "#{app_name}-#{version}.dmg"
+
+    UI.message("Building #{app_name} v#{version} (#{build}) for direct distribution...")
+
+    # Clean output directory
+    sh("rm -rf ../#{output_dir}")
+    sh("mkdir -p ../#{output_dir}")
+
+    # Build and archive for Developer ID distribution
+    # Note: The exported app will be named "spezhe.app" (lowercase, matching scheme)
+    build_app(
+      scheme: scheme,
+      project: project,
+      output_directory: output_dir,
+      export_method: "developer-id",
+      export_options: "fastlane/ExportOptions.plist",
+      xcargs: "-skipPackagePluginValidation"
+    )
+
+    # Rename app to have proper capitalization
+    sh("cd .. && mv '#{output_dir}/spezhe.app' '#{output_dir}/#{app_name}.app'")
+    app_path = "#{output_dir}/#{app_name}.app"
+
+    # Re-sign the entire app bundle with Developer ID certificate
+    # This ensures all nested frameworks (like Sparkle) are properly signed
+    # IMPORTANT: Must include --entitlements to preserve microphone/sandbox permissions
+    UI.message("Re-signing app bundle with Developer ID certificate...")
+    entitlements_path = "spezhe/spezhe.entitlements"
+    sh("cd .. && codesign --deep --force --options runtime --timestamp --entitlements '#{entitlements_path}' --sign '#{developer_id_identity}' '#{app_path}'")
+
+    # Create DMG using create-dmg (install with: brew install create-dmg)
+    UI.message("Creating DMG...")
+    dmg_path = "#{output_dir}/#{dmg_name}"
+
+    # Check if create-dmg is installed
+    create_dmg_installed = system("which create-dmg > /dev/null 2>&1")
+
+    if create_dmg_installed
+      sh("cd .. && create-dmg \
+        --volname '#{app_name}' \
+        --window-pos 200 120 \
+        --window-size 600 400 \
+        --icon-size 100 \
+        --icon '#{app_name}.app' 150 190 \
+        --app-drop-link 450 185 \
+        '#{dmg_path}' \
+        '#{app_path}'")
+    else
+      UI.important("create-dmg not found, using hdiutil instead (install with: brew install create-dmg)")
+      sh("cd .. && hdiutil create -volname '#{app_name}' -srcfolder '#{app_path}' -ov -format UDZO '#{dmg_path}'")
+    end
+
+    # Notarize the DMG using notarytool with stored credentials
+    UI.message("Notarizing DMG (this may take a few minutes)...")
+    sh("cd .. && xcrun notarytool submit '#{dmg_path}' --keychain-profile '#{notary_profile}' --wait")
+
+    # Staple the notarization ticket
+    UI.message("Stapling notarization ticket...")
+    sh("cd .. && xcrun stapler staple '#{dmg_path}'")
+
+    # Sign with Sparkle EdDSA key
+    UI.message("Signing with Sparkle EdDSA key...")
+    signature_output = sh("cd .. && '#{sparkle_sign_tool}' '#{dmg_path}'")
+
+    # Extract signature and file size for appcast
+    file_size = File.size("../#{dmg_path}")
+
+    # GitHub Release URL (hosted on GitHub Releases, not Pages)
+    download_url = "https://github.com/#{github_repo}/releases/download/v#{version}/#{dmg_name}"
+
+    UI.success("=" * 60)
+    UI.success("DMG created successfully: #{dmg_path}")
+    UI.success("=" * 60)
+
+    # Create GitHub Release and upload DMG (requires gh CLI)
+    if options[:upload] != false
+      gh_path = `which gh 2>/dev/null`.strip
+      if gh_path.empty?
+        UI.important("GitHub CLI (gh) not installed. Skipping automatic upload.")
+        UI.important("Install with: brew install gh")
+        UI.important("Then manually upload the DMG to GitHub Releases.")
+      else
+        UI.message("Creating GitHub Release and uploading DMG...")
+        sh("cd .. && '#{gh_path}' release create v#{version} '#{dmg_path}' \
+          --repo #{github_repo} \
+          --title 'Spezhe #{version}' \
+          --notes 'Spezhe version #{version}' \
+          --draft")
+        UI.success("GitHub Release created (as draft): https://github.com/#{github_repo}/releases/tag/v#{version}")
+      end
+    end
+
+    # Generate appcast item
+    appcast_item = <<~APPCAST
+      <item>
+        <title>Version #{version}</title>
+        <sparkle:version>#{build}</sparkle:version>
+        <sparkle:shortVersionString>#{version}</sparkle:shortVersionString>
+        <sparkle:minimumSystemVersion>14.0</sparkle:minimumSystemVersion>
+        <description><![CDATA[
+          <h2>What's New in #{version}</h2>
+          <ul>
+            <li>Update release notes here</li>
+          </ul>
+        ]]></description>
+        <pubDate>#{Time.now.strftime('%a, %d %b %Y %H:%M:%S %z')}</pubDate>
+        <enclosure
+          url="#{download_url}"
+          #{signature_output.strip}
+          length="#{file_size}"
+          type="application/octet-stream"/>
+      </item>
+    APPCAST
+
+    UI.message("")
+    UI.message("Add this to spezhe-site/appcast.xml (at the TOP of the channel):")
+    UI.message("")
+    puts appcast_item
+    UI.message("")
+    UI.important("Next steps:")
+    UI.important("1. Edit the release notes in the appcast item above")
+    UI.important("2. Add it to spezhe-site/appcast.xml")
+    UI.important("3. Publish the draft release on GitHub")
+    UI.important("4. Push the appcast.xml changes to deploy")
+  end
+end

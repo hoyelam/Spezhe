@@ -7,8 +7,6 @@ struct ProfileEditorView: View {
     @State private var modelName: String
     @State private var useCustomLanguage: Bool
     @State private var language: String
-    @State private var useCustomPrompt: Bool
-    @State private var customPrompt: String
     @StateObject private var modelManager = ModelManagerService.shared
 
     private let originalProfile: TranscriptionProfile
@@ -46,8 +44,6 @@ struct ProfileEditorView: View {
         _modelName = State(initialValue: profile.modelName ?? WhisperModel.defaultModel.name)
         _useCustomLanguage = State(initialValue: profile.language != nil && profile.language != "auto")
         _language = State(initialValue: profile.language ?? "auto")
-        _useCustomPrompt = State(initialValue: profile.customPrompt != nil)
-        _customPrompt = State(initialValue: profile.customPrompt ?? "")
     }
 
     var body: some View {
@@ -130,31 +126,6 @@ struct ProfileEditorView: View {
                     }
                 }
 
-                Section {
-                    Toggle(L10n.ProfileEditor.customPromptToggle, isOn: $useCustomPrompt)
-
-                    if useCustomPrompt {
-                        TextEditor(text: $customPrompt)
-                            .frame(minHeight: 80)
-                            .font(.system(.body, design: .monospaced))
-                            .scrollContentBackground(.hidden)
-                            .padding(8)
-                            .background(Color(nsColor: .textBackgroundColor))
-                            .cornerRadius(6)
-                            .overlay(
-                                RoundedRectangle(cornerRadius: 6)
-                                    .stroke(Color.gray.opacity(0.3), lineWidth: 1)
-                            )
-                    }
-                } header: {
-                    Text(L10n.ProfileEditor.aiPostProcessingHeader)
-                } footer: {
-                    if useCustomPrompt {
-                        Text(L10n.ProfileEditor.customPromptDescription)
-                            .font(.caption)
-                            .foregroundColor(.secondary)
-                    }
-                }
             }
             .formStyle(.grouped)
             .scrollContentBackground(.hidden)
@@ -200,9 +171,6 @@ struct ProfileEditorView: View {
             updatedProfile.modelName = nil
         }
         updatedProfile.language = useCustomLanguage ? language : nil
-        updatedProfile.customPrompt = useCustomPrompt && !customPrompt.trimmingCharacters(in: .whitespaces).isEmpty
-            ? customPrompt.trimmingCharacters(in: .whitespaces)
-            : nil
         updatedProfile.updatedAt = Date()
 
         if onSave(updatedProfile) {

@@ -15,7 +15,6 @@ public struct Recording: Codable, Identifiable, Equatable, Hashable {
     public var modelUsed: String
     public var fileSize: Int64
     public var profileId: Int64?
-    public var processedText: String?
 
     public init(
         id: Int64? = nil,
@@ -30,8 +29,7 @@ public struct Recording: Codable, Identifiable, Equatable, Hashable {
         wordCount: Int,
         modelUsed: String,
         fileSize: Int64,
-        profileId: Int64? = nil,
-        processedText: String? = nil
+        profileId: Int64? = nil
     ) {
         self.id = id
         self.title = title
@@ -46,7 +44,6 @@ public struct Recording: Codable, Identifiable, Equatable, Hashable {
         self.modelUsed = modelUsed
         self.fileSize = fileSize
         self.profileId = profileId
-        self.processedText = processedText
     }
 
     public mutating func generateDefaultTitle() {

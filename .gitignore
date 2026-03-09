@@ -57,6 +57,7 @@ fastlane/report.xml
 fastlane/Preview.html
 fastlane/screenshots/**/*.png
 fastlane/test_output
+fastlane/.env*
 
 # IDE
 .idea/
@@ -73,3 +74,5 @@ vendor/bundle/
 *.dSYM
 spezhe.app
 spezhe.pkg
+build/
+.learnings/

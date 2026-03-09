@@ -43,12 +43,6 @@ public class ModelManagerService: ObservableObject {
         let totalBytes = ModelManagerService.estimatedTotalBytes(for: model)
         downloadProgress[model.name] = ModelDownloadProgress(fractionCompleted: 0, totalBytes: totalBytes)
 
-        let startTime = Date()
-        AnalyticsService.shared.track(.modelDownloadStarted, properties: [
-            "model_name": model.name,
-            "size_description": model.sizeDescription
-        ])
-
         do {
             logDebug("Downloading model via WhisperKit...", category: .model)
             _ = try await WhisperKit.download(variant: model.name, progressCallback: { progress in
@@ -60,25 +54,12 @@ public class ModelManagerService: ObservableObject {
                 }
             })
 
-            let downloadTime = Date().timeIntervalSince(startTime)
             downloadProgress.removeValue(forKey: model.name)
             downloadedModels.insert(model.name)
-            logInfo("Model '\(model.name)' downloaded successfully in \(String(format: "%.2f", downloadTime)) seconds", category: .model)
-            AnalyticsService.shared.track(.modelDownloadCompleted, properties: [
-                "model_name": model.name,
-                "size_description": model.sizeDescription,
-                "download_duration_sec": downloadTime
-            ])
+            logInfo("Model '\(model.name)' downloaded successfully", category: .model)
         } catch {
             downloadProgress.removeValue(forKey: model.name)
             logError("Failed to download model '\(model.name)': \(error.localizedDescription)", category: .model)
-            let nsError = error as NSError
-            AnalyticsService.shared.track(.modelDownloadFailed, properties: [
-                "model_name": model.name,
-                "size_description": model.sizeDescription,
-                "error_domain": nsError.domain,
-                "error_code": nsError.code
-            ])
             throw ModelManagerError.downloadFailed(error.localizedDescription)
         }
     }

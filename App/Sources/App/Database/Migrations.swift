@@ -41,5 +41,15 @@ struct AppMigrations {
                 t.add(column: "processedText", .text)
             }
         }
+
+        migrator.registerMigration("v4_removeAnthropicProcessingColumns") { db in
+            try db.alter(table: "transcription_profiles") { t in
+                t.drop(column: "customPrompt")
+            }
+
+            try db.alter(table: "recordings") { t in
+                t.drop(column: "processedText")
+            }
+        }
     }
 }
